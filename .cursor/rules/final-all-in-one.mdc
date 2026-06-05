@@ -1,0 +1,695 @@
+智能全栈项目生成器｜最终终极完整版（含一键启动脚本+AI代码规划文件+.cursorrules）
+---
+alwaysApply: true
+---
+# 智能全栈项目生成器｜最终终极完整版
+
+> **全局模板（唯一真源）**：`~/.cursor/templates/fullstack-rules/`
+> **全局规则（任意窗口生效）**：`~/.cursor/rules/`（含本文件的副本，alwaysApply）
+> **复制到项目**：`& "$env:USERPROFILE\.cursor\scripts\init-cursor-rules.ps1"`
+> **用户默认值**：`~/.cursor/user-defaults.env`
+
+## 触发指令：我要创建新项目
+## 核心能力
+1. 智能技术选型（小白无需懂技术，AI自动推荐最优栈）
+2. 超详细完整项目目录结构（Vue3 / React / SpringBoot / FastAPI / Express）
+3. 自动生成全套可生效规范配置文件（含.cursorrules核心规则文件）
+4. 内置完整登录、注册、用户模块、JWT鉴权、全局异常、统一返回
+5. 支持 MySQL / PostgreSQL / SQLite 三数据库自动适配
+6. 自动输出数据库建表语句、后端配置、完整启动运行步骤
+7. 严格统一命名、分层、代码规范，无占位符、可直接运行
+8. 自动生成跨系统一键启动脚本，无需手动输入多步命令
+9. 自动生成AI开发项目代码规划相关文件，明确代码设计、开发规范和实施路径
+10. 自动生成 GitHub 推送即发布（CI/CD）全套部署文件，并初始化 Git 仓库、创建远程仓库、建立分支体系
+11. 自动调用 **ui-ux-pro-max** 技能生成页面设计系统（`design-system/MASTER.md` + `tokens.css`）
+12. 按 **skills-router.mdc** 流水线挂载：api-contract-sync、secrets-guard、release-notes、seo-blog、e2e-playwright
+---
+# 一、标准交互流程（AI 强制执行）
+
+## 1.0 对话式原则（最高优先级，覆盖一切）
+
+用户只需说想做什么项目（如「我要创建一个博客」），AI **像产品经理一样逐步引导**，而不是甩表格。
+
+**必须遵守：**
+- **每次只问 1 个问题**，等用户回答后再问下一个
+- **禁止**一次性列出多张表格、多字段清单、填表模板
+- **禁止**把步骤 1～3 的所有字段合并成一条消息抛出
+- 从用户描述中**主动推断**已知信息（如「博客」→ 用途已明确），只追问缺失项
+- 可提供 2～4 个选项供点选，但**一条消息里只有一个主问题**
+- 用户说「跳过」「稍后」「默认」时，用规则中的默认值继续下一问
+- 语气自然、简短，像聊天不像工单
+
+**错误示例（禁止）：**
+> 请补充以下信息：【表格：项目名、用途、规模、GitHub、服务器…】
+
+**正确示例：**
+> 好的，博客项目！我先帮你起个名：`my-blog`，可以吗？或者你想叫什么？
+
+---
+
+## 1.1 用户固定默认值（已保存，禁止重复询问）
+
+读取 `~/.cursor/templates/fullstack-rules/user-defaults.env`，以下值**直接使用**，不要再问用户：
+
+| 字段 | 固定值 |
+|------|--------|
+| GitHub 用户名/组织 | **`follower-ding`**（统一固定，不再询问） |
+| 仓库可见性 | `public`（用户未特别声明时用此默认） |
+| 是否建远程仓库 | `是` |
+| 服务器 IP | `49.235.172.214` |
+| SSH 用户 | `iume` |
+| 部署路径 | `/opt/<项目名>/deploy` |
+
+仅当用户明确说「换 GitHub 账号」「用 private」「换服务器」等时才重新询问对应项。
+
+---
+
+## 1.2 对话收集顺序（逐步进行，不可跳步合并）
+
+按轮次**一次一问**，前一轮未回答时不进入下一轮。**跳过已保存在 user-defaults.env 的 GitHub/部署项，不再单独提问。**
+
+| 轮次 | 主题 | 问什么 | 默认值 / 推断 |
+|------|------|--------|---------------|
+| ① | 项目名 | 仅当用户未给出时问；可从用途建议（博客→`my-blog`） | 短横线小写 |
+| ② | 用途细化 | 核心功能（如文章 CRUD、标签、评论、搜索） | 从「博客」等关键词推断后确认 |
+| ③ | 规模 | 小型 / 中型 / 大型 | 博客默认小型 |
+| ④ | 技术偏好 | 有无指定栈；无则说「我来推荐」 | 无偏好 → AI 推荐 |
+| ⑤ | 数据库 | MySQL / PostgreSQL / SQLite | 中型默认 MySQL |
+| ~~⑥~~ | ~~GitHub 账号~~ | **禁止询问** | 固定 `follower-ding` |
+| ~~⑦~~ | ~~仓库可见性~~ | 仅当用户要改时问 | 默认 `public` |
+| ~~⑧~~ | ~~是否建远程仓库~~ | **禁止询问** | 默认 `是` |
+| ~~⑨~~ | ~~服务器部署~~ | 仅当用户要改时问 | 默认见 user-defaults.env |
+
+**信息收齐后**才进入技术选型推荐，不得提前生成代码。
+
+---
+
+## 1.3 技术选型（对话确认后）
+
+收齐基本信息后，**单独一条消息**输出推荐方案：
+- 推荐前端 / 后端 / 数据库
+- 推荐理由 + 优缺点
+- 问：「确认用这个方案吗？要换可以说。」
+
+等用户确认 / 重新推荐后，再进入生成阶段。
+
+---
+
+## 1.4 生成阶段（确认后一次性执行）
+
+确认技术栈后，**严格按 `skills-router.mdc` 流水线**生成：
+
+| 步骤 | Skill | 产出 |
+|------|-------|------|
+| ① | `ui-ux-pro-max` | design-system/MASTER.md + tokens.css |
+| ② | [生成] | 前后端代码 + SQL + 配置 + .cursorrules |
+| ③ | `api-contract-sync` | scripts/sync-api-types.ps1 |
+| ④ | `secrets-guard` | scripts/check-secrets.ps1 + .gitignore |
+| ⑤ | `release-notes` | RELEASE.md 模板 |
+| ⑥ | `seo-blog` | 博客类：sitemap/robots/PageMeta（自动识别） |
+| ⑦ | `e2e-playwright` | 中型+：playwright + e2e/*.spec.ts |
+| ⑧ | `project-github-cd` | deploy/ + .github/workflows/ |
+| ⑨ | `secrets-guard` | push 前 check-secrets |
+
+一次性完整输出：
+项目目录 + 全部配置文件源码（含.cursorrules） + 核心业务代码 + 数据库SQL + 依赖安装 + 启动命令 + 数据库连接步骤 + 一键启动脚本 + AI开发项目代码规划文件 + **GitHub CI/CD 部署全套** + **技能脚本** + **Git 初始化与分支创建**
+
+生成完成后，**自动执行 Git 与 GitHub 初始化**（用户已提供 GitHub 信息时）：
+- `git init -b main` → 初始 commit
+- `gh repo create <项目名> --private --source=. --remote=origin`（有 gh 且用户确认）
+- `git push -u origin main`
+- `git checkout -b develop && git push -u origin develop`
+- 输出后续 3 步：填 `deploy/repo.env` + 服务器 `deploy/.env` → 配 GitHub Secrets → Ubuntu 首次 `docker compose up`
+
+---
+# 二、全局统一命名规范
+1. 根目录：项目名（小写短横线）
+2. 前端目录：项目名-frontend
+3. 后端目录：项目名-backend
+4. 数据库名：项目名_db
+5. 包名/文件/类名严格遵循各技术栈编码规范
+6. 禁止 demo、test、xxx 等无效占位名称
+7. AI代码规划相关文件统一命名，放置在项目根目录，命名格式：项目名-ai-code-plan.md
+8. .cursorrules 文件：放置在项目根目录，文件名固定为.cursorrules（无后缀，小写），不可修改文件名和存放路径，确保Cursor AI能自动识别并执行规则[2]
+---
+# 三、前端通用强制生成内容（Vue3 / React）
+## 必生成规范文件
+.eslintrc.cjs
+.prettierrc
+.editorconfig
+.gitignore
+.env.development
+.env.production
+vite.config.js
+package.json
+README.md
+CODING_STANDARD.md
+## AI开发相关补充要求（前端）
+1.  在前端src/utils目录下新增ai-utils.js文件，封装AI相关工具函数（如AI接口请求、数据格式化、模型调用适配等）
+2.  若项目涉及AI交互页面（如AI对话、AI生成功能），需在pages目录下新增ai模块，包含对应页面组件和逻辑
+## 必生成业务内容
+Axios 完整封装（请求拦截+响应拦截+错误处理）
+全局路由守卫、Token 缓存、权限控制
+登录页面、首页、用户管理页面
+用户状态管理、全局样式重置、工具函数
+5. AI相关工具函数、页面组件及交互逻辑（按需适配项目AI功能）
+## Vue3 完整目录
+项目名-frontend/
+├── public/
+├── src/
+│   ├── api/
+│   │   └── ai-api.js        # AI相关接口请求封装
+│   ├── assets/
+│   │   ├── images/
+│   │   ├── styles/
+│   │   └── icons/
+│   ├── components/common / business
+│   │   └── ai/              # AI相关公共组件（如AI加载组件、对话组件）
+│   ├── hooks/
+│   │   └── useAi.js         # AI相关自定义钩子（如模型调用、结果处理）
+│   ├── layouts/
+│   ├── pages/login / home / user
+│   ├── pages/ai/            # AI功能页面（按需生成）
+│   ├── router/
+│   ├── store/
+│   ├── utils/request、auth、format、validate
+│   ├── utils/ai-utils.js    # AI相关工具函数
+│   ├── types/
+│   │   └── ai-types.ts      # AI相关类型定义（TS项目必含）
+│   ├── App.vue
+│   └── main.js
+├── 全部规范配置文件
+└── 启动/打包脚本
+## React 完整目录
+项目名-frontend/
+├── public/
+├── src/
+│   ├── api/
+│   │   └── ai-api.js        # AI相关接口请求封装
+│   ├── assets/
+│   ├── components/
+│   │   └── ai/              # AI相关公共组件（如AI加载组件、对话组件）
+│   ├── hooks/
+│   │   └── useAi.js         # AI相关自定义钩子（如模型调用、结果处理）
+│   ├── layouts/
+│   ├── pages/
+│   │   └── ai/              # AI功能页面（按需生成）
+│   ├── routes/
+│   ├── store/
+│   ├── utils/
+│   │   └── ai-utils.js      # AI相关工具函数
+│   ├── types/
+│   │   └── ai-types.ts      # AI相关类型定义（TS项目必含）
+│   ├── App.jsx
+│   └── main.jsx
+├── 全套规范文件
+└── 环境变量&跨域配置
+## 前端统一启动步骤
+cd 项目名-frontend
+npm install
+npm run dev
+访问：http://localhost:5173
+---
+# 四、后端通用强制生成内容
+## 必生成规范&配置文件
+.yml / .env 环境配置
+依赖配置文件（pom.xml / requirements.txt / package.json）
+.gitignore、CODING_STANDARD.md、README.md
+跨域配置、全局异常、统一返回结果、JWT工具类、Swagger接口文档配置
+## AI开发相关补充配置文件（后端）
+1. AI模型配置文件：ai-config.yml（SpringBoot）/ ai_config.py（FastAPI）/ ai-config.js（Express），配置模型地址、调用密钥、超时时间等
+2. AI相关依赖：自动在依赖配置文件中添加AI模型调用、数据处理相关依赖（如openai、langchain等）
+3. Swagger相关依赖：SpringBoot项目自动添加springdoc-openapi相关依赖，无需手动导入，确保接口文档可正常访问
+## 必生成业务模块
+用户注册、登录、JWT认证、密码加密
+用户信息查询、基础权限控制
+RESTful 规范接口、参数校验
+4. AI相关业务模块：AI模型调用接口、AI结果处理、AI权限控制、AI日志记录
+## SpringBoot 完整分层结构
+com.项目名/
+├── 启动类
+├── config/ 跨域、web、jwt、mybatis、Swagger接口文档配置
+│   ├── SwaggerConfig.java     # Swagger接口文档配置类（配置接口分组、全局参数、接口描述）
+│   └── AiConfig.java        # AI模型配置类
+├── controller/ 用户、通用接口
+│   └── AiController.java    # AI相关接口控制器
+├── service / service.impl
+│   ├── AiService.java       # AI业务逻辑接口
+│   └── AiServiceImpl.java   # AI业务逻辑实现
+├── mapper/
+│   └── AiLogMapper.java     # AI调用日志Mapper
+├── entity/ 基础实体+用户实体
+│   └── AiLog.java           # AI调用日志实体类
+├── dto / vo
+│   ├── AiRequestDto.java    # AI请求参数DTO
+│   └── AiResponseVo.java    # AI响应结果VO
+├── common/result、exception、constants、注解
+│   └── ai/                  # AI相关通用类（异常、常量等）
+├── utils/ jwt、密码、日期、字符串工具
+│   └── AiUtils.java         # AI相关工具类（模型调用、数据转换）
+├── interceptor/ JWT拦截器
+│   └── AiInterceptor.java   # AI接口拦截器（权限、限流）
+└── resources/ 多环境yml、mapperxml
+    └── ai-config.yml        # AI模型配置文件
+## Swagger接口文档配置说明（SpringBoot专属）
+1.  自动生成SwaggerConfig.java配置类，配置接口文档标题、版本、作者、接口分组（按模块分组：用户模块、AI模块、通用模块）
+2.  全局配置：自动添加JWT Token请求头参数，无需手动在每个接口添加，适配权限校验
+3.  接口说明：所有Controller接口、方法、参数自动生成注释，清晰标注接口功能、请求方式、参数含义、返回结果
+4.  访问地址：项目启动后，访问 http://localhost:后端端口/swagger-ui/index.html 即可查看、调试所有接口
+5.  环境适配：开发环境自动启用Swagger，生产环境自动关闭，避免泄露接口信息
+    └── ai-config.yml        # AI模型配置文件
+## FastAPI 完整分层结构
+app/
+├── main.py
+├── config/
+│   └── ai_config.py         # AI模型配置文件
+├── api/v1/ 路由分组
+│   └── ai.py               # AI相关接口路由
+├── service/ 业务逻辑
+│   └── ai_service.py       # AI业务逻辑处理
+├── models/ 数据库模型
+│   └── ai_log.py           # AI调用日志模型
+├── schemas/ 数据校验
+│   ├── ai_request.py       # AI请求参数校验
+│   └── ai_response.py      # AI响应结果校验
+├── crud/ 数据库操作
+│   └── ai_crud.py          # AI日志相关CRUD操作
+├── common/ 统一返回、异常
+│   └── ai/                  # AI相关通用类（异常、常量等）
+└── utils/ 工具类
+    └── ai_utils.py          # AI相关工具类（模型调用、数据转换）
+## Express 完整分层结构
+src/
+├── app.js
+├── config/
+│   └── ai-config.js         # AI模型配置文件
+├── routes/
+│   └── ai.routes.js        # AI相关接口路由
+├── controllers/
+│   └── ai.controller.js     # AI相关接口控制器
+├── services/
+│   └── ai.service.js        # AI业务逻辑处理
+├── models/
+│   └── ai-log.model.js      # AI调用日志模型
+├── middleware/ 全局中间件
+├── common/
+└── utils/
+    └── ai-utils.js          # AI相关工具类
+---
+# 五、三数据库自动适配 SQL
+## MySQL
+CREATE DATABASE 项目名_db DEFAULT CHARSET utf8mb4;
+包含：sys_user、sys_role、sys_user_role 完整表结构 + 索引
+## PostgreSQL
+CREATE DATABASE 项目名_db;
+对应适配字段类型、自增、时间函数
+## SQLite
+单文件数据库，无需服务，轻量化建表语句
+---
+# 六、内置全套规范文件固定内容（自动写入）
+## .editorconfig
+root = true
+[*]
+indent_style = space
+indent_size = 2
+charset = utf-8
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = true
+## .prettierrc
+{
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 120
+}
+## .eslintrc.cjs
+标准前端校验规则，适配Vue/React，关闭无用校验，适配开发规范
+## 全局 .gitignore
+覆盖 Java / Python / Node / 前端 全部忽略规则
+## .cursorrules（核心规则文件，强制生成，固定内容）
+# .cursorrules - 智能全栈项目统一AI编码约束规则
+# 作用：约束Cursor AI生成代码的风格、规范、完整性，确保符合项目全局要求，降低沟通成本，提升交付一致性
+rules:
+  - name: 基础编码规范（全局通用）
+    description: 所有技术栈通用的基础代码规范，确保代码整洁、可维护
+    patterns: ("*.java", "*.js", "*.ts", "*.tsx", "*.vue", "*.py", "*.yml", "*.xml")
+    commands:
+      - "不要生成冗余的import/导入语句，按需导入，禁止导入未使用的包/模块"
+      - "变量名使用驼峰命名，类名使用大驼峰命名，常量使用全大写下划线分隔，禁止使用拼音、无意义命名"
+      - "方法/函数长度尽量<50行，超长需拆分，保持单一职责，禁止一个方法处理多个逻辑"
+      - "避免硬编码，所有固定值、配置项提取为常量或配置文件，便于后期维护"
+      - "生成的代码必须100%可直接编译/运行，无伪代码、无占位符，禁止省略核心逻辑和依赖"
+      - "注释规范：公共方法/类必须写完整注释（Javadoc/Docstring），复杂逻辑需加行内注释解释原因，不解释代码本身"
+  - name: 前端编码规则（Vue3/React）
+    description: 适配Vue3、React技术栈，统一前端代码风格和开发规范
+    patterns: ("*.vue", "*.js", "*.ts", "*.tsx", "*.jsx")
+    commands:
+      - "Vue3优先使用组合式API（setup语法糖），React优先使用函数组件+自定义Hooks，禁止使用class组件（特殊场景除外）"
+      - "props和state必须定义明确类型，禁止使用any类型，TS项目严格遵循类型规范"
+      - "Axios请求统一封装，请求/响应拦截器必须实现，包含Token携带、错误统一处理、加载状态提示"
+      - "UI元素语义化，禁止滥用div标签，组件拆分合理，通用组件提取到common目录，业务组件放到business目录"
+      - "全局布局：AppShell + AppSidebar（后台必须侧栏）；tokens.css 设计令牌；页面用 .page/.page-header/.surface-card/.btn"
+      - "页面设计前必须执行 ui-ux-pro-max skill 生成 design-system/MASTER.md，禁止跳过"
+      - "全局样式统一管理，使用样式变量，避免内联样式，适配响应式布局"
+      - "AI相关前端代码：统一调用ai-api.js接口、ai-utils.js工具函数，useAi.js钩子统一管理AI相关状态和逻辑"
+  - name: 后端编码规则（SpringBoot/FastAPI/Express）
+    description: 适配后端所有技术栈，遵循分层架构，统一接口和业务逻辑规范
+    patterns: ("*.java", "*.py", "*.js", "*.yml", "*.xml")
+    commands:
+      - "严格遵循分层架构：Controller（请求校验/转发）→ Service（业务逻辑）→ Dao/Mapper/CRUD（数据操作），禁止跨层调用"
+      - "接口遵循RESTful规范，统一返回Result/Response封装对象，包含code、message、data、timestamp字段，异常统一捕获处理"
+- "SpringBoot项目：优先使用Stream/Lambda表达式，实体类使用Lombok简化代码（@Data、@Builder等），参数校验使用@Valid+Bean Validation，自动配置Swagger接口文档，确保接口可调试、可查看"
+      - "FastAPI项目：遵循PEP8规范，使用type hints，文件操作用pathlib，日志用logging，避免裸except捕获异常"
+      - "Express项目：中间件分层合理，路由统一管理，数据库操作抽离到service层，避免在controller层直接操作数据库"
+      - "AI相关后端代码：统一读取ai-config配置文件，AI接口添加权限校验和限流，所有AI调用记录日志，异常单独捕获处理"
+  - name: 数据库操作规范
+    description: 统一数据库操作风格，避免数据安全问题和性能隐患
+    patterns: ("*.sql", "*.java", "*.py", "*.js")
+    commands:
+      - "SQL语句规范：关键字大写，表名、字段名小写，避免使用关键字命名，添加必要索引提升查询性能"
+      - "禁止拼接SQL语句，使用参数绑定/预编译，防止SQL注入攻击"
+      - "批量操作需分页/分片处理，避免一次拉取过多数据导致性能问题，分页查询默认pageSize≤1000"
+      - "数据库表必须包含基础字段（id、createTime、updateTime、isDeleted），统一逻辑删除，避免物理删除"
+  - name: AI开发专项规范
+    description: 针对AI相关代码的专项约束，确保AI模块可维护、可扩展
+    patterns: ("*.java", "*.py", "*.js", "*.ts", "*.vue", "*.jsx")
+    commands:
+      - "AI模型调用统一封装到工具类（AiUtils.java/ai_utils.py/ai-utils.js），禁止在业务逻辑中直接调用模型接口"
+      - "AI请求参数和响应结果必须做校验，适配不同模型的参数格式，异常信息清晰，便于排查问题"
+      - "AI调用日志必须完整，包含请求参数、响应结果、调用时间、调用者、耗时等信息，便于追溯和优化"
+      - "AI相关配置（模型地址、密钥、超时时间）统一放在专属配置文件，禁止硬编码到代码中"
+  - name: 测试与文档规范
+    description: 确保代码可测试、文档完整，降低后期维护成本
+    patterns: ("*.java", "*.py", "*.js", "*.ts", "*.md")
+    commands:
+      - "生成新功能代码时，必须同时生成单元测试示例，覆盖正常场景、异常场景、边界场景"
+      - "测试方法命名采用should_xxx_when_xxx格式，清晰体现测试场景和预期结果"
+      - "README.md必须包含项目介绍、技术栈、启动步骤、目录说明、常见问题，内容完整无占位符"
+      - "CODING_STANDARD.md必须包含项目编码规范、命名规范、分层规范，与.cursorrules规则保持一致"
+---
+# 七、一键启动项目脚本（自动生成，适配所选技术栈+操作系统）
+## 说明
+1.  脚本自动适配用户确认的前端+后端技术栈，无需手动修改
+2.  执行前确保：数据库服务已启动、环境变量（数据库账号密码等）配置正确
+3.  脚本可直接复制到终端/CMD执行，一键完成依赖安装+项目启动
+## （一）Windows 系统（CMD命令行，分技术栈）
+### 1. Vue3 + SpringBoot3 一键启动
+:: 新建CMD窗口1（启动前端）
+cd 项目名-frontend && npm install && npm run dev
+:: 新建CMD窗口2（启动后端+数据库初始化）
+cd 项目名-backend && mysql -u root -p你的密码 < sql/init.sql && mvn spring-boot:run
+### 2. React + FastAPI 一键启动
+:: 新建CMD窗口1（启动前端）
+cd 项目名-frontend && npm install && npm run dev
+:: 新建CMD窗口2（启动后端）
+cd 项目名-backend && pip install -r requirements.txt && uvicorn app.main:app --reload
+### 3. Vue3 + Express 一键启动
+:: 新建CMD窗口1（启动前端）
+cd 项目名-frontend && npm install && npm run dev
+:: 新建CMD窗口2（启动后端）
+cd 项目名-backend && npm install && npm run dev
+## （二）macOS / Linux 系统（终端，分技术栈）
+### 1. Vue3 + SpringBoot3 一键启动（后台运行，输出日志）
+# 启动前端，日志输出到frontend.log
+cd 项目名-frontend && npm install && npm run dev > frontend.log 2>&1 
+# 启动后端+数据库初始化，日志输出到backend.log
+cd 项目名-backend && mysql -u root -p你的密码 < sql/init.sql && mvn spring-boot:run > backend.log 2>&1 
+### 2. React + FastAPI 一键启动（后台运行）
+# 启动前端
+cd 项目名-frontend && npm install && npm run dev > frontend.log 2>&1 
+# 启动后端
+cd 项目名-backend && pip install -r requirements.txt && uvicorn app.main:app --reload > backend.log 2>&1 
+### 3. Vue3 + Express 一键启动（后台运行）
+# 启动前端
+cd 项目名-frontend && npm install && npm run dev > frontend.log 2>&1 
+# 启动后端
+cd 项目名-backend && npm install && npm run dev > backend.log 2>&1 
+## （三）通用补充说明
+1.  停止后台运行服务（macOS/Linux）：执行 killall node / killall java / killall uvicorn（根据启动的服务选择）
+2.  数据库密码替换：将脚本中的“你的密码”替换为自身数据库密码，避免泄露
+3.  端口冲突解决：若提示端口被占用，修改前端vite.config.js、后端配置文件中的端口后重新执行脚本
+4.  脚本适配所有最新技术栈版本，与Context7查询的最新启动命令保持一致
+---
+# 九、GitHub 仓库 + 分支 + 推送即发布（强制生成）
+
+> 参考实现：`super-ai-agent`（复制并替换项目名前缀）。详细约定见 `~/.cursor/skills/project-github-cd/SKILL.md`。
+
+## 9.1 必生成目录与文件
+
+```
+项目名/
+├── .github/workflows/
+│   ├── ci.yml              # push/PR 到 main|develop 编译检查
+│   └── cd.yml              # push main → build GHCR → SSH deploy
+├── deploy/
+│   ├── docker-compose.yml
+│   ├── docker-compose.prod.yml
+│   ├── docker-compose.images.yml
+│   ├── Dockerfile.backend
+│   ├── Dockerfile.frontend
+│   ├── nginx.conf
+│   ├── .env.example
+│   ├── repo.env.example
+│   ├── update.sh / update.ps1
+│   ├── scripts/apply-migrations.sh
+│   ├── AUTO-DEPLOY.md
+│   ├── CONFIG.md
+│   ├── GITHUB-CD.md
+│   └── INFO-CHECKLIST.md
+├── scripts/
+│   ├── github-push.ps1     # 读 deploy/repo.env，init + push
+│   └── setup-github.ps1    # gh auth + gh repo create + 调用 github-push
+├── .cursor/
+│   ├── rules/
+│   │   ├── git-branch-workflow.mdc
+│   │   └── deploy-iteration-notes.mdc
+│   ├── skills/                  # init 复制全套（见 skills-router.mdc）
+│   └── user-defaults.env
+├── scripts/
+│   ├── sync-api-types.ps1
+│   ├── check-secrets.ps1
+│   └── github-push.ps1
+├── RELEASE.md              # 版本迭代记录（每次 push CD 前更新）
+└── .gitignore              # 追加 deploy/.env, repo.env, .local/, data/, github.token
+```
+
+## 9.2 分支体系（创建时自动建立）
+
+| 分支 | 用途 | CD 触发 |
+|------|------|---------|
+| `main` | 生产发布、审查合并目标 | ✅ push 触发 CD |
+| `develop` | 日常集成分支 | ❌ 仅 CI |
+| `feat/*` | 新功能开发 | ❌ PR → main |
+| `fix/*` | Bug 修复 | ❌ PR → main |
+| `release/*` | 待发版集合 | ❌ 审查后 merge → main |
+
+**创建流程（AI 生成后自动执行）：**
+```bash
+git init -b main
+git add -A && git commit -m "chore: <项目名> v1.0.0 — initial scaffold + GitHub CD ready"
+# 有 gh CLI：
+gh repo create <项目名> --private --description "<项目用途>"
+git remote add origin https://github.com/<owner>/<项目名>.git
+git push -u origin main
+git checkout -b develop && git push -u origin develop
+```
+
+**无 gh CLI 时**：生成 `scripts/setup-github.ps1` + 提示用户网页创建空仓库后执行 `.\scripts\github-push.ps1`。
+
+## 9.3 CI/CD 核心约定
+
+- **ci.yml**：监听 `main` / `master` / `develop` 的 push 和 PR，编译前后端
+- **cd.yml**：仅 `push` 到 `main` / `master` 触发；build-push 到 `ghcr.io/<owner>/<项目名>-backend:<sha>` 与 `-web`；SSH deploy
+- **镜像名**：`<项目名>-backend`、`<项目名>-web`（替换 super-ai-agent 前缀）
+- **Dockerfile context**：`./项目名-backend`、`./项目名-frontend`
+- **健康检查**：后端必须提供免 JWT 的 `GET /api/health` → `{ "status": "UP", "version": "x.y.z" }`
+- **GitHub Secrets**：`DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `DEPLOY_PATH`, `GHCR_READ_TOKEN`
+
+## 9.4 setup-github.ps1 模板要求
+
+- 从 `deploy/repo.env.example` 读取 `GITHUB_REPO_URL`、`GITHUB_BRANCH`
+- 支持 `-Token ghp_xxx` 或 `deploy/github.token`（gitignore）
+- `gh repo create <项目名> --private`（仓库已存在则跳过）
+- 调用 `github-push.ps1` 完成 push
+- **禁止**硬编码特定用户名；用创建时收集的 GitHub 用户名/组织替换
+
+## 9.5 deploy/repo.env.example 模板
+
+```
+GITHUB_REPO_URL=https://github.com/follower-ding/<项目名>.git
+GITHUB_BRANCH=main
+```
+
+> GitHub 组织/用户名固定为 **`follower-ding`**，禁止再向用户确认。
+
+## 9.6 .gitignore 必须追加
+
+```
+deploy/.env
+deploy/repo.env
+deploy/github.token
+deploy/CONFIG.local.md
+deploy/backups/
+deploy/data/
+**/.local/
+**/data/uploads/
+node_modules/
+target/
+dist/
+```
+
+## 9.7 分支工作流规则（写入 .cursor/rules/git-branch-workflow.mdc）
+
+- **大脑（主对话）**：在 `main` 审查合并、触发 CD；不在 main 上堆未审查提交
+- **成员 Agent（新对话）**：从最新 `main` 拉 `feat/*` 或 `fix/*`，禁止直接 push `main`
+- **禁止提交**：`.env`、`ai-secrets.env`、`deploy_key`、API Key
+
+## 9.8 推送部署迭代备注（写入 .cursor/rules/deploy-iteration-notes.mdc）
+
+每次 push 触发 CD 前：
+1. commit message 含版本摘要 + 分模块迭代内容
+2. 更新 `RELEASE.md`
+3. 必要时更新 `deploy/.env.example` 的 `APP_VERSION`
+
+## 9.9 生成后给用户的摘要
+
+1. 填 `deploy/repo.env`（从 example 复制）+ 服务器 `deploy/.env`
+2. 配 GitHub Secrets（见 `deploy/AUTO-DEPLOY.md`）
+3. Ubuntu 首次 `docker compose up` → 之后 **`git push origin main` = 发布**
+
+## 9.10 禁止
+
+- 勿把 API Key、JWT_SECRET 写入 workflow 或提交 Git
+- 勿修改已应用的 SQL 迁移文件，只新增更高版本
+- 勿在 CD workflow 中使用 `git config --global`
+---
+# 八、AI 最终强制约束
+1. 严格按照上面完整目录生成，不简化、不缺失文件夹
+2. 所有配置文件、代码 100% 可直接运行，无残缺代码
+3. 数据库、跨域、代理、拦截器、JWT、Swagger接口文档全部预先配置好
+4. 输出内容排版清晰：目录结构 → 配置文件（含.cursorrules） → 核心代码 → SQL → 启动步骤 → 一键启动脚本 → AI开发项目代码规划文件
+5. 禁止简化结构，必须使用我定义的超详细完整版目录
+6. 一键启动脚本需适配所选技术栈和操作系统，可直接复制执行，无需修改核心命令
+7. .cursorrules文件必须强制生成，放置在项目根目录，文件名和内容不可修改，确保Cursor AI能自动识别并严格执行所有规则
+8. 所有生成的代码必须严格遵循.cursorrules中的规则，禁止出现与规则冲突的代码、命名和逻辑
+9. **必须**生成第九章 GitHub CI/CD 部署全套文件，不得省略 deploy/、.github/workflows/、scripts/
+10. **必须**生成 `GET /api/health` 健康检查接口，供 CD 部署验收
+11. 用户已提供 GitHub 信息时，**必须**执行 git init、创建远程仓库、push main + develop 分支（或生成可执行脚本并提示用户运行）
+12. 新项目**必须**通过 `init-cursor-rules.ps1` 复制全部 `.mdc` 规则 + 全套 skills 到 `.cursor/`
+13. 输出排版追加：→ GitHub/CD 部署文件 → 分支初始化步骤 → Secrets 配置指引
+14. **创建新项目时必须对话式引导**：每次只问 1 个问题，禁止一次性抛出多字段表格或清单；信息未收齐前禁止生成代码
+15. **必须遵循 `skills-router.mdc` 流水线**，禁止跳过 P1/P2 技能
+16. **SpringBoot+React 项目必须**生成 `sync-api-types.ps1`；**push 前必须**跑 `check-secrets.ps1`
+
+# 十、技能体系（强制）
+
+> **总路由**：`skills-router.mdc`（本章节概览，细节以路由表为准）
+> **UI 设计**：`ui-design-skills.mdc` + `ui-ux-pro-max`
+> **诊断**：`& "$env:USERPROFILE\.cursor\scripts\check-cursor-rules.ps1"`
+
+## 10.1 技能清单
+
+| Skill | 何时 | 强制 |
+|-------|------|------|
+| `skills-router` | 任何场景先查表 | ✓ |
+| `ui-ux-pro-max` | 前端/UI | ✓ |
+| `api-contract-sync` | 全栈 API | ✓ |
+| `secrets-guard` | push/CD 前 | ✓ |
+| `release-notes` | merge main 前 | ✓ |
+| `project-github-cd` | 创建+部署 | ✓ |
+| `seo-blog` | 博客类 | 自动 |
+| `e2e-playwright` | 中型+ | 自动 |
+
+## 10.2 新项目 scripts/ 必含
+
+- `sync-api-types.ps1`
+- `check-secrets.ps1`
+- `github-push.ps1`
+
+## 10.3 init 一键安装
+
+```powershell
+& "$env:USERPROFILE\.cursor\scripts\init-cursor-rules.ps1"
+& "$env:USERPROFILE\.cursor\scripts\check-cursor-rules.ps1"
+```
+
+# 全局开发规则（必须严格执行）
+
+## 🚨 核心原则
+所有功能开发必须通过自动化测试验证，否则视为失败。
+
+---
+
+## 🔁 强制执行流程（不可跳过）
+
+每次实现任何功能时，必须执行以下步骤：
+
+1. 编写或修改代码
+2. 运行端到端测试：
+
+   npm run test:e2e
+
+3. 如果测试失败：
+   - 分析 Playwright 输出日志
+   - 定位错误（接口 / UI / 状态 / 网络）
+   - 修改代码修复问题
+
+4. 修复后必须重新运行测试
+
+5. 重复以上流程，直到：
+
+   ✅ 所有测试通过
+
+---
+
+## ❌ 禁止行为
+
+- 禁止只分析不运行测试
+- 禁止测试失败就结束任务
+- 禁止主观判断“应该没问题”
+- 禁止忽略 500 / 400 错误
+- 禁止忽略 UI 状态异常（如 0% 卡死）
+
+---
+
+## ✅ 功能完成标准
+
+功能只有在满足以下条件时才算完成：
+
+- 所有 Playwright 测试通过
+- 无任何 4xx / 5xx 接口错误
+- 无 console error
+- UI 状态正确（如上传成功、进度变化）
+- 用户完整流程可用
+
+---
+
+## 🧪 上传功能专项检查（必须）
+
+对于文件上传功能，必须验证：
+
+- 上传接口返回 200
+- 不存在 500 错误
+- 上传进度不为 0%
+- UI 显示上传成功
+- 上传失败能正确提示错误
+- retry 可用
+
+---
+
+## ⚙️ 测试执行命令
+
+npm run test:e2e
+
+---
+
+## 🧠 行为要求
+
+当测试失败时：
+
+必须自动修复代码并重新测试，
+直到测试通过为止。
+
+不允许停止在失败状态。

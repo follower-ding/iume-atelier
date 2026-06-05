@@ -1,0 +1,15 @@
+---
+description: 全栈脚手架协调器 — 触发创建新项目时读 skills-router 并按流水线执行
+alwaysApply: true
+---
+
+当用户说「我要创建新项目」「我要创建一个xxx项目」「初始化规则」「复用工作区规则」时：
+
+1. **先读** `skills-router.mdc`（`~/.cursor/rules/skills-router.mdc`）
+2. **再读** `final-all-in-one.mdc` + `~/.cursor/user-defaults.env`
+3. **对话式引导**：每次只问 1 个问题，禁止甩表格
+4. 技术栈确认后，**按 skills-router 流水线**依次调用各 skill 生成
+5. 若当前项目无 `.cursor/rules/`：执行 `init-cursor-rules.ps1`
+6. 完成后建议用户运行 `check-cursor-rules.ps1` 诊断
+
+固定默认值（禁止重复询问）：GitHub `follower-ding`，服务器 `49.235.172.214` / SSH `iume`

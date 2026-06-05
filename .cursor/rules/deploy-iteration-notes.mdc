@@ -1,0 +1,29 @@
+---
+description: 每次 git push 触发 CD 部署时，提交信息必须包含迭代备注
+alwaysApply: true
+---
+
+# 推送部署迭代备注
+
+每次 `git push` 触发 CD 部署时，必须（详见 skill `release-notes` + `secrets-guard`）：
+
+1. **提交信息（commit message）** 包含：
+   - 第一行：类型 + 版本/摘要（如 `release(v1.1.0): ...`）
+   - 正文：分模块列出本次迭代内容（后端 / 前端 / 移动 / 部署）
+
+2. **更新 `RELEASE.md` 变更记录**：新增一行版本号、日期、简要说明；较大版本在下方写「迭代内容」小节。
+
+3. **必要时更新 `deploy/.env.example` 的 `APP_VERSION`**，便于 `/api/health` 核对线上版本。
+
+4. **推送前**运行 `.\scripts\check-secrets.ps1`（skill `secrets-guard`），确认不含密钥。
+
+示例 commit：
+
+```
+release(v1.1.0): 面试鸭题库、模拟面试、App API 修复
+
+迭代内容：
+- 后端：Mianshiya 同步、MockInterview、AI 402 提示
+- 移动：api-base 修复云打包 localhost
+- 文档：真机测试指南、CD Q4 AI 余额排查
+```

@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+target/
+dist/
+*.jar
+*.war
+
+# Environment & secrets
+.env
+.env.local
+**/.env
+deploy/.env
+deploy/repo.env
+deploy/github.token
+deploy/CONFIG.local.md
+deploy/backups/
+deploy/data/
+**/.local/
+**/data/uploads/
+**/deploy_key
+**/*.pem
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build
+node_modules/.tmp/
+uploads/
+**/uploads/

@@ -1,0 +1,11 @@
+rules:
+  - name: iume-atelier project rules
+    description: AI coding constraints for iume-atelier fullstack blog
+    patterns: ("*.java", "*.ts", "*.tsx", "*.yml", "*.xml")
+    commands:
+      - "Follow design-system/MASTER.md for all UI work"
+      - "Backend API uses Result<T> wrapper with code/message/data"
+      - "Never modify api-generated.ts manually — use scripts/sync-api-types.ps1"
+      - "Update RELEASE.md before push to main"
+      - "Run scripts/check-secrets.ps1 before git push"
+      - "No placeholders — all code must compile and run"

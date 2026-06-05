@@ -1,0 +1,7 @@
+services:
+  backend:
+    image: ghcr.io/follower-ding/iume-atelier-backend:${IMAGE_TAG:-latest}
+    build: null
+  frontend:
+    image: ghcr.io/follower-ding/iume-atelier-web:${IMAGE_TAG:-latest}
+    build: null

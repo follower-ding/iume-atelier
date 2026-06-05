@@ -1,0 +1,84 @@
+---
+description: 页面设计与技能调用规范 — 创建项目/UI 开发时强制使用指定 Skill
+alwaysApply: true
+---
+
+# 页面设计与技能调用规范
+
+> **技能路由总表**见 `skills-router.mdc`（所有场景以该文件为准）
+
+**本文件只管 UI**：涉及页面视觉、布局、配色、字体时，**必须先执行 `ui-ux-pro-max`**，禁止凭感觉硬写 CSS。
+
+---
+
+## 页面设计强制流程（新建项目前端时）
+
+确认技术栈后、写页面代码前：
+
+### 1. 推断设计关键词（从项目用途，不必单独追问除非用户有偏好）
+
+| 项目类型 | 默认风格关键词 |
+|----------|----------------|
+| 博客 / 写作 | elegant editorial minimal writing |
+| 管理后台 | professional dashboard clean |
+| 电商 | ecommerce modern trustworthy |
+| 作品集 | portfolio creative elegant |
+| SaaS | saas professional modern |
+
+用户说了风格（如「文艺」「极简」「暗色」）则优先用用户关键词。
+
+### 2. 生成设计系统（必做）
+
+```bash
+python ~/.cursor/skills/ui-ux-pro-max/scripts/search.py "<产品类型> <行业> <风格关键词>" --design-system --persist -p "<项目名>"
+```
+
+按前端技术栈补充 stack 指南：
+- React → `--stack react`
+- Vue → `--stack vue`
+- Next.js → `--stack nextjs`
+
+### 3. 落地到项目
+
+新项目**必须**生成：
+
+```
+项目名-frontend/
+├── design-system/
+│   ├── MASTER.md          # 全局设计真源
+│   └── pages/             # 页面级覆盖
+├── src/assets/styles/
+│   ├── tokens.css         # 设计令牌（颜色/间距/圆角/阴影）
+│   └── global.css
+```
+
+### 4. 布局与组件规范（所有项目统一）
+
+- **布局**：`AppShell` + 左侧栏 `AppSidebar`（博客可用顶栏+内容区，后台必须侧栏）
+- **页面类名**：`.page` / `.page-header` / `.surface-card` / `.btn` / `.btn-secondary`
+- **设计令牌**：所有颜色、间距从 `tokens.css` 读取，**禁止硬编码色值**
+- **语义化**：用 `<header>` `<main>` `<article>` `<nav>`，少滥用 `<div>`
+- **响应式**：移动优先，断点 768px / 1024px
+- **无障碍**：可点击元素加 `cursor-pointer`，图标按钮加 `aria-label`
+
+### 5. 复制 skill 到新项目
+
+生成项目时复制到 `项目名/.cursor/skills/ui-ux-pro-max/`，便于项目内持续迭代 UI。
+
+---
+
+## 对话式补充（仅 1 问，可选）
+
+若项目用途无法推断风格，在技术栈确认后问：
+
+> 页面风格你倾向哪种？1. 极简 2. 文艺优雅 3. 现代专业 4. 暗色科技感
+
+用户不答则用上表默认。
+
+---
+
+## 禁止
+
+- 禁止跳过 `ui-ux-pro-max` 直接生成「白底黑字」占位 UI
+- 禁止每个页面各自一套配色
+- 禁止内联 style 写大量样式（token 和 class 优先）

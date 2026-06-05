@@ -1,0 +1,86 @@
+---
+description: 技能总路由 — 所有场景自动选用正确 Skill，禁止猜错或跳过
+alwaysApply: true
+---
+
+# 技能总路由（Skills Router）
+
+> 真源：`~/.cursor/skills/` | 规则：`~/.cursor/rules/` | 默认值：`~/.cursor/user-defaults.env`
+> 诊断：`& "$env:USERPROFILE\.cursor\scripts\check-cursor-rules.ps1"`
+
+## 一、主路由表
+
+| 优先级 | 场景 / 触发词 | Skill / 规则 | 路径 |
+|--------|---------------|--------------|------|
+| P0 | 我要创建新项目、初始化规则 | `final-all-in-one.mdc` | `~/.cursor/rules/` |
+| P0 | 上述 + 执行协调 | `fullstack-scaffold` | `~/.cursor/skills/fullstack-scaffold/` |
+| P1 | 页面/UI/改版/设计 | **`ui-ux-pro-max`** | `~/.cursor/skills/ui-ux-pro-max/` |
+| P1 | UI 设计规范 | `ui-design-skills.mdc` | `~/.cursor/rules/` |
+| P1 | GitHub CD / 推送即发布 | `project-github-cd` | `~/.cursor/skills/project-github-cd/` |
+| P2 | 同步 API 类型 / 接口契约 | `api-contract-sync` | `~/.cursor/skills/api-contract-sync/` |
+| P2 | push 前密钥检查 | `secrets-guard` | `~/.cursor/skills/secrets-guard/` |
+| P2 | 发版备注 / RELEASE.md | `release-notes` | `~/.cursor/skills/release-notes/` |
+| P3 | 博客 SEO / sitemap / RSS | `seo-blog` | `~/.cursor/skills/seo-blog/` |
+| P3 | E2E 测试 / Playwright | `e2e-playwright` | `~/.cursor/skills/e2e-playwright/` |
+| — | Git 分支 | `git-branch-workflow.mdc` | `~/.cursor/rules/` |
+| — | 推送部署备注 | `deploy-iteration-notes.mdc` | `~/.cursor/rules/` |
+
+**规则**：先查本表 → 读对应 SKILL.md → 再写代码。禁止跳过 P1/P2 强制项。
+
+---
+
+## 二、创建新项目 — 技能执行流水线
+
+技术栈确认后，**按顺序**执行（可根据项目类型跳过 P3 可选项）：
+
+```
+① fullstack-scaffold     → 对话收集、读 user-defaults.env
+② ui-ux-pro-max          → 生成 design-system/MASTER.md + tokens.css
+③ [生成] 前后端 + deploy + CI/CD
+④ api-contract-sync      → scripts/sync-api-types.ps1 + 前端 types
+⑤ secrets-guard          → scripts/check-secrets.ps1 + .gitignore 规则
+⑥ release-notes          → RELEASE.md 模板 + 发版 commit 规范
+⑦ seo-blog               → 仅博客/内容站（自动识别，无需询问）
+⑧ e2e-playwright         → 仅中型/大型项目（或用户说要测试）
+⑨ project-github-cd      → git init + gh repo create + push
+⑩ secrets-guard          → push 前再跑一次 check-secrets
+```
+
+---
+
+## 三、按项目类型自动挂载（读 user-defaults.env）
+
+| 项目类型关键词 | 自动启用 Skill |
+|----------------|----------------|
+| 博客、写作、内容站 | `seo-blog` + `ui-ux-pro-max`(editorial) |
+| 管理后台、SaaS | `e2e-playwright`(中型+) + `api-contract-sync` |
+| 全栈 React+SpringBoot | `api-contract-sync`（强制） |
+| 任意项目 | `secrets-guard` + `release-notes`（强制） |
+
+规模规则：`小型` → 跳过 e2e；`中型/大型` → 启用 `e2e-playwright`。
+
+---
+
+## 四、新项目必复制到 `项目名/.cursor/`
+
+```
+.cursor/
+├── rules/          # 全部 .mdc（init 脚本复制）
+├── user-defaults.env
+└── skills/         # 按需复制（init 脚本复制全套）
+    ├── ui-ux-pro-max/
+    ├── api-contract-sync/
+    ├── secrets-guard/
+    ├── release-notes/
+    ├── seo-blog/
+    └── e2e-playwright/
+```
+
+---
+
+## 五、禁止
+
+- 禁止不查路由表直接生成 UI（必须用 ui-ux-pro-max）
+- 禁止 SpringBoot+React 项目跳过 api-contract-sync
+- 禁止 push 前跳过 secrets-guard
+- 禁止 merge main 前跳过 release-notes 更新 RELEASE.md
