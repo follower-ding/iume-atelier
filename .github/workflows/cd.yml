@@ -1,0 +1,92 @@
+name: CD
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy-iume-atelier
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      backend_image: ${{ steps.tags.outputs.backend }}
+      web_image: ${{ steps.tags.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lowercase owner for GHCR
+        id: owner
+        run: echo "name=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+      - name: Docker meta tags
+        id: tags
+        run: |
+          OWNER="${{ steps.owner.outputs.name }}"
+          SHA="${{ github.sha }}"
+          echo "backend=${{ env.REGISTRY }}/${OWNER}/iume-atelier-backend:${SHA}" >> "$GITHUB_OUTPUT"
+          echo "web=${{ env.REGISTRY }}/${OWNER}/iume-atelier-web:${SHA}" >> "$GITHUB_OUTPUT"
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        name: Build & push backend
+        with:
+          context: ./iume-atelier-backend
+          file: ./deploy/Dockerfile.backend
+          push: true
+          tags: |
+            ${{ steps.tags.outputs.backend }}
+            ${{ env.REGISTRY }}/${{ steps.owner.outputs.name }}/iume-atelier-backend:latest
+      - uses: docker/build-push-action@v6
+        name: Build & push web
+        with:
+          context: .
+          file: ./deploy/Dockerfile.frontend
+          push: true
+          tags: |
+            ${{ steps.tags.outputs.web }}
+            ${{ env.REGISTRY }}/${{ steps.owner.outputs.name }}/iume-atelier-web:latest
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.4
+        env:
+          BACKEND_IMAGE: ${{ needs.publish.outputs.backend_image }}
+          WEB_IMAGE: ${{ needs.publish.outputs.web_image }}
+          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          GHCR_USER: ${{ github.repository_owner }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          command_timeout: 90m
+          envs: BACKEND_IMAGE,WEB_IMAGE,GHCR_TOKEN,GHCR_USER
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.DEPLOY_PATH }}"
+            if [ -n "${GHCR_TOKEN:-}" ]; then
+              echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            fi
+            export BACKEND_IMAGE WEB_IMAGE
+            COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.images.yml"
+            docker pull "${BACKEND_IMAGE}"
+            docker pull "${WEB_IMAGE}"
+            $COMPOSE up -d --no-build --pull never
+            sleep 20
+            curl -sf http://127.0.0.1/api/health

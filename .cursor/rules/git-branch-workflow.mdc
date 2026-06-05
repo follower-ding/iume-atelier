@@ -1,0 +1,42 @@
+---
+description: Git 分支工作流 — main 审查合并，新对话/成员 Agent 在 feature 分支开发
+alwaysApply: true
+---
+
+# Git 分支工作流（大脑 vs 成员 Agent）
+
+## 角色
+
+| 角色 | 场景 | 分支 | 权限 |
+|------|------|------|------|
+| **大脑（主对话 / 审查）** | 统筹、审查、发版、部署决策 | `main` | 合并 PR、触发 CD；**不**在 main 上堆未审查的大杂烩提交 |
+| **成员 Agent（新对话）** | 单个功能、小迭代、实验 | `feat/*`、`fix/*`、`release/*` | 只在自己的分支 commit/push，**禁止**直接 push `main` |
+
+## 新对话 / 新 Agent 开工前（必须）
+
+1. 从最新 `main` 拉分支：
+   ```bash
+   git fetch origin
+   git checkout main && git pull origin main
+   git checkout -b feat/简短功能名
+   ```
+2. 分支命名：`feat/模块-功能`（如 `feat/mobile-api-base`）、`fix/问题描述`、`release/v1.x.x`（待发版集合）。
+3. 只改与本任务相关的文件；不要顺手改无关模块。
+4. 完成后 push 分支并说明迭代内容，**等大脑审查**，不要自行 merge main。
+
+## 大脑（本对话）审查合并
+
+1. 看 diff / PR：范围是否只做一件事、有无密钥、有无混入其他 Agent 的改动。
+2. 合并前更新 `RELEASE.md` 与 commit 迭代备注（见 `deploy-iteration-notes.mdc`）。
+3. **仅 merge 到 `main` 后**才触发 CD 生产部署（`.github/workflows/cd.yml` 监听 main）。
+4. 若多个功能并行：各分支独立 PR，按优先级逐个 merge，避免一次 commit 打包所有未审查代码。
+
+## 禁止
+
+- 在未审查情况下把多个 Agent / 多个功能的改动一次性 commit 到 `main`
+- 在 `main` 上直接开发新功能（hotfix 除外，且 hotfix 也应尽量用 `fix/*` 分支）
+- push 含 `.env`、`ai-secrets.env`、`deploy_key` 的文件
+
+## 当前待发版示例
+
+大版本集合放 `release/v1.1.0` 等分支，审查通过后再 merge → `main` → CD。

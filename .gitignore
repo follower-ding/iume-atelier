@@ -1,0 +1,17 @@
+node_modules/
+dist/
+target/
+.idea/
+.vscode/
+*.log
+.env
+.env.*
+!.env.example
+deploy/.env
+deploy/repo.env
+deploy/github.token
+deploy/CONFIG.local.md
+deploy/backups/
+deploy/data/
+**/.local/
+.DS_Store
