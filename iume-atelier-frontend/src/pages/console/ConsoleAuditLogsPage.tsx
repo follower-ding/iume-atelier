@@ -35,16 +35,17 @@ export default function ConsoleAuditLogsPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
-    <div className="console-page">
+    <div className="console-page console-page--fill">
       <header className="console-page__header">
         <h1>{zh.console.auditLogs}</h1>
         <p>{zh.console.auditLogsDesc}</p>
       </header>
 
-      {loading ? (
-        <p className="text-secondary">{zh.articles.loading}</p>
-      ) : (
-        <div className="console-table-wrap">
+      <div className="console-panel">
+        {loading ? (
+          <p className="console-panel__loading">{zh.articles.loading}</p>
+        ) : (
+          <div className="console-table-wrap console-table-wrap--fill">
           <table className="console-table" data-testid="console-audit-table">
             <thead>
               <tr>
@@ -68,15 +69,16 @@ export default function ConsoleAuditLogsPage() {
             </tbody>
           </table>
         </div>
-      )}
+        )}
 
-      {totalPages > 1 && (
-        <div className="console-pagination">
-          <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="btn-ghost cursor-pointer">{zh.articles.prevPage}</button>
-          <span>{page} / {totalPages}</span>
-          <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="btn-ghost cursor-pointer">{zh.articles.nextPage}</button>
-        </div>
-      )}
+        {totalPages > 1 && (
+          <div className="console-pagination console-pagination--panel">
+            <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="console-pagination__btn cursor-pointer">{zh.articles.prevPage}</button>
+            <span>{page} / {totalPages}</span>
+            <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="console-pagination__btn cursor-pointer">{zh.articles.nextPage}</button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

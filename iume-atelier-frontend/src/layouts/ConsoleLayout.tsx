@@ -8,6 +8,7 @@ import {
   ExternalLink,
   LogOut,
   ScrollText,
+  Wrench,
 } from 'lucide-react'
 import { useAuthStore } from '@/store'
 import { zh } from '@/locales/zh'
@@ -16,6 +17,7 @@ const nav = [
   { to: '/console', end: true, label: zh.console.dashboard, icon: LayoutDashboard },
   { to: '/console/users', label: zh.console.users, icon: Users },
   { to: '/console/articles', label: zh.console.articles, icon: FileText },
+  { to: '/console/ai-tools', label: zh.console.aiTools, icon: Wrench },
   { to: '/console/comments', label: zh.console.comments, icon: MessageSquare },
   { to: '/console/taxonomy', label: zh.console.taxonomy, icon: Tags },
   { to: '/console/audit-logs', label: zh.console.auditLogs, icon: ScrollText },
@@ -23,6 +25,8 @@ const nav = [
 
 export default function ConsoleLayout() {
   const { user, logout } = useAuthStore()
+  const displayName = user?.nickname || user?.username || 'Admin'
+  const initial = displayName.charAt(0).toUpperCase()
 
   return (
     <div className="console-shell">
@@ -32,7 +36,7 @@ export default function ConsoleLayout() {
           <span className="console-sidebar__badge">ADMIN</span>
         </div>
 
-        <nav className="console-sidebar__nav">
+        <nav className="console-sidebar__nav" aria-label={zh.console.dashboard}>
           {nav.map(({ to, end, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -42,14 +46,20 @@ export default function ConsoleLayout() {
                 `console-sidebar__link${isActive ? ' console-sidebar__link--active' : ''}`
               }
             >
-              <Icon size={18} />
+              <Icon size={17} strokeWidth={1.75} />
               {label}
             </NavLink>
           ))}
         </nav>
 
         <div className="console-sidebar__footer">
-          <div className="console-sidebar__user">{user?.nickname || user?.username}</div>
+          <div className="console-sidebar__profile">
+            <span className="console-sidebar__avatar" aria-hidden="true">{initial}</span>
+            <div className="console-sidebar__profile-text">
+              <span className="console-sidebar__user">{displayName}</span>
+              <span className="console-sidebar__role">{user?.role ?? 'ADMIN'}</span>
+            </div>
+          </div>
           <Link to="/" className="console-sidebar__link" target="_blank">
             <ExternalLink size={16} />
             {zh.console.viewSite}
@@ -61,9 +71,11 @@ export default function ConsoleLayout() {
         </div>
       </aside>
 
-      <main className="console-main">
-        <Outlet />
-      </main>
+      <div className="console-body">
+        <main className="console-main">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }

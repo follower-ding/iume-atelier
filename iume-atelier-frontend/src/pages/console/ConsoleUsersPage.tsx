@@ -108,7 +108,7 @@ export default function ConsoleUsersPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
-    <div className="console-page">
+    <div className="console-page console-page--fill">
       <header className="console-page__header console-page__header--row">
         <div>
           <h1>{zh.console.users}</h1>
@@ -116,37 +116,38 @@ export default function ConsoleUsersPage() {
         </div>
         <button
           type="button"
-          className="btn-primary inline-flex items-center gap-2 cursor-pointer"
+          className="btn-primary inline-flex items-center gap-2 cursor-pointer shrink-0"
           onClick={() => setShowCreate(true)}
           data-testid="console-create-user-btn"
         >
-          <Plus size={18} /> {zh.console.createUser}
+          <Plus size={16} /> {zh.console.createUser}
         </button>
       </header>
 
-      <div className="console-toolbar">
-        <input
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder={zh.console.searchUsers}
-          className="console-input"
-          onKeyDown={(e) => e.key === 'Enter' && (setPage(1), setSearch(keyword))}
-        />
-        <button type="button" className="btn-primary cursor-pointer" onClick={() => { setPage(1); setSearch(keyword) }}>
-          {zh.search.button}
-        </button>
-      </div>
+      <div className="console-panel">
+        <div className="console-toolbar console-toolbar--compact console-toolbar--inline">
+          <input
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder={zh.console.searchUsers}
+            className="console-input console-input--search-inline"
+            onKeyDown={(e) => e.key === 'Enter' && (setPage(1), setSearch(keyword))}
+          />
+          <button type="button" className="btn-primary cursor-pointer shrink-0" onClick={() => { setPage(1); setSearch(keyword) }}>
+            {zh.search.button}
+          </button>
+        </div>
 
-      <ConsoleBatchBar count={selected.size} onClear={() => setSelected(new Set())}>
-        <button type="button" className="btn-ghost cursor-pointer" onClick={handleBatchDelete} data-testid="console-batch-delete-users">
-          {zh.console.batchDelete}
-        </button>
-      </ConsoleBatchBar>
+        <ConsoleBatchBar count={selected.size} onClear={() => setSelected(new Set())}>
+          <button type="button" className="btn-ghost cursor-pointer" onClick={handleBatchDelete} data-testid="console-batch-delete-users">
+            {zh.console.batchDelete}
+          </button>
+        </ConsoleBatchBar>
 
-      {loading ? (
-        <p className="text-secondary">{zh.articles.loading}</p>
-      ) : (
-        <div className="console-table-wrap">
+        {loading ? (
+          <p className="console-panel__loading">{zh.articles.loading}</p>
+        ) : (
+          <div className="console-table-wrap console-table-wrap--fill">
           <table className="console-table" data-testid="console-users-table">
             <thead>
               <tr>
@@ -191,15 +192,16 @@ export default function ConsoleUsersPage() {
             </tbody>
           </table>
         </div>
-      )}
+        )}
 
-      {totalPages > 1 && (
-        <div className="console-pagination">
-          <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="btn-ghost cursor-pointer">{zh.articles.prevPage}</button>
-          <span>{page} / {totalPages}</span>
-          <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="btn-ghost cursor-pointer">{zh.articles.nextPage}</button>
-        </div>
-      )}
+        {totalPages > 1 && (
+          <div className="console-pagination console-pagination--panel">
+            <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="console-pagination__btn cursor-pointer">{zh.articles.prevPage}</button>
+            <span>{page} / {totalPages}</span>
+            <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="console-pagination__btn cursor-pointer">{zh.articles.nextPage}</button>
+          </div>
+        )}
+      </div>
 
       {showCreate && (
         <div className="console-modal-overlay" onClick={() => setShowCreate(false)}>

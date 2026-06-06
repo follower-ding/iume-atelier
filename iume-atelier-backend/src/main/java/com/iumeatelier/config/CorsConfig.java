@@ -23,10 +23,12 @@ public class CorsConfig {
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList();
-        if (origins.contains("*")) {
-            config.addAllowedOriginPattern("*");
-        } else {
-            config.setAllowedOrigins(origins);
+        for (String origin : origins) {
+            if ("*".equals(origin) || origin.contains("*")) {
+                config.addAllowedOriginPattern(origin);
+            } else {
+                config.addAllowedOrigin(origin);
+            }
         }
         config.setAllowCredentials(true);
         config.addAllowedHeader("*");

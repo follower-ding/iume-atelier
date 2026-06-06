@@ -24,7 +24,7 @@ export default function ConsoleDashboardPage() {
     : []
 
   return (
-    <div className="console-page">
+    <div className="console-page console-page--fill">
       <header className="console-page__header">
         <h1 data-testid="console-dashboard-title">{zh.console.dashboard}</h1>
         <p>{zh.console.dashboardDesc}</p>

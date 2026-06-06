@@ -6,12 +6,16 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 iume:
+  llm:
+    api-key: ${IUME_LLM_API_KEY:}
+    base-url: ${IUME_LLM_BASE_URL:https://api.deepseek.com}
+    model: ${IUME_LLM_MODEL:deepseek-chat}
   jwt:
     secret: ${IUME_JWT_SECRET:change-me-in-production}
   cors:
-    allowed-origins: ${IUME_CORS_ORIGINS:http://localhost:5173}
+    allowed-origins: ${IUME_CORS_ORIGINS:https://*.netlify.app,https://*.vercel.app,http://localhost:5173}
   app:
-    version: ${IUME_APP_VERSION:1.0.0}
+    version: ${IUME_APP_VERSION:1.1.0}
     site-url: ${IUME_SITE_URL:http://localhost}
 
 logging:

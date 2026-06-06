@@ -29,6 +29,11 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 iume:
+  llm:
+    enabled: true
+    api-key: ${IUME_LLM_API_KEY:}
+    base-url: ${IUME_LLM_BASE_URL:https://api.deepseek.com}
+    model: ${IUME_LLM_MODEL:deepseek-chat}
   jwt:
     secret: iume-atelier-jwt-secret-key-change-in-production-must-be-at-least-256-bits-long!!
     expiration-ms: 86400000

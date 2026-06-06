@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/articles/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ai-tools/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments/**").permitAll()
                         .anyRequest().authenticated()
                 )

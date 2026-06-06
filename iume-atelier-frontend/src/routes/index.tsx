@@ -12,11 +12,13 @@ const ArticleDetailPage = lazy(() => import('@/pages/ArticleDetailPage'))
 const AboutPage = lazy(() => import('@/pages/AboutPage'))
 const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'))
 const ToolsPage = lazy(() => import('@/pages/ToolsPage'))
+const ToolDetailPage = lazy(() => import('@/pages/ToolDetailPage'))
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const StudioPage = lazy(() => import('@/pages/StudioPage'))
 const StudioArticleEditPage = lazy(() => import('@/pages/StudioArticleEditPage'))
+const SearchPage = lazy(() => import('@/pages/SearchPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 
 const ConsoleDashboardPage = lazy(() => import('@/pages/console/ConsoleDashboardPage'))
@@ -26,6 +28,8 @@ const ConsoleArticleEditPage = lazy(() => import('@/pages/console/ConsoleArticle
 const ConsoleCommentsPage = lazy(() => import('@/pages/console/ConsoleCommentsPage'))
 const ConsoleTaxonomyPage = lazy(() => import('@/pages/console/ConsoleTaxonomyPage'))
 const ConsoleAuditLogsPage = lazy(() => import('@/pages/console/ConsoleAuditLogsPage'))
+const ConsoleAiToolsPage = lazy(() => import('@/pages/console/ConsoleAiToolsPage'))
+const ConsoleAiToolEditPage = lazy(() => import('@/pages/console/ConsoleAiToolEditPage'))
 
 export default function AppRoutes() {
   return (
@@ -48,6 +52,9 @@ export default function AppRoutes() {
           <Route path="comments" element={<ConsoleCommentsPage />} />
           <Route path="taxonomy" element={<ConsoleTaxonomyPage />} />
           <Route path="audit-logs" element={<ConsoleAuditLogsPage />} />
+          <Route path="ai-tools" element={<ConsoleAiToolsPage />} />
+          <Route path="ai-tools/new" element={<ConsoleAiToolEditPage />} />
+          <Route path="ai-tools/:id/edit" element={<ConsoleAiToolEditPage />} />
         </Route>
 
         <Route element={<AppLayout />}>
@@ -57,7 +64,8 @@ export default function AppRoutes() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/tools" element={<ToolsPage />} />
-          <Route path="/search" element={<Navigate to="/articles" replace />} />
+          <Route path="/tools/:id" element={<ToolDetailPage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/admin" element={<Navigate to="/console" replace />} />

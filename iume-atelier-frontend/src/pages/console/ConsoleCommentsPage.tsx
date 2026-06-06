@@ -61,22 +61,23 @@ export default function ConsoleCommentsPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
-    <div className="console-page">
+    <div className="console-page console-page--fill">
       <header className="console-page__header">
         <h1>{zh.console.comments}</h1>
         <p>{zh.console.commentsDesc}</p>
       </header>
 
-      <ConsoleBatchBar count={selected.size} onClear={() => setSelected(new Set())}>
-        <button type="button" className="btn-ghost cursor-pointer" onClick={handleBatchDelete}>
-          {zh.console.batchDelete}
-        </button>
-      </ConsoleBatchBar>
+      <div className="console-panel">
+        <ConsoleBatchBar count={selected.size} onClear={() => setSelected(new Set())}>
+          <button type="button" className="btn-ghost cursor-pointer" onClick={handleBatchDelete}>
+            {zh.console.batchDelete}
+          </button>
+        </ConsoleBatchBar>
 
-      {loading ? (
-        <p className="text-secondary">{zh.articles.loading}</p>
-      ) : (
-        <div className="console-table-wrap">
+        {loading ? (
+          <p className="console-panel__loading">{zh.articles.loading}</p>
+        ) : (
+          <div className="console-table-wrap console-table-wrap--fill">
           <table className="console-table">
             <thead>
               <tr>
@@ -118,15 +119,16 @@ export default function ConsoleCommentsPage() {
             </tbody>
           </table>
         </div>
-      )}
+        )}
 
-      {totalPages > 1 && (
-        <div className="console-pagination">
-          <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="btn-ghost cursor-pointer">{zh.articles.prevPage}</button>
-          <span>{page} / {totalPages}</span>
-          <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="btn-ghost cursor-pointer">{zh.articles.nextPage}</button>
-        </div>
-      )}
+        {totalPages > 1 && (
+          <div className="console-pagination console-pagination--panel">
+            <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="console-pagination__btn cursor-pointer">{zh.articles.prevPage}</button>
+            <span>{page} / {totalPages}</span>
+            <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="console-pagination__btn cursor-pointer">{zh.articles.nextPage}</button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

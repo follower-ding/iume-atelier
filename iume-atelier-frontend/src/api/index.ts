@@ -1,4 +1,5 @@
 import request, { getData, postData, putData, deleteData } from '@/utils/request'
+import type { AiToolDto, AiToolGenerateRequestDto, AiToolGenerateResponseDto, AiToolRequestDto } from '@/types/ai-tool-api'
 import type {
   Article,
   ArticleRequest,
@@ -58,6 +59,26 @@ export const tagApi = {
   create: (data: TagRequest) => postData<Tag>('/tags', data),
   update: (id: number, data: TagRequest) => putData<Tag>(`/tags/${id}`, data),
   remove: (id: number) => deleteData(`/tags/${id}`),
+}
+
+export const aiToolApi = {
+  list: (category?: string, keyword?: string) =>
+    getData<AiToolDto[]>('/ai-tools', { category, keyword }),
+  page: (page = 1, size = 20, category?: string, keyword?: string) =>
+    getData<PageResult<AiToolDto>>('/ai-tools/page', { page, size, category, keyword }),
+  getBySlug: (slug: string) => getData<AiToolDto>(`/ai-tools/${slug}`),
+  create: (data: AiToolRequestDto) => postData<AiToolDto>('/ai-tools', data),
+  update: (slug: string, data: AiToolRequestDto) => putData<AiToolDto>(`/ai-tools/${slug}`, data),
+  upsert: (data: AiToolRequestDto) => postData<AiToolDto>('/ai-tools/upsert', data),
+  generate: async (data: AiToolGenerateRequestDto) => {
+    const { data: res } = await request.post<import('@/types/api').ApiResult<AiToolGenerateResponseDto>>(
+      '/ai-tools/generate',
+      data,
+      { timeout: 120000 },
+    )
+    return res.data
+  },
+  remove: (slug: string) => deleteData(`/ai-tools/${slug}`),
 }
 
 export const commentApi = {

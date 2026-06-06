@@ -19,99 +19,128 @@ export default function SiteFooter() {
     categoryApi.list().then(setCategories).catch(() => {})
   }, [])
 
+  const primaryLinks = [
+    { to: '/', label: zh.nav.home },
+    { to: '/articles', label: zh.nav.articles },
+    { to: '/about', label: zh.nav.about },
+    { to: '/projects', label: zh.nav.projects },
+  ]
+
+  const secondaryLinks = [
+    { to: '/tools', label: zh.nav.toolsPage },
+    ...(user
+      ? [
+          { to: '/studio', label: zh.nav.studio },
+          { to: '/settings', label: zh.nav.settings },
+          ...(isAdmin(user) ? [{ to: '/console', label: zh.nav.admin }] : []),
+        ]
+      : [{ to: '/login', label: zh.nav.signIn }]),
+  ]
+
   return (
-    <footer className="mt-auto">
-      <div className="page-container py-12 lg:py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+    <footer className="site-footer mt-auto">
+      <div className="page-container site-footer__inner">
+        <div className="site-footer__grid">
           {categories.length > 0 && (
-            <div>
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-                {zh.footer.browseCategories}
-              </h3>
-              <div className="flex flex-wrap gap-x-3 gap-y-2 text-sm">
-                {sortCategories(categories).map((c, i) => (
-                  <span key={c.id} className="inline-flex items-center gap-3">
-                    {i > 0 && <span className="text-zinc-300 dark:text-zinc-600">·</span>}
-                    <Link
-                      to={`/articles?category=${c.id}`}
-                      className="nav-link cursor-pointer"
-                    >
-                      {c.name}
-                    </Link>
-                  </span>
+            <section className="site-footer__col">
+              <h3 className="site-footer__heading">{zh.footer.browseCategories}</h3>
+              <div className="site-footer__tags">
+                {sortCategories(categories).map((c) => (
+                  <Link
+                    key={c.id}
+                    to={`/articles?category=${c.id}`}
+                    className="site-footer__tag cursor-pointer"
+                  >
+                    {c.name}
+                  </Link>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
-          <div>
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-              {zh.footer.siteLinks}
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/" className="nav-link cursor-pointer">{zh.nav.home}</Link></li>
-              <li><Link to="/articles" className="nav-link cursor-pointer">{zh.nav.articles}</Link></li>
-              <li><Link to="/about" className="nav-link cursor-pointer">{zh.nav.about}</Link></li>
-              <li><Link to="/projects" className="nav-link cursor-pointer">{zh.nav.projects}</Link></li>
-              <li><Link to="/tools" className="nav-link cursor-pointer">{zh.nav.toolsPage}</Link></li>
-              {user ? (
-                <>
-                  <li><Link to="/studio" className="nav-link cursor-pointer">{zh.nav.studio}</Link></li>
-                  <li><Link to="/settings" className="nav-link cursor-pointer">{zh.nav.settings}</Link></li>
-                  {isAdmin(user) && (
-                    <li><Link to="/console" className="nav-link cursor-pointer">{zh.nav.admin}</Link></li>
-                  )}
+          <section className="site-footer__col">
+            <h3 className="site-footer__heading">{zh.footer.siteLinks}</h3>
+            <div className="site-footer__link-grid">
+              <ul className="site-footer__links">
+                {primaryLinks.map((link) => (
+                  <li key={link.to}>
+                    <Link to={link.to} className="site-footer__link cursor-pointer">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <ul className="site-footer__links">
+                {secondaryLinks.map((link) => (
+                  <li key={link.to}>
+                    <Link to={link.to} className="site-footer__link cursor-pointer">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+                {user && (
                   <li>
-                    <button type="button" onClick={() => useAuthStore.getState().logout()} className="nav-link cursor-pointer">
+                    <button
+                      type="button"
+                      onClick={() => useAuthStore.getState().logout()}
+                      className="site-footer__link cursor-pointer"
+                    >
                       {zh.nav.signOut}
                     </button>
                   </li>
-                </>
-              ) : (
-                <li><Link to="/login" className="nav-link cursor-pointer">{zh.nav.signIn}</Link></li>
-              )}
-            </ul>
-          </div>
+                )}
+              </ul>
+            </div>
+          </section>
 
-          <div>
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-              {zh.footer.tools}
-            </h3>
-            <div id="footer-search" className="mb-4 max-w-xs">
+          <section className="site-footer__col">
+            <h3 className="site-footer__heading">{zh.footer.shortcuts}</h3>
+            <div id="footer-search" className="site-footer__search">
               <NavSearch variant="footer" />
             </div>
-            <div className="flex flex-wrap items-center gap-4 text-sm">
-              <a
-                href="/api/rss"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-link inline-flex items-center gap-1.5 cursor-pointer"
-              >
-                <Rss size={15} /> {zh.nav.rss}
-              </a>
-              <a
-                href="/api/sitemap.xml"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-link cursor-pointer"
-              >
-                {zh.footer.sitemap}
-              </a>
-              <a
-                href="/api/robots.txt"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-link cursor-pointer"
-              >
-                {zh.footer.robots}
-              </a>
-              <ThemeToggle showLabel />
-              <SimpleModeToggle showLabel />
-            </div>
-          </div>
+            <ul className="site-footer__utils">
+              <li>
+                <a
+                  href="/api/rss"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-footer__link site-footer__link--inline cursor-pointer"
+                >
+                  <Rss size={14} />
+                  {zh.nav.rss}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/api/sitemap.xml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-footer__link cursor-pointer"
+                >
+                  {zh.footer.sitemap}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/api/robots.txt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-footer__link cursor-pointer"
+                >
+                  {zh.footer.robots}
+                </a>
+              </li>
+              <li className="site-footer__utils-toggle">
+                <ThemeToggle showLabel />
+              </li>
+              <li className="site-footer__utils-toggle">
+                <SimpleModeToggle showLabel />
+              </li>
+            </ul>
+          </section>
         </div>
 
-        <div className="mt-12 pt-8 text-sm text-zinc-500">
+        <div className="site-footer__bottom">
           <p>© {new Date().getFullYear()} iume atelier — {zh.footer.tagline}</p>
         </div>
       </div>
