@@ -40,12 +40,31 @@ public class ArticleService {
     private final TagMapper tagMapper;
     private final AuthService authService;
 
-    public PageResult<ArticleResponse> listPublished(int page, int size, Long categoryId) {
+    public PageResult<ArticleResponse> listPublished(int page, int size, Long categoryId, Long tagId, String sort) {
         Page<Article> pageParam = new Page<>(page, size);
         LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<Article>()
                 .eq(Article::getStatus, ArticleStatus.PUBLISHED)
-                .eq(categoryId != null, Article::getCategoryId, categoryId)
-                .orderByDesc(Article::getPublishedAt);
+                .eq(categoryId != null, Article::getCategoryId, categoryId);
+
+        if (tagId != null) {
+            List<Long> articleIds = articleTagMapper.selectList(
+                            new LambdaQueryWrapper<ArticleTag>().eq(ArticleTag::getTagId, tagId))
+                    .stream()
+                    .map(ArticleTag::getArticleId)
+                    .distinct()
+                    .toList();
+            if (articleIds.isEmpty()) {
+                return PageResult.of(page, size, 0, Collections.emptyList());
+            }
+            wrapper.in(Article::getId, articleIds);
+        }
+
+        if ("popular".equalsIgnoreCase(sort)) {
+            wrapper.orderByDesc(Article::getViewCount).orderByDesc(Article::getPublishedAt);
+        } else {
+            wrapper.orderByDesc(Article::getPublishedAt);
+        }
+
         Page<Article> result = articleMapper.selectPage(pageParam, wrapper);
         return toPageResult(result);
     }

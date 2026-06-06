@@ -1,69 +1,30 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom'
-import { Rss } from 'lucide-react'
-import ThemeToggle from '@/components/common/ThemeToggle'
-import NavSearch from '@/components/common/NavSearch'
-import { useAuthStore } from '@/store'
-import { zh } from '@/locales/zh'
-
+import { useLocation } from 'react-router-dom'
+import { useUserPrefsSync } from '@/hooks/useUserPrefsSync'
+import SimpleModeEffects from '@/components/common/SimpleModeEffects'
+import SiteFooter from '@/components/common/SiteFooter'
+import SiteHeader from '@/components/common/SiteHeader'
+import CompanionDock from '@/components/companion/CompanionDock'
+import ClickParticles from '@/components/interactive/ClickParticles'
+import CustomCursor from '@/components/interactive/CustomCursor'
+import KonamiEasterEgg from '@/components/interactive/KonamiEasterEgg'
+import PageTransition from '@/components/interactive/PageTransition'
 export default function AppLayout() {
-  const { user, logout } = useAuthStore()
-  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const isStudioWrite = /^\/studio(\/new|\/\d+\/edit)/.test(pathname)
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
+  useUserPrefsSync()
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-40 border-b border-zinc-200/60 dark:border-zinc-800/60 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-xl">
-        <div className="relative mx-auto max-w-shell px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center gap-4">
-            <Link to="/" className="shrink-0 font-display text-xl tracking-tight cursor-pointer hover:opacity-80 transition-opacity">
-              iume <span className="text-accent">atelier</span>
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium shrink-0">
-              <Link to="/" className="text-zinc-600 dark:text-zinc-400 hover:text-accent transition-colors cursor-pointer">{zh.nav.home}</Link>
-              <Link to="/articles" className="text-zinc-600 dark:text-zinc-400 hover:text-accent transition-colors cursor-pointer">{zh.nav.articles}</Link>
-              {user && (
-                <Link to="/admin" className="text-zinc-600 dark:text-zinc-400 hover:text-accent transition-colors cursor-pointer">{zh.nav.studio}</Link>
-              )}
-            </nav>
-
-            <NavSearch />
-
-            <div className="flex items-center gap-2 shrink-0 ml-auto lg:ml-0">
-              <ThemeToggle />
-              {user ? (
-                <button type="button" onClick={handleLogout} className="btn-ghost text-sm py-2 px-3 cursor-pointer">
-                  {zh.nav.signOut}
-                </button>
-              ) : (
-                <Link to="/login" className="btn-primary text-sm py-2 px-4 cursor-pointer">{zh.nav.signIn}</Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1">
-        <Outlet />
-      </main>
-
-      <footer className="border-t border-zinc-200/80 dark:border-zinc-800/80 mt-auto">
-        <div className="mx-auto max-w-shell px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-500">
-          <p>© {new Date().getFullYear()} iume atelier — {zh.footer}</p>
-          <a
-            href="/api/rss"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 hover:text-accent transition-colors cursor-pointer"
-          >
-            <Rss size={16} /> {zh.nav.rss}
-          </a>
-        </div>
-      </footer>
+    <div className={`min-h-screen flex flex-col site-shell${isStudioWrite ? ' site-shell--studio-write' : ''}`}>
+      <SimpleModeEffects />
+      <div className="site-grain" aria-hidden="true" />
+      <ClickParticles />
+      {!isStudioWrite && <CustomCursor />}
+      <KonamiEasterEgg />
+      <SiteHeader />
+      <PageTransition />
+      {!isStudioWrite && <SiteFooter />}
+      <CompanionDock />
     </div>
   )
 }

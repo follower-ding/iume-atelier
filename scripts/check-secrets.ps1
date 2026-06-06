@@ -22,6 +22,7 @@ if (-not $staged) {
 $found = $false
 foreach ($file in $files) {
     if (-not (Test-Path $file)) { continue }
+    if ($file -match '\.gitignore$|\.env\.example$|check-secrets\.ps1$') { continue }
     $content = Get-Content $file -Raw -ErrorAction SilentlyContinue
     if (-not $content) { continue }
     foreach ($pattern in $patterns) {

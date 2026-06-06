@@ -1,36 +1,58 @@
 import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+import { useUiSound } from '@/hooks/useUiSound'
 import type { Article } from '@/types/api'
 import { zh } from '@/locales/zh'
 
 interface ArticleCardProps {
   article: Article
   featured?: boolean
+  layout?: 'row' | 'grid'
+  index?: number
 }
 
-export default function ArticleCard({ article, featured }: ArticleCardProps) {
-  if (featured) {
+function ArticleCover({ article, featured }: { article: Article; featured?: boolean }) {
+  const initial = article.title.charAt(0).toUpperCase()
+  const sizeClass = featured ? 'article-cover--featured' : 'article-cover--default'
+
+  if (article.coverImage) {
+    return (
+      <div className={`article-cover ${sizeClass}`}>
+        <img src={article.coverImage} alt="" className="article-cover__img" loading="lazy" />
+      </div>
+    )
+  }
+
+  return (
+    <div className={`article-cover article-cover--placeholder ${sizeClass}`}>
+      <span>{initial}</span>
+    </div>
+  )
+}
+
+export default function ArticleCard({ article, featured, layout = 'row', index = 0 }: ArticleCardProps) {
+  const { play } = useUiSound()
+  const staggerStyle = { animationDelay: `${Math.min(index, 12) * 0.06}s` } as const
+
+  if (layout === 'grid') {
     return (
       <Link
         to={`/article/${article.slug}`}
-        className="group grid grid-cols-1 md:grid-cols-12 cursor-pointer overflow-hidden rounded-2xl border border-zinc-200/80 bg-white/80 dark:border-zinc-800/80 dark:bg-zinc-900/60 shadow-sm hover:shadow-md hover:border-accent/20 transition-all duration-300"
+        className="article-grid-card group cursor-pointer animate-fade-up"
+        style={staggerStyle}
+        onClick={() => play('whoosh')}
       >
-        <div className="md:col-span-7 flex flex-col justify-center p-8 md:p-10 lg:p-12">
-          <span className="mb-3 inline-block w-fit rounded-full bg-accent/10 px-3 py-0.5 text-xs font-semibold uppercase tracking-widest text-accent">
-            {article.categoryName || '精选'}
-          </span>
-          <h2 className="mb-4 font-display text-2xl sm:text-3xl lg:text-5xl leading-tight group-hover:text-accent transition-colors duration-200">
-            {article.title}
-          </h2>
-          <p className="text-secondary dark:text-zinc-400 line-clamp-3 leading-relaxed">{article.summary}</p>
-        </div>
-        <div className="md:col-span-5 min-h-[200px] md:min-h-[280px] bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900">
-          {article.coverImage ? (
-            <img src={article.coverImage} alt={article.title} className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
-          ) : (
-            <div className="flex h-full min-h-[200px] items-center justify-center font-display text-6xl text-zinc-300 dark:text-zinc-600">
-              {article.title.charAt(0)}
-            </div>
+        <ArticleCover article={article} />
+        <div className="article-grid-card__body">
+          {article.categoryName && (
+            <span className="article-grid-card__cat">{article.categoryName}</span>
           )}
+          <h2 className="article-grid-card__title">{article.title}</h2>
+          {article.summary && <p className="article-grid-card__summary line-clamp-2">{article.summary}</p>}
+          <span className="article-row__more mt-3">
+            {zh.home.readMore}
+            <ArrowRight size={14} />
+          </span>
         </div>
       </Link>
     )
@@ -39,23 +61,28 @@ export default function ArticleCard({ article, featured }: ArticleCardProps) {
   return (
     <Link
       to={`/article/${article.slug}`}
-      className="group flex flex-col h-full cursor-pointer rounded-2xl border border-zinc-200/80 bg-white/80 dark:border-zinc-800/80 dark:bg-zinc-900/60 p-6 shadow-sm transition-all duration-200 hover:border-accent/25 hover:shadow-md"
+      className={`article-row article-row--with-cover group animate-fade-up ${featured ? 'article-row--featured' : ''}`}
+      style={staggerStyle}
+      onClick={() => play('whoosh')}
     >
-      {article.categoryName && (
-        <span className="mb-2 inline-block w-fit rounded-full bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 text-xs text-zinc-500">
-          {article.categoryName}
+      <div className="article-row__content">
+        {article.categoryName && (
+          <span className="mb-2 block text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-accent">
+            {article.categoryName}
+          </span>
+        )}
+        <h2 className={`article-row__title ${featured ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl'}`}>
+          {article.title}
+        </h2>
+        {article.summary && (
+          <p className="article-row__summary line-clamp-2 sm:line-clamp-3">{article.summary}</p>
+        )}
+        <span className="article-row__more">
+          {zh.home.readMore}
+          <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5" />
         </span>
-      )}
-      <h3 className="mb-3 font-display text-lg lg:text-xl leading-snug group-hover:text-accent transition-colors duration-200">
-        {article.title}
-      </h3>
-      <p className="mb-4 flex-1 text-sm text-secondary dark:text-zinc-400 line-clamp-2 leading-relaxed">
-        {article.summary}
-      </p>
-      <div className="flex items-center justify-between text-xs text-zinc-500 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-        <span>{article.authorName}</span>
-        <span>{article.viewCount} {zh.article.reads}</span>
       </div>
+      <ArticleCover article={article} featured={featured} />
     </Link>
   )
 }

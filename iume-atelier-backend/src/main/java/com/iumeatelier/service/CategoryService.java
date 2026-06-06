@@ -6,6 +6,7 @@ import com.iumeatelier.dto.response.CategoryResponse;
 import com.iumeatelier.entity.Category;
 import com.iumeatelier.exception.BusinessException;
 import com.iumeatelier.mapper.CategoryMapper;
+import com.iumeatelier.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ public class CategoryService {
     }
 
     public CategoryResponse create(CategoryRequest request) {
+        requireAdmin();
         validateUnique(request.getSlug(), request.getName(), null);
         Category category = new Category();
         category.setName(request.getName());
@@ -43,6 +45,7 @@ public class CategoryService {
     }
 
     public CategoryResponse update(Long id, CategoryRequest request) {
+        requireAdmin();
         Category category = categoryMapper.selectById(id);
         if (category == null) {
             throw new BusinessException(404, "Category not found");
@@ -56,10 +59,17 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
+        requireAdmin();
         if (categoryMapper.selectById(id) == null) {
             throw new BusinessException(404, "Category not found");
         }
         categoryMapper.deleteById(id);
+    }
+
+    private void requireAdmin() {
+        if (!SecurityUtils.isAdmin()) {
+            throw new BusinessException(403, "Admin access required");
+        }
     }
 
     private void validateUnique(String slug, String name, Long excludeId) {

@@ -18,11 +18,16 @@ import java.util.UUID;
 @Service
 public class UploadService {
 
-    private static final Set<String> ALLOWED_TYPES = Set.of(
+    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
             "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"
     );
 
-    private static final long MAX_SIZE = 10 * 1024 * 1024;
+    private static final Set<String> ALLOWED_AUDIO_TYPES = Set.of(
+            "audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/mp4", "audio/x-m4a", "audio/aac"
+    );
+
+    private static final long MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+    private static final long MAX_AUDIO_SIZE = 15 * 1024 * 1024;
 
     private final Path uploadDir;
 
@@ -36,16 +41,30 @@ public class UploadService {
     }
 
     public UploadResponse uploadImage(MultipartFile file) {
+        return uploadFile(file, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE, "图片", "图片上传失败");
+    }
+
+    public UploadResponse uploadAudio(MultipartFile file) {
+        return uploadFile(file, ALLOWED_AUDIO_TYPES, MAX_AUDIO_SIZE, "音频", "音频上传失败");
+    }
+
+    private UploadResponse uploadFile(
+            MultipartFile file,
+            Set<String> allowedTypes,
+            long maxSize,
+            String label,
+            String failMessage
+    ) {
         if (file == null || file.isEmpty()) {
-            throw new BusinessException("请选择要上传的图片");
+            throw new BusinessException("请选择要上传的" + label);
         }
-        if (file.getSize() > MAX_SIZE) {
-            throw new BusinessException("图片大小不能超过 10MB");
+        if (file.getSize() > maxSize) {
+            throw new BusinessException(label + "大小不能超过 " + (maxSize / 1024 / 1024) + "MB");
         }
 
         String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
-            throw new BusinessException("仅支持 JPG、PNG、GIF、WebP、SVG 格式");
+        if (contentType == null || !allowedTypes.contains(contentType)) {
+            throw new BusinessException("不支持的" + label + "格式");
         }
 
         String ext = extensionFromContentType(contentType);
@@ -55,11 +74,11 @@ public class UploadService {
             Path target = uploadDir.resolve(storedName);
             file.transferTo(target.toFile());
             String url = "/api/uploads/" + storedName;
-            log.info("Uploaded image: {} -> {}", file.getOriginalFilename(), url);
+            log.info("Uploaded {}: {} -> {}", label, file.getOriginalFilename(), url);
             return new UploadResponse(url, file.getOriginalFilename());
         } catch (IOException e) {
             log.error("Upload failed", e);
-            throw new BusinessException("图片上传失败");
+            throw new BusinessException(failMessage);
         }
     }
 
@@ -74,6 +93,11 @@ public class UploadService {
             case "image/gif" -> ".gif";
             case "image/webp" -> ".webp";
             case "image/svg+xml" -> ".svg";
+            case "audio/mpeg", "audio/mp3" -> ".mp3";
+            case "audio/wav" -> ".wav";
+            case "audio/ogg" -> ".ogg";
+            case "audio/mp4", "audio/x-m4a" -> ".m4a";
+            case "audio/aac" -> ".aac";
             default -> ".bin";
         };
     }

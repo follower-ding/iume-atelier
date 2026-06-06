@@ -27,6 +27,8 @@ public class User {
 
     private String avatar;
 
+    private String preferences;
+
     private String role;
 
     @TableField(fill = FieldFill.INSERT)

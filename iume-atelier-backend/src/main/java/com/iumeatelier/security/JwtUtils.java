@@ -17,14 +17,21 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
 
+    private static final String CLAIM_USER_ID = "userId";
+    private static final String CLAIM_TOKEN_TYPE = "type";
+    private static final String TOKEN_TYPE_REFRESH = "refresh";
+
     private final SecretKey secretKey;
     private final long expirationMs;
+    private final long refreshExpirationMs;
 
     public JwtUtils(
             @Value("${iume.jwt.secret}") String secret,
-            @Value("${iume.jwt.expiration-ms}") long expirationMs) {
+            @Value("${iume.jwt.expiration-ms}") long expirationMs,
+            @Value("${iume.jwt.refresh-expiration-ms:604800000}") long refreshExpirationMs) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
+        this.refreshExpirationMs = refreshExpirationMs;
     }
 
     public String extractUsername(String token) {
@@ -33,7 +40,7 @@ public class JwtUtils {
 
     public Long extractUserId(String token) {
         Claims claims = extractAllClaims(token);
-        Object userId = claims.get("userId");
+        Object userId = claims.get(CLAIM_USER_ID);
         if (userId instanceof Integer integer) {
             return integer.longValue();
         }
@@ -48,22 +55,27 @@ public class JwtUtils {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails, Long userId) {
+    public String generateAccessToken(UserDetails userDetails, Long userId) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        return generateToken(claims, userDetails.getUsername());
+        claims.put(CLAIM_USER_ID, userId);
+        claims.put(CLAIM_TOKEN_TYPE, "access");
+        return buildToken(claims, userDetails.getUsername(), expirationMs);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, String subject) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationMs);
-        return Jwts.builder()
-                .claims(extraClaims)
-                .subject(subject)
-                .issuedAt(now)
-                .expiration(expiry)
-                .signWith(secretKey)
-                .compact();
+    public String generateRefreshToken(UserDetails userDetails, Long userId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIM_USER_ID, userId);
+        claims.put(CLAIM_TOKEN_TYPE, TOKEN_TYPE_REFRESH);
+        return buildToken(claims, userDetails.getUsername(), refreshExpirationMs);
+    }
+
+    public boolean isRefreshToken(String token) {
+        try {
+            Object type = extractAllClaims(token).get(CLAIM_TOKEN_TYPE);
+            return TOKEN_TYPE_REFRESH.equals(type);
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -73,6 +85,18 @@ public class JwtUtils {
 
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
+    }
+
+    private String buildToken(Map<String, Object> claims, String subject, long ttlMs) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + ttlMs);
+        return Jwts.builder()
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(secretKey)
+                .compact();
     }
 
     private Claims extractAllClaims(String token) {

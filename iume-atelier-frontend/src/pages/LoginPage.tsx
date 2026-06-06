@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { authApi } from '@/api'
 import PageMeta from '@/components/seo/PageMeta'
 import { useAuthStore } from '@/store'
@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const { setAuth } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as { from?: string } | null)?.from
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,8 +21,8 @@ export default function LoginPage() {
     setError('')
     try {
       const data = await authApi.login(username, password)
-      setAuth(data.token, data.user)
-      navigate('/admin')
+      setAuth(data.token, data.user, data.refreshToken)
+      navigate(from ?? (data.user.role === 'ADMIN' ? '/console' : '/'), { replace: true })
     } catch {
       setError(zh.auth.loginFailed)
     } finally {

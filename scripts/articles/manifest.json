@@ -1,0 +1,47 @@
+[
+  {
+    "file": "01-product-design.md",
+    "title": "从 0 到 1：iume-atelier 产品设计与搭建思路",
+    "slug": "iume-atelier-product-design-from-zero",
+    "summary": "一篇讲清楚：为什么要做这个博客、核心功能怎么划分、读者/作者/管理员三条用户路径，以及从 PRD 到上线的整体节奏。",
+    "coverImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200",
+    "categoryId": 3,
+    "tagIds": [4, 7]
+  },
+  {
+    "file": "02-reading-ux.md",
+    "title": "阅读体验设计：目录导航、陪伴坞与个性化设置",
+    "slug": "reading-ux-toc-companion-settings",
+    "summary": "Josh 风格阅读排版如何实现？目录 scroll spy、陪伴坞在什么场景隐藏、设置页如何与云端偏好联动。",
+    "coverImage": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200",
+    "categoryId": 3,
+    "tagIds": [3, 7]
+  },
+  {
+    "file": "03-fullstack-architecture.md",
+    "title": "全栈架构选型：React + Spring Boot 博客系统搭建",
+    "slug": "fullstack-architecture-react-spring-boot",
+    "summary": "前端 React 19 + Vite、后端 Spring Boot 3 + MyBatis-Plus、MySQL + Flyway——讲透技术分层与 API 设计。",
+    "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200",
+    "categoryId": 1,
+    "tagIds": [1, 2, 7, 6]
+  },
+  {
+    "file": "04-prefs-sync-jwt.md",
+    "title": "用户偏好云端同步与 JWT 鉴权实践",
+    "slug": "user-preferences-cloud-sync-jwt-auth",
+    "summary": "users.preferences JSON 字段怎么设计？Zustand 如何与云端双向同步？JWT + Refresh Token 无感续期。",
+    "coverImage": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200",
+    "categoryId": 1,
+    "tagIds": [1, 2, 6]
+  },
+  {
+    "file": "05-flyway-pitfalls.md",
+    "title": "Flyway 踩坑记：分类重构与 Checksum 修复",
+    "slug": "flyway-migration-pitfalls-category-redesign",
+    "summary": "改了已执行的 V1 迁移文件导致后端启动失败？分类从英文改成中文应该怎么迁移？真实踩坑记录。",
+    "coverImage": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200",
+    "categoryId": 1,
+    "tagIds": [1, 2, 4]
+  }
+]

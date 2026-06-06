@@ -35,8 +35,10 @@ public class ArticleController {
     public Result<PageResult<ArticleResponse>> listPublished(
             @Parameter(description = "Page number") @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
-            @Parameter(description = "Filter by category ID") @RequestParam(required = false) Long categoryId) {
-        return Result.success(articleService.listPublished(page, size, categoryId));
+            @Parameter(description = "Filter by category ID") @RequestParam(required = false) Long categoryId,
+            @Parameter(description = "Filter by tag ID") @RequestParam(required = false) Long tagId,
+            @Parameter(description = "Sort: latest or popular") @RequestParam(defaultValue = "latest") String sort) {
+        return Result.success(articleService.listPublished(page, size, categoryId, tagId, sort));
     }
 
     @GetMapping("/manage")

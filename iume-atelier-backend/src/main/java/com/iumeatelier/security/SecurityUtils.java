@@ -25,4 +25,10 @@ public final class SecurityUtils {
         SecurityUser user = getCurrentUser();
         return user != null && "ADMIN".equals(user.getUser().getRole());
     }
+
+    public static void requireAdmin() {
+        if (!isAdmin()) {
+            throw new com.iumeatelier.exception.BusinessException(403, "Admin access required");
+        }
+    }
 }

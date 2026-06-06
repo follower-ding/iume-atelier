@@ -4,6 +4,7 @@ import com.iumeatelier.common.Result;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,9 +19,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<Void> handleBusinessException(BusinessException ex) {
-        return Result.fail(ex.getCode(), ex.getMessage());
+    public ResponseEntity<Result<Void>> handleBusinessException(BusinessException ex) {
+        HttpStatus status = mapBusinessCodeToStatus(ex.getCode());
+        return ResponseEntity.status(status).body(Result.fail(ex.getCode(), ex.getMessage()));
+    }
+
+    private HttpStatus mapBusinessCodeToStatus(int code) {
+        return switch (code) {
+            case 401 -> HttpStatus.UNAUTHORIZED;
+            case 403 -> HttpStatus.FORBIDDEN;
+            case 404 -> HttpStatus.NOT_FOUND;
+            case 409 -> HttpStatus.CONFLICT;
+            default -> HttpStatus.BAD_REQUEST;
+        };
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})

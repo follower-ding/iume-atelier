@@ -2,6 +2,7 @@ package com.iumeatelier.controller;
 
 import com.iumeatelier.common.Result;
 import com.iumeatelier.dto.request.LoginRequest;
+import com.iumeatelier.dto.request.RefreshTokenRequest;
 import com.iumeatelier.dto.request.RegisterRequest;
 import com.iumeatelier.dto.response.AuthResponse;
 import com.iumeatelier.dto.response.UserResponse;
@@ -35,6 +36,12 @@ public class AuthController {
     @Operation(summary = "Login and obtain JWT token")
     public Result<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return Result.success(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token using refresh token")
+    public Result<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return Result.success(authService.refresh(request));
     }
 
     @GetMapping("/me")

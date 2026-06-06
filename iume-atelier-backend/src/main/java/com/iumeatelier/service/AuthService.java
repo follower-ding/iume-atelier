@@ -2,6 +2,7 @@ package com.iumeatelier.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.iumeatelier.dto.request.LoginRequest;
+import com.iumeatelier.dto.request.RefreshTokenRequest;
 import com.iumeatelier.dto.request.RegisterRequest;
 import com.iumeatelier.dto.response.AuthResponse;
 import com.iumeatelier.dto.response.UserResponse;
@@ -44,12 +45,7 @@ public class AuthService {
         user.setRole(UserRole.USER.name());
         userMapper.insert(user);
 
-        String token = jwtUtils.generateToken(new SecurityUser(user), user.getId());
-        return AuthResponse.builder()
-                .token(token)
-                .tokenType("Bearer")
-                .user(toUserResponse(user))
-                .build();
+        return buildAuthResponse(user);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -57,9 +53,35 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>().eq(User::getUsername, request.getUsername()));
-        String token = jwtUtils.generateToken(new SecurityUser(user), user.getId());
+        return buildAuthResponse(user);
+    }
+
+    public AuthResponse refresh(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+        if (!jwtUtils.isRefreshToken(refreshToken) || jwtUtils.extractClaim(refreshToken, c -> c.getExpiration()).before(new java.util.Date())) {
+            throw new BusinessException(401, "Invalid or expired refresh token");
+        }
+
+        Long userId = jwtUtils.extractUserId(refreshToken);
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(401, "Invalid refresh token");
+        }
+
+        SecurityUser securityUser = new SecurityUser(user);
+        if (!jwtUtils.isTokenValid(refreshToken, securityUser)) {
+            throw new BusinessException(401, "Invalid refresh token");
+        }
+
+        return buildAuthResponse(user);
+    }
+
+    private AuthResponse buildAuthResponse(User user) {
+        String accessToken = jwtUtils.generateAccessToken(new SecurityUser(user), user.getId());
+        String refreshToken = jwtUtils.generateRefreshToken(new SecurityUser(user), user.getId());
         return AuthResponse.builder()
-                .token(token)
+                .token(accessToken)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .user(toUserResponse(user))
                 .build();

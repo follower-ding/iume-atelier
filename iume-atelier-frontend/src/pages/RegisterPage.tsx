@@ -18,8 +18,8 @@ export default function RegisterPage() {
     setError('')
     try {
       const data = await authApi.register(form.username, form.password, form.email, form.nickname)
-      setAuth(data.token, data.user)
-      navigate('/admin')
+      setAuth(data.token, data.user, data.refreshToken)
+      navigate(data.user.role === 'ADMIN' ? '/console' : '/')
     } catch {
       setError(zh.auth.registerFailed)
     } finally {

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Bold,
   Code,
@@ -21,6 +21,7 @@ interface TechBlogEditorProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
+  immersive?: boolean
 }
 
 type ViewMode = 'write' | 'preview' | 'split'
@@ -63,7 +64,7 @@ function insertAtCursor(
   return { newValue, cursorStart: start + before.length, cursorEnd: start + before.length + selected.length }
 }
 
-export default function TechBlogEditor({ value, onChange, placeholder }: TechBlogEditorProps) {
+export default function TechBlogEditor({ value, onChange, placeholder, immersive = false }: TechBlogEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('split')
@@ -84,6 +85,24 @@ export default function TechBlogEditor({ value, onChange, placeholder }: TechBlo
     },
     [onChange]
   )
+
+  useEffect(() => {
+    const onInsert = (e: Event) => {
+      const content = (e as CustomEvent<string>).detail
+      if (typeof content !== 'string') return
+      const ta = textareaRef.current
+      if (!ta) return
+      const start = ta.selectionStart
+      const end = ta.selectionEnd
+      const prefix = start > 0 && value[start - 1] !== '\n' ? '\n\n' : ''
+      const suffix = end < value.length && value[end] !== '\n' ? '\n' : ''
+      const insert = prefix + content + suffix
+      const newValue = value.slice(0, start) + insert + value.slice(end)
+      applyChange(newValue, start + insert.length, start + insert.length)
+    }
+    window.addEventListener('iume-snippet-insert', onInsert)
+    return () => window.removeEventListener('iume-snippet-insert', onInsert)
+  }, [applyChange, value])
 
   const wrapSelection = (before: string, after: string, placeholderText = '') => {
     const ta = textareaRef.current
@@ -165,9 +184,9 @@ export default function TechBlogEditor({ value, onChange, placeholder }: TechBlo
   const wordCount = value.replace(/\s/g, '').length
 
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 px-4 py-2">
-        <span className="text-xs font-semibold uppercase tracking-widest text-accent">{zh.editor.markdownMode}</span>
+    <div className={`tech-editor${immersive ? ' tech-editor--immersive' : ''}`}>
+      <div className="tech-editor__head">
+        <span className="tech-editor__label">{zh.editor.markdownMode}</span>
         <button
           type="button"
           onClick={() => setShowHelp((v) => !v)}
@@ -178,7 +197,7 @@ export default function TechBlogEditor({ value, onChange, placeholder }: TechBlo
       </div>
 
       {showHelp && (
-        <div className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/30 px-4 py-3">
+        <div className="tech-editor__help">
           <ul className="text-xs text-zinc-500 space-y-1 font-mono">
             {zh.editor.markdownHelpItems.map((item) => (
               <li key={item}>· {item}</li>
@@ -188,7 +207,7 @@ export default function TechBlogEditor({ value, onChange, placeholder }: TechBlo
       )}
 
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 px-3 py-2">
+      <div className="tech-editor__toolbar">
         <ToolbarBtn icon={<Heading2 size={16} />} title={zh.editor.h2} onClick={() => wrapSelection('\n## ', '\n', '标题')} />
         <ToolbarBtn icon={<Heading3 size={16} />} title={zh.editor.h3} onClick={() => wrapSelection('\n### ', '\n', '小标题')} />
         <ToolbarBtn icon={<Bold size={16} />} title={zh.editor.bold} onClick={() => wrapSelection('**', '**', '粗体')} />
@@ -242,13 +261,13 @@ export default function TechBlogEditor({ value, onChange, placeholder }: TechBlo
         </div>
       </div>
 
-      <p className="px-4 py-1.5 text-xs text-zinc-500 bg-zinc-50/50 dark:bg-zinc-900/30 border-b border-zinc-100 dark:border-zinc-800">
+      <p className="tech-editor__status">
         {statusMsg || zh.editor.pasteHint}
         <span className="float-right">{zh.editor.wordCount}：{wordCount}</span>
       </p>
 
       {/* Editor area */}
-      <div className={`grid ${viewMode === 'split' ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
+      <div className={`grid tech-editor__panes ${viewMode === 'split' ? 'tech-editor__panes--split' : 'tech-editor__panes--single'}`}>
         {(viewMode === 'write' || viewMode === 'split') && (
           <textarea
             ref={textareaRef}
@@ -258,13 +277,13 @@ export default function TechBlogEditor({ value, onChange, placeholder }: TechBlo
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
             placeholder={placeholder || '在此用 Markdown 编写正文…\n\n## 示例标题\n\n正文段落，**粗体** 与 `行内代码`。\n\n```java\npublic class Hello {\n  public static void main(String[] args) {}\n}\n```\n\n直接 Ctrl+V 粘贴截图或从 IDE 粘贴代码即可。'}
-            rows={viewMode === 'split' ? 24 : 20}
-            className="w-full resize-y bg-white dark:bg-zinc-950 px-4 py-4 font-mono text-sm leading-relaxed outline-none border-r border-zinc-200 dark:border-zinc-800"
+            rows={immersive ? (viewMode === 'split' ? 28 : 24) : (viewMode === 'split' ? 24 : 20)}
+            className="tech-editor__textarea"
             spellCheck={false}
           />
         )}
         {(viewMode === 'preview' || viewMode === 'split') && (
-          <div className="article-prose max-h-[600px] overflow-y-auto px-6 py-4 bg-zinc-50/50 dark:bg-zinc-900/20">
+          <div className="tech-editor__preview article-prose">
             {value.trim() ? (
               <MarkdownRenderer content={value} />
             ) : (

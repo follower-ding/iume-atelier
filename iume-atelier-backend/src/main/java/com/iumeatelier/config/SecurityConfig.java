@@ -33,6 +33,7 @@ public class SecurityConfig {
             "/health",
             "/rss",
             "/sitemap.xml",
+            "/robots.txt",
             "/uploads/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -46,11 +47,12 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_GET_PATHS).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login", "/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/articles/manage").authenticated()
                         .requestMatchers(HttpMethod.GET, "/articles/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/comments/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

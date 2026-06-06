@@ -52,7 +52,7 @@ public class CommentService {
     @Transactional
     public CommentResponse create(CommentRequest request, Long userId) {
         Article article = articleMapper.selectById(request.getArticleId());
-        if (article == null) {
+        if (article == null || article.getStatus() != ArticleStatus.PUBLISHED) {
             throw new BusinessException(404, "Article not found");
         }
 

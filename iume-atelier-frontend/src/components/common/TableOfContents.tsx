@@ -15,22 +15,28 @@ interface TableOfContentsProps {
 export default function TableOfContents({ items, activeId }: TableOfContentsProps) {
   if (items.length === 0) return null
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault()
+    const el = document.getElementById(id)
+    if (!el) return
+    const top = el.getBoundingClientRect().top + window.scrollY - 96
+    window.scrollTo({ top, behavior: 'smooth' })
+    history.replaceState(null, '', `#${id}`)
+  }
+
   return (
-    <nav aria-label="Table of contents" className="sticky top-24">
-      <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-        {zh.toc}
-      </p>
-      <ul className="space-y-2 border-l border-zinc-200 dark:border-zinc-700">
+    <nav aria-label="Table of contents" className="article-toc">
+      <p className="article-toc__label">{zh.toc}</p>
+      <ul className="article-toc__list">
         {items.map((item) => (
           <li key={item.id}>
             <a
               href={`#${item.id}`}
+              onClick={(e) => handleClick(e, item.id)}
               className={clsx(
-                'block border-l-2 py-1 pl-4 text-sm transition-colors duration-200 cursor-pointer',
-                item.level === 3 && 'pl-6',
-                activeId === item.id
-                  ? 'border-accent text-accent font-medium'
-                  : 'border-transparent text-zinc-500 hover:text-ink dark:hover:text-white'
+                'article-toc__link cursor-pointer',
+                item.level === 3 && 'article-toc__link--sub',
+                activeId === item.id && 'article-toc__link--active',
               )}
             >
               {item.text}

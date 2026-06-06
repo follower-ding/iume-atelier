@@ -5,7 +5,11 @@ import { articleApi } from '@/api'
 import { zh } from '@/locales/zh'
 import type { Article } from '@/types/api'
 
-export default function NavSearch() {
+interface NavSearchProps {
+  variant?: 'header' | 'footer'
+}
+
+export default function NavSearch({ variant = 'header' }: NavSearchProps) {
   const navigate = useNavigate()
   const wrapRef = useRef<HTMLDivElement>(null)
   const [keyword, setKeyword] = useState('')
@@ -13,6 +17,7 @@ export default function NavSearch() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const isFooter = variant === 'footer'
 
   useEffect(() => {
     if (!keyword.trim()) {
@@ -56,7 +61,10 @@ export default function NavSearch() {
   }
 
   const dropdown = open && keyword.trim() && (
-    <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-xl overflow-hidden z-50">
+    <div
+      className="absolute top-full left-0 right-0 mt-2 overflow-hidden z-50 rounded-lg border shadow-lg"
+      style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}
+    >
       {loading ? (
         <p className="px-4 py-3 text-sm text-zinc-500">搜索中…</p>
       ) : results.length > 0 ? (
@@ -67,7 +75,8 @@ export default function NavSearch() {
                 <button
                   type="button"
                   onClick={() => goToArticle(a.slug)}
-                  className="w-full text-left px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900 cursor-pointer transition-colors border-b border-zinc-100 dark:border-zinc-800 last:border-0"
+                  className="w-full text-left px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 cursor-pointer transition-colors border-b last:border-0"
+                  style={{ borderColor: 'var(--color-border)' }}
                 >
                   <div className="font-medium text-sm line-clamp-1">{a.title}</div>
                   <div className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{a.summary}</div>
@@ -78,7 +87,7 @@ export default function NavSearch() {
           <button
             type="button"
             onClick={goToSearchResults}
-            className="w-full px-4 py-2.5 text-xs text-accent hover:bg-zinc-50 dark:hover:bg-zinc-900 cursor-pointer transition-colors"
+            className="w-full px-4 py-2.5 text-xs text-accent hover:bg-zinc-50 dark:hover:bg-zinc-900/50 cursor-pointer transition-colors"
           >
             查看全部结果 →
           </button>
@@ -102,7 +111,11 @@ export default function NavSearch() {
           if (e.key === 'Escape') { setOpen(false); setKeyword('') }
         }}
         placeholder={zh.search.placeholder}
-        className="w-full rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-50/80 dark:bg-zinc-900/60 py-2 pl-9 pr-8 text-sm outline-none transition-all focus:border-accent/50 focus:ring-2 focus:ring-accent/10"
+        className="w-full rounded-full border py-2 pl-9 pr-8 text-sm outline-none transition-all focus:ring-2 focus:ring-accent/15"
+        style={{
+          borderColor: 'var(--color-border)',
+          background: 'color-mix(in srgb, var(--color-background) 70%, transparent)',
+        }}
       />
       {keyword && (
         <button
@@ -118,6 +131,14 @@ export default function NavSearch() {
     </div>
   )
 
+  if (isFooter) {
+    return (
+      <div ref={wrapRef} className="w-full">
+        {searchInput}
+      </div>
+    )
+  }
+
   return (
     <div ref={wrapRef} className="flex items-center flex-1 min-w-0 lg:max-w-md lg:mx-4">
       <div className="hidden lg:flex flex-1 w-full">{searchInput}</div>
@@ -125,15 +146,18 @@ export default function NavSearch() {
       <button
         type="button"
         onClick={() => setMobileOpen((v) => !v)}
-        className="lg:hidden rounded-full p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+        className="lg:hidden rounded-lg p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
         aria-label={zh.nav.search}
       >
         <Search size={18} />
       </button>
 
       {mobileOpen && (
-        <div className="lg:hidden fixed inset-x-4 top-[4.5rem] z-50">
-          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md p-3 shadow-xl">
+        <div className="lg:hidden fixed inset-x-4 top-[3.75rem] z-50">
+          <div
+            className="rounded-lg border p-3 shadow-lg"
+            style={{ borderColor: 'var(--color-border)', background: 'var(--color-surface)' }}
+          >
             {searchInput}
           </div>
         </div>

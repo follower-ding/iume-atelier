@@ -1,51 +1,75 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { articleApi, commentApi } from '@/api'
+import CommentThread from '@/components/business/CommentThread'
+import RelatedArticles from '@/components/business/RelatedArticles'
+import ArticleListSkeleton from '@/components/common/ArticleListSkeleton'
+import EmptyState from '@/components/common/EmptyState'
+import HeroBanner from '@/components/common/HeroBanner'
 import ReadingProgress from '@/components/common/ReadingProgress'
 import TableOfContents, { extractTocFromMarkdown } from '@/components/common/TableOfContents'
 import MarkdownRenderer from '@/components/common/MarkdownRenderer'
+import ShareCardGenerator from '@/components/interactive/ShareCardGenerator'
+import { useActiveTocItem } from '@/hooks/useActiveTocItem'
 import PageMeta from '@/components/seo/PageMeta'
-import { useAuthStore } from '@/store'
+import { estimateReadingTime, formatReadingTime } from '@/utils/readingTime'
 import { zh } from '@/locales/zh'
 import type { Article, Comment } from '@/types/api'
 
+function formatDate(value?: string) {
+  if (!value) return ''
+  return new Date(value).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
 export default function ArticleDetailPage() {
   const { slug } = useParams<{ slug: string }>()
-  const { user } = useAuthStore()
   const [article, setArticle] = useState<Article | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
-  const [commentText, setCommentText] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!slug) return
-    articleApi.getBySlug(slug).then(setArticle).catch(() => setArticle(null))
+    setLoading(true)
+    articleApi
+      .getBySlug(slug)
+      .then(setArticle)
+      .catch(() => setArticle(null))
+      .finally(() => setLoading(false))
   }, [slug])
 
-  useEffect(() => {
-    if (article?.id) {
-      commentApi.list(article.id).then(setComments).catch(() => {})
-    }
+  const refreshComments = useCallback(() => {
+    if (!article?.id) return
+    commentApi.list(article.id).then(setComments).catch(() => {})
   }, [article?.id])
 
-  const toc = article ? extractTocFromMarkdown(article.content) : []
+  useEffect(() => {
+    refreshComments()
+  }, [refreshComments])
 
-  const handleComment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!article || !commentText.trim() || !user) return
-    setSubmitting(true)
-    try {
-      await commentApi.create(article.id, commentText.trim())
-      setCommentText('')
-      const updated = await commentApi.list(article.id)
-      setComments(updated)
-    } finally {
-      setSubmitting(false)
-    }
+  const toc = article ? extractTocFromMarkdown(article.content) : []
+  const tocIds = toc.map((t) => t.id)
+  const activeTocId = useActiveTocItem(tocIds)
+  const readMinutes = article ? estimateReadingTime(article.content) : 0
+
+  if (loading) {
+    return (
+      <section className="page-container py-16">
+        <ArticleListSkeleton count={1} />
+      </section>
+    )
   }
 
   if (!article) {
-    return <div className="py-32 text-center text-zinc-500">{zh.article.notFound}</div>
+    return (
+      <section className="page-container py-24">
+        <EmptyState
+          title={zh.article.notFound}
+          description={zh.notFound.description}
+          actionLabel={zh.notFound.backHome}
+          actionTo="/articles"
+        />
+      </section>
+    )
   }
 
   const jsonLd = {
@@ -55,75 +79,123 @@ export default function ArticleDetailPage() {
     description: article.summary,
     author: { '@type': 'Person', name: article.authorName },
     datePublished: article.publishedAt,
-    image: article.coverImage,
+    image: article.coverImage
+      ? (article.coverImage.startsWith('http') ? article.coverImage : `${window.location.origin}${article.coverImage}`)
+      : undefined,
   }
 
   return (
     <>
       <ReadingProgress />
+      {article.status === 'DRAFT' && (
+        <div className="draft-banner" role="status">
+          {zh.article.draftPreview}
+        </div>
+      )}
       <PageMeta
         title={article.title}
         description={article.summary?.slice(0, 160)}
         image={article.coverImage}
         type="article"
+        publishedTime={article.publishedAt}
+        author={article.authorName}
         jsonLd={jsonLd}
       />
-      <article className="page-container py-10 lg:py-14">
-        <header className="mb-10 lg:mb-14 max-w-4xl mx-auto text-center">
+
+      <HeroBanner compact>
+        <h1 className="mx-auto max-w-3xl font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight tracking-tight text-balance">
+          {article.title}
+        </h1>
+        {article.summary && (
+          <p className="mx-auto mt-5 max-w-2xl text-lg sm:text-xl leading-relaxed text-secondary">
+            {article.summary}
+          </p>
+        )}
+        <div className="meta-line mt-6 space-y-1">
           {article.categoryName && (
-            <span className="inline-block mb-4 rounded-full bg-accent/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-accent">
-              {article.categoryName}
-            </span>
+            <p>
+              {zh.article.filedUnder}{' '}
+              <Link to={`/articles?category=${article.categoryId}`} className="prose-link cursor-pointer">
+                {article.categoryName}
+              </Link>
+              {article.publishedAt && (
+                <> {zh.article.onDate} {formatDate(article.publishedAt)}</>
+              )}
+            </p>
           )}
-          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight tracking-tight">{article.title}</h1>
-          {article.summary && (
-            <p className="mt-5 text-lg text-secondary dark:text-zinc-400 leading-relaxed">{article.summary}</p>
+          <p>
+            {article.authorName} · {article.viewCount} {zh.article.reads}
+            {' · '}
+            <span className="text-accent">{formatReadingTime(readMinutes)}</span>
+          </p>
+          {article.tags?.length > 0 && (
+            <p className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="text-secondary">{zh.article.tags}:</span>
+              {article.tags.map((t) => (
+                <Link
+                  key={t.id}
+                  to={`/articles?tag=${t.id}`}
+                  className="rounded-full border border-zinc-300 dark:border-zinc-600 px-2.5 py-0.5 text-xs hover:border-accent hover:text-accent cursor-pointer transition-colors"
+                >
+                  {t.name}
+                </Link>
+              ))}
+            </p>
           )}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm text-zinc-500">
-            <span className="font-medium text-zinc-700 dark:text-zinc-300">{article.authorName}</span>
-            <span className="text-zinc-300 dark:text-zinc-600">·</span>
-            <span>{article.viewCount} {zh.article.reads}</span>
-          </div>
-        </header>
+        </div>
+        <ShareCardGenerator
+          title={article.title}
+          summary={article.summary}
+          author={article.authorName}
+          slug={article.slug}
+          coverImage={article.coverImage}
+        />
+      </HeroBanner>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(180px,220px)_1fr] gap-8 xl:gap-14 max-w-article mx-auto">
-          <aside className="hidden lg:block">
-            <TableOfContents items={toc} />
-          </aside>
+      <article className="page-container py-12 lg:py-16">
+        {toc.length > 0 && (
+          <nav className="article-toc-mobile lg:hidden" aria-label="Table of contents">
+            <p className="article-toc__label">{zh.toc}</p>
+            <div className="article-toc-mobile__scroll">
+              {toc.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className={`article-toc-mobile__chip${activeTocId === item.id ? ' article-toc-mobile__chip--active' : ''}`}
+                >
+                  {item.text}
+                </a>
+              ))}
+            </div>
+          </nav>
+        )}
 
-          <div className="min-w-0">
-            <div className="article-prose rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/60 dark:bg-zinc-900/40 px-6 sm:px-8 lg:px-10 py-8 lg:py-10 shadow-sm">
+        <div className="article-layout">
+          <div className="article-layout__main">
+            <div className="article-prose">
               <MarkdownRenderer content={article.content} />
             </div>
 
-            <section className="mt-12 lg:mt-16 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/40 dark:bg-zinc-900/30 px-6 sm:px-8 py-8">
-              <h2 className="font-display text-2xl mb-6">{zh.article.comments}（{comments.length}）</h2>
-              {user ? (
-                <form onSubmit={handleComment} className="mb-8">
-                  <textarea
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder={zh.article.commentPlaceholder}
-                    rows={3}
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white/80 dark:bg-zinc-950/50 p-4 mb-3 outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/10 transition-all"
-                  />
-                  <button type="submit" disabled={submitting} className="btn-primary cursor-pointer">
-                    {zh.article.postComment}
-                  </button>
-                </form>
-              ) : (
-                <p className="mb-6 text-zinc-500">{zh.article.signInToComment}</p>
-              )}
-              <div className="space-y-4">
-                {comments.map((c) => (
-                  <div key={c.id} className="rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/50 dark:bg-zinc-950/30 p-4">
-                    <div className="mb-1.5 text-sm font-medium">{c.userName}</div>
-                    <p className="text-secondary dark:text-zinc-300 leading-relaxed">{c.content}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
+            <RelatedArticles
+              articleId={article.id}
+              categoryId={article.categoryId}
+              tagId={article.tags?.[0]?.id}
+            />
+
+            <div className="mt-16 pt-10 border-t" style={{ borderColor: 'var(--color-border)' }}>
+              <CommentThread
+                comments={comments}
+                articleId={article.id}
+                onRefresh={refreshComments}
+              />
+            </div>
           </div>
+
+          {toc.length > 0 && (
+            <aside className="article-layout__aside hidden lg:block">
+              <TableOfContents items={toc} activeId={activeTocId} />
+            </aside>
+          )}
         </div>
       </article>
     </>

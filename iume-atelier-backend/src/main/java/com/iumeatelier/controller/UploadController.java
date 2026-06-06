@@ -25,4 +25,10 @@ public class UploadController {
     public Result<UploadResponse> uploadImage(@RequestParam("file") MultipartFile file) {
         return Result.success(uploadService.uploadImage(file));
     }
+
+    @PostMapping("/audio")
+    @Operation(summary = "Upload an audio track for personal playlist")
+    public Result<UploadResponse> uploadAudio(@RequestParam("file") MultipartFile file) {
+        return Result.success(uploadService.uploadAudio(file));
+    }
 }

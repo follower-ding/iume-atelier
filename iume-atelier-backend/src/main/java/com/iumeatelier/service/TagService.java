@@ -6,6 +6,7 @@ import com.iumeatelier.dto.response.TagResponse;
 import com.iumeatelier.entity.Tag;
 import com.iumeatelier.exception.BusinessException;
 import com.iumeatelier.mapper.TagMapper;
+import com.iumeatelier.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ public class TagService {
     }
 
     public TagResponse create(TagRequest request) {
+        requireAdmin();
         validateUnique(request.getSlug(), request.getName(), null);
         Tag tag = new Tag();
         tag.setName(request.getName());
@@ -42,6 +44,7 @@ public class TagService {
     }
 
     public TagResponse update(Long id, TagRequest request) {
+        requireAdmin();
         Tag tag = tagMapper.selectById(id);
         if (tag == null) {
             throw new BusinessException(404, "Tag not found");
@@ -54,10 +57,17 @@ public class TagService {
     }
 
     public void delete(Long id) {
+        requireAdmin();
         if (tagMapper.selectById(id) == null) {
             throw new BusinessException(404, "Tag not found");
         }
         tagMapper.deleteById(id);
+    }
+
+    private void requireAdmin() {
+        if (!SecurityUtils.isAdmin()) {
+            throw new BusinessException(403, "Admin access required");
+        }
     }
 
     private void validateUnique(String slug, String name, Long excludeId) {

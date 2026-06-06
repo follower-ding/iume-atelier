@@ -1,7 +1,8 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
-import 'highlight.js/styles/github-dark.css'
+import CodeBlock from '@/components/common/CodeBlock'
+import 'highlight.js/styles/github.css'
 
 interface MarkdownRendererProps {
   content: string
@@ -25,11 +26,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           const text = String(children)
           return <h3 id={slugify(text)}>{children}</h3>
         },
-        pre: ({ children }) => (
-          <pre className="!bg-zinc-900 !text-zinc-100 rounded-xl overflow-x-auto my-6 text-sm leading-relaxed p-4 lg:p-5">
-            {children}
-          </pre>
-        ),
+        pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
         code: ({ className, children, ...props }) => {
           const isBlock = className?.includes('language-')
           if (isBlock) {
@@ -40,7 +37,11 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             )
           }
           return (
-            <code className="rounded bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 text-sm text-accent font-mono" {...props}>
+            <code
+              className="rounded px-1.5 py-0.5 text-sm font-mono text-accent"
+              style={{ background: 'var(--color-code-bg)' }}
+              {...props}
+            >
               {children}
             </code>
           )
@@ -49,29 +50,34 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           <img
             src={src}
             alt={alt || ''}
-            className="rounded-xl my-6 w-full max-w-full shadow-md"
+            className="my-6 w-full max-w-full rounded-lg"
             loading="lazy"
           />
         ),
         a: ({ href, children }) => (
-          <a href={href} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2 hover:opacity-80 cursor-pointer">
+          <a href={href} target="_blank" rel="noopener noreferrer" className="prose-link cursor-pointer">
             {children}
           </a>
         ),
         table: ({ children }) => (
           <div className="overflow-x-auto my-6">
-            <table className="min-w-full border-collapse border border-zinc-200 dark:border-zinc-700 text-sm">
+            <table className="min-w-full border-collapse border text-sm" style={{ borderColor: 'var(--color-border)' }}>
               {children}
             </table>
           </div>
         ),
         th: ({ children }) => (
-          <th className="border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2 text-left font-semibold">
+          <th
+            className="border px-4 py-2 text-left font-semibold"
+            style={{ borderColor: 'var(--color-border)', background: 'var(--color-code-bg)' }}
+          >
             {children}
           </th>
         ),
         td: ({ children }) => (
-          <td className="border border-zinc-200 dark:border-zinc-700 px-4 py-2">{children}</td>
+          <td className="border px-4 py-2" style={{ borderColor: 'var(--color-border)' }}>
+            {children}
+          </td>
         ),
       }}
     >

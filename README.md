@@ -1,18 +1,30 @@
 # iume-atelier
 
-A distinctive editorial blog — Swiss modernism meets personal writing.
+A distinctive editorial blog — Josh Comeau–inspired reading + personal writing studio.
 
-**Stack**: React 18 + TypeScript + Tailwind · Spring Boot 3 + MyBatis-Plus · MySQL 8
+**Stack**: React 19 + TypeScript + Tailwind · Spring Boot 3 + MyBatis-Plus · MySQL 8
+
+**Version**: v1.0.0 — see [RELEASE.md](./RELEASE.md)
 
 ## Features
 
-- Editorial magazine layout with Libre Bodoni + Public Sans typography
-- Dark / light theme toggle
-- Reading progress bar & auto-generated table of contents
-- Articles, categories, tags, full-text search
-- Comments, RSS feed, sitemap, SEO meta + JSON-LD
-- Admin studio with draft / publish workflow
-- Docker Compose deployment + GitHub Actions CD
+### Reading
+- Josh-style layout: sticky TOC, scroll spy, reading progress bar
+- Categories: 编程 / AI / 生活 · tag cloud · dark/light theme
+- Comments, RSS, sitemap, SEO meta + JSON-LD
+
+### Writing
+- **Studio** — Markdown editor (write/preview/split), draft/publish
+- **Console** — admin: users, articles, comments, taxonomy, audit logs
+
+### Personalization
+- Companion dock: avatar, quotes, ambient music
+- Settings: profile, companion, playlist, appearance, security
+- Cloud-synced user preferences (cross-device)
+
+### DevOps
+- Docker Compose + GitHub Actions CD (GHCR + SSH)
+- Playwright E2E · global MCP for AI doc publishing
 
 ## Quick Start (Local)
 
@@ -32,13 +44,12 @@ CREATE DATABASE iume_atelier_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 
 ```bash
 cd iume-atelier-backend
-# Edit src/main/resources/application-dev.yml if needed
 mvn spring-boot:run
 ```
 
-API: http://localhost:8080/api  
-Swagger: http://localhost:8080/api/swagger-ui.html  
-Health: http://localhost:8080/api/health
+- API: http://localhost:8080/api
+- Swagger: http://localhost:8080/api/swagger-ui.html
+- Health: http://localhost:8080/api/health
 
 **Default admin**: `admin` / `admin123`
 
@@ -60,18 +71,13 @@ Visit: http://localhost:5173
 
 ## Deploy
 
-See [deploy/AUTO-DEPLOY.md](deploy/AUTO-DEPLOY.md)
+See [deploy/AUTO-DEPLOY.md](./deploy/AUTO-DEPLOY.md). Set `APP_VERSION=v1.0.0` in `deploy/.env`.
 
-Deploy path: `/opt/iume-atelier/deploy` on `49.235.172.214`
+## Publish docs to blog (MCP)
 
-## Scripts
+Global skill: `~/.cursor/skills/iume-atelier-publish/`  
+Install: `& "$env:USERPROFILE\.cursor\scripts\install-iume-atelier-blog-mcp.ps1"`
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/sync-api-types.ps1` | Sync OpenAPI → frontend TS types |
-| `scripts/check-secrets.ps1` | Pre-push secrets scan |
-| `scripts/github-push.ps1` | Init git + push to GitHub |
+## Project docs
 
-## Design System
-
-See [design-system/MASTER.md](design-system/MASTER.md)
+- [PRD](./iume-atelier-PRD.md) · [Tech plan](./iume-atelier-ai-code-plan.md) · [Design system](./design-system/MASTER.md)

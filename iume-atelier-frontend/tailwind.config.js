@@ -5,22 +5,23 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#18181B',
-        secondary: '#3F3F46',
-        accent: '#EC4899',
-        surface: '#FAFAFA',
-        ink: '#09090B',
+        primary: 'var(--color-primary)',
+        secondary: 'var(--color-secondary)',
+        accent: 'var(--color-cta)',
+        surface: 'var(--color-surface)',
+        ink: 'var(--color-text)',
       },
       fontFamily: {
-        display: ['"Libre Bodoni"', 'Georgia', 'serif'],
-        body: ['"Public Sans"', 'system-ui', 'sans-serif'],
+        display: ['Syne', '"PingFang SC"', '"Microsoft YaHei"', 'system-ui', 'sans-serif'],
+        body: ['"Plus Jakarta Sans"', '"PingFang SC"', '"Microsoft YaHei"', 'system-ui', 'sans-serif'],
       },
       maxWidth: {
-        prose: '720px',
+        prose: '42rem',
         content: '960px',
         article: '1100px',
         editorial: '1200px',
-        shell: '1400px',
+        shell: '1100px',
+        list: '768px',
       },
     },
   },

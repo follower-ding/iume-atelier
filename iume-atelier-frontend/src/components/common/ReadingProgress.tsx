@@ -15,14 +15,15 @@ export default function ReadingProgress() {
   }, [])
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-0.5 bg-transparent">
+    <div className="reading-progress" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100}>
+      <div className="reading-progress__track" />
       <div
-        className="h-full bg-accent transition-[width] duration-150"
+        className="reading-progress__bar"
         style={{ width: `${progress}%` }}
-        role="progressbar"
-        aria-valuenow={Math.round(progress)}
-        aria-valuemin={0}
-        aria-valuemax={100}
+      />
+      <div
+        className="reading-progress__glow"
+        style={{ left: `${progress}%` }}
       />
     </div>
   )
