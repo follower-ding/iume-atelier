@@ -1,0 +1,16 @@
+# EdgeOne Pages 静态站点配置
+# 控制台：Pages → 新建项目 → 关联 GitHub → 构建设置见下方
+
+build:
+  # 仓库根目录执行
+  install: cd iume-atelier-frontend && npm ci
+  build: cd iume-atelier-frontend && npm run build
+  output: iume-atelier-frontend/dist
+
+# 在 EdgeOne 控制台「路由规则」添加：
+# 1. /api/*  → 反向代理到 https://YOUR-BACKEND.railway.app/api/$1
+# 2. /*      → /index.html  (SPA, 200)
+
+env:
+  # 若不用控制台反代，可设直连后端（需后端 CORS）
+  VITE_API_BASE: "https://YOUR-BACKEND.railway.app/api"

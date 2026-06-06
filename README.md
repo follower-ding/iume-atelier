@@ -71,6 +71,15 @@ Visit: http://localhost:5173
 
 ## Deploy
 
+### PaaS 一键部署（无需自有服务器，推荐先上线）
+
+前端：**Vercel** / **Netlify** / **EdgeOne Pages**  
+后端 + MySQL：**Railway**
+
+详见 **[deploy/PAAS-DEPLOY.md](./deploy/PAAS-DEPLOY.md)**（约 15 分钟）
+
+### 自有服务器 CD
+
 See [deploy/AUTO-DEPLOY.md](./deploy/AUTO-DEPLOY.md). Set `APP_VERSION=v1.0.0` in `deploy/.env`.
 
 ## Publish docs to blog (MCP)
