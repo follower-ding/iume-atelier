@@ -12,18 +12,18 @@ param(
 
 $ErrorActionPreference = "Stop"
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-$host = $BackendUrl -replace '^https?://', '' -replace '/.*$', ''
+$backendHost = $BackendUrl -replace '^https?://', '' -replace '/.*$', ''
 
 $vercel = Join-Path $root "iume-atelier-frontend\vercel.json"
 $netlify = Join-Path $root "netlify.toml"
 
 if (Test-Path $vercel) {
-    (Get-Content $vercel -Raw) -replace 'REPLACE_WITH_RAILWAY_BACKEND_URL', $host | Set-Content $vercel -NoNewline
+    (Get-Content $vercel -Raw) -replace 'REPLACE_WITH_RAILWAY_BACKEND_URL', $backendHost | Set-Content $vercel -NoNewline
     Write-Host "Updated: $vercel" -ForegroundColor Green
 }
 
 if (Test-Path $netlify) {
-    (Get-Content $netlify -Raw) -replace 'REPLACE_WITH_RAILWAY_BACKEND_URL', $host | Set-Content $netlify -NoNewline
+    (Get-Content $netlify -Raw) -replace 'REPLACE_WITH_RAILWAY_BACKEND_URL', $backendHost | Set-Content $netlify -NoNewline
     Write-Host "Updated: $netlify" -ForegroundColor Green
 }
 

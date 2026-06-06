@@ -6,10 +6,10 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# API proxy â€” replace URL after Railway deploy (must be BEFORE SPA catch-all)
+# API proxy â€?replace URL after Railway deploy (must be BEFORE SPA catch-all)
 [[redirects]]
   from = "/api/*"
-  to = "https://REPLACE_WITH_RAILWAY_BACKEND_URL/api/:splat"
+  to = "https://iume-atelier-production.up.railway.app/api/:splat"
   status = 200
   force = true
 
