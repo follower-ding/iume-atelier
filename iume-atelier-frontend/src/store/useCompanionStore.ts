@@ -11,11 +11,13 @@ export interface CompanionPosition {
 
 interface CompanionState {
   collapsed: boolean
+  dismissed: boolean
   drawer: CompanionDrawer
   mood: CompanionMood
   quote: string | null
   position: CompanionPosition | null
   toggleCollapsed: () => void
+  setDismissed: (dismissed: boolean) => void
   setDrawer: (drawer: CompanionDrawer) => void
   toggleDrawer: (drawer: Exclude<CompanionDrawer, null>) => void
   setMood: (mood: CompanionMood) => void
@@ -29,12 +31,14 @@ export const useCompanionStore = create<CompanionState>()(
   persist(
     (set, get) => ({
       collapsed: false,
+      dismissed: false,
       drawer: null,
       mood: 'idle',
       quote: null,
       position: null,
       toggleCollapsed: () => set({ collapsed: !get().collapsed, drawer: null }),
-      setDrawer: (drawer) => set({ drawer, collapsed: false }),
+      setDismissed: (dismissed) => set({ dismissed, drawer: dismissed ? null : get().drawer }),
+      setDrawer: (drawer) => set({ drawer, collapsed: false, dismissed: false }),
       toggleDrawer: (drawer) => {
         const next = get().drawer === drawer ? null : drawer
         set({ drawer: next, collapsed: false })
@@ -47,7 +51,11 @@ export const useCompanionStore = create<CompanionState>()(
     }),
     {
       name: 'iume-companion-v3',
-      partialize: (state) => ({ position: state.position }),
+      partialize: (state) => ({
+        position: state.position,
+        collapsed: state.collapsed,
+        dismissed: state.dismissed,
+      }),
     },
   ),
 )

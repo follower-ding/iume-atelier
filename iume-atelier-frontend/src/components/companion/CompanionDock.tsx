@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation } from 'react-router-dom'
-import { GripHorizontal, Music } from 'lucide-react'
+import { ChevronUp, GripHorizontal, Music, Sparkles, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import CompanionAvatar from '@/components/companion/CompanionAvatar'
 import FloatingMusicPlayer, { MusicMiniToggle } from '@/components/companion/FloatingMusicPlayer'
 import MusicEngine from '@/components/companion/MusicEngine'
@@ -15,7 +16,20 @@ export default function CompanionDock() {
   const { pathname } = useLocation()
   const { play } = useUiSound()
   const user = useAuthStore((s) => s.user)
-  const { mood, quote, drawer, setDrawer, toggleDrawer, setMood, showQuote, clearQuote } = useCompanionStore()
+  const {
+    mood,
+    quote,
+    drawer,
+    collapsed,
+    dismissed,
+    setDrawer,
+    toggleDrawer,
+    toggleCollapsed,
+    setDismissed,
+    setMood,
+    showQuote,
+    clearQuote,
+  } = useCompanionStore()
   const playing = useMusicStore((s) => s.playing)
   const displayName = user?.nickname || user?.username || '你'
   const { style, dragging, dragHandleProps, consumeDragClick, resetPosition } = useCompanionDrag()
@@ -55,6 +69,17 @@ export default function CompanionDock() {
     showQuote(zh.companion.resetPosition)
   }
 
+  const handleHide = () => {
+    play('click')
+    setDismissed(true)
+  }
+
+  const handleRestore = () => {
+    play('click')
+    setDismissed(false)
+    setDrawer(null)
+  }
+
   const dockClass = [
     'companion-dock',
     'companion-dock--with-music',
@@ -62,59 +87,112 @@ export default function CompanionDock() {
     isStudioWrite ? 'companion-dock--studio' : '',
     playing ? 'companion-dock--playing' : '',
     dragging ? 'companion-dock--dragging' : '',
+    collapsed ? 'companion-dock--collapsed' : '',
   ]
     .filter(Boolean)
     .join(' ')
+
+  const restoreDock = (
+    <button
+      type="button"
+      className="companion-dock-restore cursor-pointer"
+      style={style}
+      onClick={handleRestore}
+      title={zh.companion.expand}
+      aria-label={zh.companion.expand}
+    >
+      <span className="companion-dock-restore__avatar" aria-hidden="true">
+        {(displayName || '你').trim()[0]?.toUpperCase() || '你'}
+      </span>
+      {playing && <span className="companion-dock-restore__eq" aria-hidden="true"><span /><span /><span /></span>}
+    </button>
+  )
 
   const dock = (
     <div className={dockClass} style={style}>
       <MusicEngine />
 
-      {quote && (
+      {quote && !collapsed && (
         <div className="companion-dock__bubble" role="status">
           {quote}
         </div>
       )}
 
-      <div className="companion-dock__avatar-wrap">
-        <span className="companion-dock__grip" aria-hidden="true">
-          <GripHorizontal size={12} />
-        </span>
-        <CompanionAvatar
-          avatarUrl={user?.avatar}
-          displayName={displayName}
-          mood={mood}
-          playing={playing}
-          dragHandleProps={dragHandleProps}
-          onClick={handleAvatarClick}
-          onDoubleClick={handleAvatarDoubleClick}
-        />
-      </div>
-
-      <div className="companion-dock__toolbar">
+      {collapsed ? (
         <button
           type="button"
-          className={`companion-dock__btn cursor-pointer ${drawer === 'music' ? 'companion-dock__btn--active' : ''}`}
+          className="companion-dock__expand cursor-pointer"
           onClick={() => {
             play('click')
-            toggleDrawer('music')
+            toggleCollapsed()
           }}
-          title={zh.companion.music}
-          aria-label={zh.companion.music}
-          aria-expanded={drawer === 'music'}
+          title={zh.companion.expand}
+          aria-label={zh.companion.expand}
         >
-          <Music size={16} />
+          <ChevronUp size={18} />
         </button>
-        <MusicMiniToggle />
-      </div>
+      ) : (
+        <>
+          <div className="companion-dock__avatar-wrap">
+            <span className="companion-dock__grip" aria-hidden="true">
+              <GripHorizontal size={12} />
+            </span>
+            <CompanionAvatar
+              avatarUrl={user?.avatar}
+              displayName={displayName}
+              mood={mood}
+              playing={playing}
+              dragHandleProps={dragHandleProps}
+              onClick={handleAvatarClick}
+              onDoubleClick={handleAvatarDoubleClick}
+            />
+          </div>
+
+          <div className="companion-dock__toolbar">
+            <Link
+              to="/tools"
+              className="companion-dock__btn cursor-pointer"
+              onClick={() => play('click')}
+              title={zh.nav.toolsPage}
+              aria-label={zh.nav.toolsPage}
+            >
+              <Sparkles size={16} />
+            </Link>
+            <button
+              type="button"
+              className={`companion-dock__btn cursor-pointer ${drawer === 'music' ? 'companion-dock__btn--active' : ''}`}
+              onClick={() => {
+                play('click')
+                toggleDrawer('music')
+              }}
+              title={zh.companion.music}
+              aria-label={zh.companion.music}
+              aria-expanded={drawer === 'music'}
+            >
+              <Music size={16} />
+            </button>
+            <MusicMiniToggle />
+            <button
+              type="button"
+              className="companion-dock__btn companion-dock__btn--hide cursor-pointer"
+              onClick={handleHide}
+              title={zh.companion.hide}
+              aria-label={zh.companion.hide}
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   )
 
   if (!mounted || hidden) return null
+
   return (
     <>
-      {createPortal(dock, document.body)}
-      {drawer === 'music' && <FloatingMusicPlayer onClose={() => setDrawer(null)} />}
+      {createPortal(dismissed ? restoreDock : dock, document.body)}
+      {drawer === 'music' && !dismissed && <FloatingMusicPlayer onClose={() => setDrawer(null)} />}
     </>
   )
 }

@@ -77,6 +77,8 @@ export const zh = {
     explore: '探索',
     hotArticles: '热门文章',
     newArticles: '最新发布',
+    mobileCatalog: '站点目录',
+    openCatalog: '打开目录',
   },
   home: {
     label: '技术博客',
@@ -87,7 +89,7 @@ export const zh = {
     readMore: '阅读全文 →',
     latestArticles: '最新文章',
     browseCategories: '内容大类',
-    categoryHint: '大类划分方向；具体技术点请看左侧标签云（Java、React 等）。',
+    categoryHint: '大类划分方向；具体技术点请打开上方「目录」查看标签云（Java、React 等）。',
     loading: '加载中…',
   },
   articles: {
@@ -484,6 +486,7 @@ export const zh = {
     playlist: '播放列表',
     playlistEmpty: '歌单为空，可在设置页上传音乐',
     expand: '展开陪伴坞',
+    hide: '隐藏陪伴坞',
     play: '播放',
     pause: '暂停',
     prev: '上一首',
