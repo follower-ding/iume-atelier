@@ -1,0 +1,41 @@
+{
+  "id": "prompt-blog",
+  "name": "技术博客 Prompt",
+  "description": "「问题 → 方案 → 代码 → 踩坑 → 总结」结构，适合发 iume-atelier。",
+  "category": "prompt",
+  "icon": "✍",
+  "tags": [
+    "writing",
+    "blog"
+  ],
+  "featured": true,
+  "source": "custom",
+  "detail": {
+    "intro": "结构化技术博客写作话术：问题 → 方案 → 代码 → 踩坑 → 总结。",
+    "features": [
+      "适合 iume-atelier 长文",
+      "强调可复现步骤",
+      "自动生成清晰小标题"
+    ],
+    "install": [
+      "无需安装，复制下方 Prompt 模板即可",
+      "可选：存为 .cursor/rules/blog-writing.mdc 长期生效"
+    ],
+    "setup": [
+      "新建对话，将模板粘贴为第一条消息",
+      "或 Settings → Rules → Add rule，粘贴模板内容"
+    ],
+    "usage": [
+      "附上素材：错误日志、代码片段、环境版本号",
+      "让 AI 按结构输出完整 Markdown",
+      "人工润色后，用 iume-atelier MCP 或写作台发布"
+    ],
+    "configs": [
+      {
+        "id": "prompt-blog-template",
+        "title": "技术博客写作 Prompt",
+        "content": "请写一篇可发布到 iume-atelier 的技术博客，结构如下：\n\n## 背景\n为什么要做这件事？\n\n## 方案\n核心思路与架构（可用 mermaid）\n\n## 实现\n关键代码与配置（带语言标注的代码块）\n\n## 踩坑\n真实遇到的问题与解决办法\n\n## 总结\n3 条以内可执行建议\n\n要求：Markdown、##/### 标题、中文、代码可运行。"
+      }
+    ]
+  }
+}

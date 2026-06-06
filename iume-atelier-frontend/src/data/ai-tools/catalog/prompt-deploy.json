@@ -1,0 +1,39 @@
+{
+  "id": "prompt-deploy",
+  "name": "PaaS 部署 Prompt",
+  "description": "Netlify + Railway 部署 checklist 与踩坑排查话术。",
+  "category": "prompt",
+  "icon": "🚀",
+  "tags": [
+    "deploy",
+    "paas"
+  ],
+  "source": "custom",
+  "detail": {
+    "intro": "Netlify + Railway 部署 checklist 与常见踩坑排查话术。",
+    "features": [
+      "前后端分离部署步骤",
+      "CORS / 环境变量排查",
+      "适合小白上线场景"
+    ],
+    "install": [
+      "复制下方 Prompt，部署遇到问题时使用"
+    ],
+    "setup": [
+      "提前准备好：Netlify 域名、Railway 公网 URL、构建报错日志",
+      "把 netlify.toml、环境变量列表整理到一条消息里"
+    ],
+    "usage": [
+      "按模板填写【现象】【Deploy log】【已配环境变量】",
+      "让 AI 按 CORS → 构建 → 数据库顺序排查",
+      "按给出的命令逐步修复，不要一次改太多变量"
+    ],
+    "configs": [
+      {
+        "id": "prompt-deploy-template",
+        "title": "PaaS 部署排查 Prompt",
+        "content": "我在部署 iume-atelier（Netlify 前端 + Railway 后端）遇到问题：\n\n【现象】：\n【Deploy log 报错】：\n【已配置环境变量】：\n\n请按顺序排查：\n1. netlify.toml publish/base 是否正确\n2. Railway MySQL 变量名与 Flyway\n3. IUME_CORS_ORIGINS 是否含前端域名\n4. npm peer deps / React 版本\n并给出具体修复命令。"
+      }
+    ]
+  }
+}

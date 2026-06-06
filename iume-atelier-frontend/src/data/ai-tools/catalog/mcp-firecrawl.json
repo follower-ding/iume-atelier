@@ -1,0 +1,46 @@
+{
+  "id": "mcp-firecrawl",
+  "name": "Firecrawl MCP",
+  "description": "网页搜索、抓取与内容提取，适合调研与文档采集。",
+  "category": "mcp",
+  "icon": "🔥",
+  "tags": [
+    "search",
+    "scrape"
+  ],
+  "url": "https://firecrawl.dev",
+  "source": "official",
+  "detail": {
+    "intro": "网页搜索、抓取与结构化提取，适合技术调研、竞品分析和文档采集。",
+    "features": [
+      "站内 / 全网搜索",
+      "单页抓取与 Markdown 转换",
+      "批量爬取与摘要"
+    ],
+    "install": [
+      "打开 https://firecrawl.dev 注册账号",
+      "Dashboard → API Keys → 创建 Key 并复制",
+      "确保本机已安装 Node.js 18+（运行 npx 需要）",
+      "打开 Cursor → Settings（齿轮）→ MCP → Edit in settings.json",
+      "或直接编辑 mcp.json 文件（路径见下方配置章节）"
+    ],
+    "setup": [
+      "将 FIRECRAWL_API_KEY 填入下方 env",
+      "将下方 JSON 合并进 mcpServers 对象（注意逗号，不要重复外层大括号）",
+      "保存文件后，在 Cursor MCP 面板点击 Refresh，或完全重启 Cursor",
+      "确认对应服务旁显示绿灯 Connected；红灯则检查 Node 路径与 env 变量"
+    ],
+    "usage": [
+      "说：「搜索 Spring Boot 3.4 新特性，总结前 5 篇」",
+      "说：「抓取 https://example.com/docs 并转成 Markdown 大纲」",
+      "调研类任务先 firecrawl 再写代码，减少幻觉"
+    ],
+    "configs": [
+      {
+        "id": "mcp-firecrawl-config",
+        "title": "Firecrawl MCP 配置（mcp.json）",
+        "content": "{\n  \"mcpServers\": {\n    \"firecrawl\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"firecrawl-mcp\"],\n      \"env\": {\n        \"FIRECRAWL_API_KEY\": \"fc-xxxxxxxxxxxx\"\n      }\n    }\n  }\n}"
+      }
+    ]
+  }
+}

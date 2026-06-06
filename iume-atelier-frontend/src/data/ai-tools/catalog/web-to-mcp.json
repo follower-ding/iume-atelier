@@ -4,7 +4,12 @@
   "description": "把网页 UI 组件转为 MCP 工具，让 Cursor Agent 直接「看见」并引用页面元素。",
   "category": "online",
   "icon": "🌐",
-  "tags": ["mcp", "ui", "design", "browser"],
+  "tags": [
+    "mcp",
+    "ui",
+    "design",
+    "browser"
+  ],
   "url": "https://web-to-mcp.com/",
   "featured": true,
   "source": "official",
@@ -36,6 +41,9 @@
         "content": "Web to MCP 的具体 mcp.json 由官网按页面动态生成。\n\n1. 访问 https://web-to-mcp.com/\n2. 选定页面/组件后导出 MCP 配置\n3. 合并进 ~/.cursor/mcp.json 或项目 .cursor/mcp.json\n4. 勿将含密钥的配置提交到公开仓库"
       }
     ],
-    "related": ["mcp-puppeteer", "mcp-context7"]
+    "related": [
+      "mcp-puppeteer",
+      "mcp-context7"
+    ]
   }
 }

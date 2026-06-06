@@ -7,7 +7,7 @@ import {
 import type { AiToolEntry, AiToolFilter, AiToolItem } from '@/data/ai-tools/types'
 
 /**
- * 前台 AI 工具箱：直接读仓库内静态数据（entries/*.ts + ai-tools-list）。
+ * 前台 AI 工具箱：读 iume-ai-catalog 同步的 catalog/*.json（npm run catalog:sync）。
  * 不请求后端 API，避免数据库仅 1 条时覆盖全量 catalog。
  */
 export function useAiTools(_category: AiToolFilter = 'all', _keyword = '') {

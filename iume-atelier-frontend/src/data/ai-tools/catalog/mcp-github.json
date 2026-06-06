@@ -1,0 +1,47 @@
+{
+  "id": "mcp-github",
+  "name": "GitHub MCP",
+  "description": "仓库、Issue、PR 与 Actions 信息拉取。",
+  "category": "mcp",
+  "icon": "⬡",
+  "tags": [
+    "git",
+    "ci"
+  ],
+  "url": "https://github.com/github/github-mcp-server",
+  "source": "official",
+  "detail": {
+    "intro": "在 IDE 内拉取仓库、Issue、PR 与 Actions 状态，减少在浏览器和终端之间切换。",
+    "features": [
+      "浏览代码与提交历史",
+      "查看 / 创建 Issue 与 PR",
+      "读取 CI 运行结果"
+    ],
+    "install": [
+      "GitHub → Settings → Developer settings → Personal access tokens → Generate",
+      "勾选 repo（读私有库）、read:org（按需）、workflow（读 Actions）",
+      "确保本机已安装 Node.js 18+（运行 npx 需要）",
+      "打开 Cursor → Settings（齿轮）→ MCP → Edit in settings.json",
+      "或直接编辑 mcp.json 文件（路径见下方配置章节）"
+    ],
+    "setup": [
+      "将 GITHUB_PERSONAL_ACCESS_TOKEN 填入下方 env",
+      "Windows 若 npx 报错，可在 args 前加 cmd /c",
+      "将下方 JSON 合并进 mcpServers 对象（注意逗号，不要重复外层大括号）",
+      "保存文件后，在 Cursor MCP 面板点击 Refresh，或完全重启 Cursor",
+      "确认对应服务旁显示绿灯 Connected；红灯则检查 Node 路径与 env 变量"
+    ],
+    "usage": [
+      "说：「查看 follower-ding/iume-atelier 最近 3 次 commit」",
+      "说：「这个仓库 open 的 PR 有哪些？」",
+      "说：「最近一次 GitHub Actions 失败日志是什么」"
+    ],
+    "configs": [
+      {
+        "id": "mcp-github-config",
+        "title": "GitHub MCP 配置（mcp.json）",
+        "content": "{\n  \"mcpServers\": {\n    \"github\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-github\"],\n      \"env\": {\n        \"GITHUB_PERSONAL_ACCESS_TOKEN\": \"ghp_xxxxxxxxxxxx\"\n      }\n    }\n  }\n}"
+      }
+    ]
+  }
+}

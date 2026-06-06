@@ -1,0 +1,36 @@
+{
+  "id": "cursor-editor",
+  "name": "Cursor",
+  "description": "AI 结对编程主编辑器，支持 Agent / Rules / Skills / MCP。",
+  "category": "skill",
+  "icon": "⌘",
+  "tags": [
+    "editor",
+    "agent"
+  ],
+  "url": "https://cursor.com",
+  "source": "official",
+  "detail": {
+    "intro": "AI 结对编程主编辑器，Agent、Rules、Skills、MCP 均在此编排。",
+    "features": [
+      "多模型 Agent 对话",
+      "项目级 Rules 与 Skills",
+      "MCP 扩展外部能力"
+    ],
+    "install": [
+      "访问 https://cursor.com 下载对应系统安装包",
+      "安装后登录 GitHub 或邮箱账号",
+      "Settings → General → 选择默认 AI 模型"
+    ],
+    "setup": [
+      "Settings → MCP → 按本工具箱各 MCP 条目配置 mcp.json",
+      "项目根目录建 .cursor/rules/*.mdc 约束代码风格",
+      "全局 Skills 放 ~/.cursor/skills/，项目级放 .cursor/skills/"
+    ],
+    "usage": [
+      "Cmd/Ctrl + I 打开 Agent，描述任务而非贴长 prompt",
+      "用 @file / @folder 精确引用上下文",
+      "复杂工作流封装成 Skill，一次性配置多次复用"
+    ]
+  }
+}

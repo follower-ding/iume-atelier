@@ -1,0 +1,37 @@
+{
+  "id": "e2e-playwright",
+  "name": "Playwright E2E Skill",
+  "description": "端到端测试脚手架与 smoke 用例。",
+  "category": "skill",
+  "icon": "🎬",
+  "tags": [
+    "test",
+    "e2e"
+  ],
+  "source": "custom",
+  "detail": {
+    "intro": "为中型以上项目加 Playwright 端到端测试脚手架与 smoke 用例模板。",
+    "features": [
+      "初始化 playwright.config",
+      "登录 / 首页等 smoke 用例",
+      "CI 集成示例"
+    ],
+    "install": [
+      "在 Cursor 中打开目标项目（或任意工作区）",
+      "将 Skill 目录放到 ~/.cursor/skills/<skill-name>/（项目级可放 .cursor/skills/）",
+      "目录内必须包含 SKILL.md 文件，Cursor Agent 会自动索引"
+    ],
+    "setup": [
+      "Skill 路径：~/.cursor/skills/e2e-playwright/SKILL.md",
+      "项目需已有可运行的前端 dev server 地址",
+      "重启 Cursor 或新开 Agent 对话，让 Skill 被重新加载",
+      "在 Settings → Rules / Skills 确认该 Skill 出现在列表中",
+      "按需编辑 SKILL.md 内的触发条件与步骤说明"
+    ],
+    "usage": [
+      "说：「加 E2E 测试」或「端到端测试」",
+      "确认 baseURL（如 http://localhost:5173）与测试目录",
+      "本地执行 npx playwright test，通过后接入 GitHub Actions"
+    ]
+  }
+}

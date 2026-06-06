@@ -1,0 +1,45 @@
+{
+  "id": "mcp-mysql",
+  "name": "MySQL MCP",
+  "description": "连接数据库，执行只读查询与 schema 探索。",
+  "category": "mcp",
+  "icon": "🐬",
+  "tags": [
+    "database",
+    "mysql"
+  ],
+  "featured": true,
+  "source": "official",
+  "detail": {
+    "intro": "让 Agent 安全地查询 MySQL，适合排查数据、验证 schema，不必离开编辑器。",
+    "features": [
+      "只读查询与表结构探索",
+      "支持多数据库连接",
+      "结果可直接用于写 SQL 或接口"
+    ],
+    "install": [
+      "确保本机已安装 Node.js 18+（运行 npx 需要）",
+      "打开 Cursor → Settings（齿轮）→ MCP → Edit in settings.json",
+      "或直接编辑 mcp.json 文件（路径见下方配置章节）"
+    ],
+    "setup": [
+      "将下方 env 中的 MYSQL_HOST / USER / PASSWORD / DATABASE 改为你的连接信息",
+      "生产库建议只给只读账号，或仅在本地开发库使用",
+      "将下方 JSON 合并进 mcpServers 对象（注意逗号，不要重复外层大括号）",
+      "保存文件后，在 Cursor MCP 面板点击 Refresh，或完全重启 Cursor",
+      "确认对应服务旁显示绿灯 Connected；红灯则检查 Node 路径与 env 变量"
+    ],
+    "usage": [
+      "在 Agent 说：「列出 iume_atelier 库所有表」",
+      "说：「查 articles 表最近 5 条已发布文章」",
+      "大表务必加 LIMIT；写操作请自己在终端执行，MCP 默认只读"
+    ],
+    "configs": [
+      {
+        "id": "mcp-config",
+        "title": "MCP Server 配置",
+        "content": "{\n  \"mcpServers\": {\n    \"my-mysql\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@modelcontextprotocol/server-mysql\"],\n      \"env\": {\n        \"MYSQL_HOST\": \"127.0.0.1\",\n        \"MYSQL_USER\": \"root\",\n        \"MYSQL_PASSWORD\": \"your_password\",\n        \"MYSQL_DATABASE\": \"iume_atelier\"\n      }\n    }\n  }\n}"
+      }
+    ]
+  }
+}

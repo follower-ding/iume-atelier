@@ -1,0 +1,49 @@
+{
+  "id": "iume-atelier-mcp",
+  "name": "iume-atelier 发博 MCP",
+  "description": "一键把 Markdown 发布到 iume-atelier 博客，支持截图配图。",
+  "category": "mcp",
+  "icon": "✦",
+  "tags": [
+    "blog",
+    "自建",
+    "publish"
+  ],
+  "featured": true,
+  "source": "custom",
+  "detail": {
+    "intro": "在 Cursor 里直接调用博客 API，把 Markdown 草稿发布到 iume-atelier，省去复制粘贴。",
+    "features": [
+      "支持创建、更新文章与封面上传",
+      "Agent 可读取站点分类与标签",
+      "配合 iume-atelier-publish Skill 一句话发博"
+    ],
+    "install": [
+      "克隆或复制 iume-atelier-blog MCP 服务到 ~/.cursor/mcp-servers/iume-atelier-blog/",
+      "在该目录执行 npm install 安装依赖",
+      "确保本机已安装 Node.js 18+（运行 npx 需要）",
+      "打开 Cursor → Settings（齿轮）→ MCP → Edit in settings.json",
+      "或直接编辑 mcp.json 文件（路径见下方配置章节）"
+    ],
+    "setup": [
+      "在博客后台获取管理员账号，或使用已知的 admin 凭据",
+      "IUME_BLOG_API_URL 填后端地址（本地 http://localhost:8080/api，线上 https://xxx.up.railway.app/api）",
+      "IUME_BLOG_FRONTEND_URL 填前端公网地址（用于文章链接预览）",
+      "将下方 JSON 合并进 mcpServers 对象（注意逗号，不要重复外层大括号）",
+      "保存文件后，在 Cursor MCP 面板点击 Refresh，或完全重启 Cursor",
+      "确认对应服务旁显示绿灯 Connected；红灯则检查 Node 路径与 env 变量"
+    ],
+    "usage": [
+      "在 Agent 对话说：「列出博客分类」验证 MCP 连通",
+      "说：「把下面这篇 Markdown 发到博客，分类 programming，标签 tutorial」",
+      "发布成功后 Agent 会返回文章 slug 与可访问 URL"
+    ],
+    "configs": [
+      {
+        "id": "iume-atelier-mcp",
+        "title": "iume-atelier MCP 配置",
+        "content": "{\n  \"mcpServers\": {\n    \"iume-atelier\": {\n      \"command\": \"node\",\n      \"args\": [\"C:/Users/YOU/.cursor/mcp-servers/iume-atelier-blog/index.mjs\"],\n      \"env\": {\n        \"IUME_BLOG_API_URL\": \"https://your-site.netlify.app/api\",\n        \"IUME_BLOG_FRONTEND_URL\": \"https://your-site.netlify.app\",\n        \"IUME_BLOG_USERNAME\": \"admin\",\n        \"IUME_BLOG_PASSWORD\": \"your-password\"\n      }\n    }\n  }\n}"
+      }
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "online-github-actions",
+  "name": "GitHub Actions",
+  "description": "iume-atelier CI/CD：构建镜像 + SSH 部署。",
+  "category": "online",
+  "icon": "▣",
+  "tags": [
+    "ci",
+    "cd"
+  ],
+  "url": "https://github.com/follower-ding/iume-atelier/actions",
+  "source": "official",
+  "detail": {
+    "intro": "iume-atelier CI/CD：构建 Docker 镜像并通过 SSH 部署到服务器。",
+    "features": [
+      "push main 触发流水线",
+      "GHCR 镜像仓库",
+      "deploy 目录脚本化发布"
+    ],
+    "install": [
+      "仓库已含 .github/workflows/ 时，push 到 GitHub 即启用",
+      "GitHub 仓库 → Settings → Secrets and variables → Actions"
+    ],
+    "setup": [
+      "添加 Secrets：SSH_HOST、SSH_USER、SSH_PRIVATE_KEY、GHCR_TOKEN 等（见项目 deploy 文档）",
+      "确认 workflow 监听 main 分支 push",
+      "首次运行可在 Actions 页手动触发 workflow_dispatch"
+    ],
+    "usage": [
+      "merge 到 main 后自动构建并部署",
+      "失败时点开 Actions → 对应 run → 查看红色步骤日志",
+      "镜像 tag 通常为 latest 或 git sha"
+    ],
+    "configs": [
+      {
+        "id": "gh-actions-secrets",
+        "title": "GitHub Actions Secrets 清单",
+        "content": "SSH_HOST=your.server.ip\nSSH_USER=deploy\nSSH_PRIVATE_KEY=-----BEGIN OPENSSH PRIVATE KEY-----...\nGHCR_TOKEN=ghp_xxx（需 write:packages 权限）\nDEPLOY_PATH=/opt/iume-atelier"
+      }
+    ]
+  }
+}

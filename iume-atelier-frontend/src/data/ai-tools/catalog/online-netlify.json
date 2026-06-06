@@ -1,0 +1,45 @@
+{
+  "id": "online-netlify",
+  "name": "Netlify",
+  "description": "iume-atelier 前端托管，/api 反代到 Railway。",
+  "category": "online",
+  "icon": "◆",
+  "tags": [
+    "deploy",
+    "frontend"
+  ],
+  "url": "https://netlify.com",
+  "source": "official",
+  "detail": {
+    "intro": "iume-atelier 前端静态托管，/api 反代到 Railway 后端。",
+    "features": [
+      "Git 推送自动构建",
+      "自定义域名与 HTTPS",
+      "netlify.toml 配置 API 代理"
+    ],
+    "install": [
+      "登录 https://app.netlify.com",
+      "Add new site → Import an existing project → 连接 GitHub 仓库",
+      "选择 iume-atelier 仓库"
+    ],
+    "setup": [
+      "Base directory：iume-atelier-frontend（若 monorepo）",
+      "Build command：npm run build",
+      "Publish directory：dist（⚠️ 不要填 iume-atelier-frontend/dist，除非 base 已设子目录）",
+      "UI 里 Base/Publish 若与 netlify.toml 冲突，以 toml 为准或 UI 留空",
+      "在 netlify.toml 配置 /api 反代到 Railway 后端 URL"
+    ],
+    "usage": [
+      "git push 到 main 自动触发构建",
+      "Site overview → Domain management 绑定自定义域名",
+      "Deploy log 报错时，对照 prompt-deploy 模板排查"
+    ],
+    "configs": [
+      {
+        "id": "netlify-toml",
+        "title": "netlify.toml 示例（前端 + API 反代）",
+        "content": "[build]\n  base = \"iume-atelier-frontend\"\n  command = \"npm run build\"\n  publish = \"dist\"\n\n[[redirects]]\n  from = \"/api/*\"\n  to = \"https://iume-atelier-production.up.railway.app/api/:splat\"\n  status = 200\n  force = true\n\n[[redirects]]\n  from = \"/*\"\n  to = \"/index.html\"\n  status = 200"
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "id": "online-railway",
+  "name": "Railway",
+  "description": "Spring Boot + MySQL 后端 PaaS 部署。",
+  "category": "online",
+  "icon": "🚂",
+  "tags": [
+    "deploy",
+    "backend"
+  ],
+  "url": "https://railway.app",
+  "source": "official",
+  "detail": {
+    "intro": "Spring Boot + MySQL 后端 PaaS，适合个人博客与小项目。",
+    "features": [
+      "容器化部署",
+      "环境变量管理",
+      "可挂 MySQL 插件"
+    ],
+    "install": [
+      "登录 https://railway.app",
+      "New Project → Deploy from GitHub repo → 选择后端仓库",
+      "Add Plugin → MySQL，Railway 自动注入连接变量"
+    ],
+    "setup": [
+      "Settings → Variables 添加业务环境变量（见下方模板）",
+      "IUME_CORS_ORIGINS 必须包含 Netlify 前端域名（含 https://）",
+      "IUME_SITE_URL 填前端公网地址",
+      "Root directory 若 monorepo 设为 iume-atelier-backend",
+      "部署成功后复制 Public URL，填到 Netlify 反代"
+    ],
+    "usage": [
+      "每次 push main 自动重新部署",
+      "Variables 改完会触发 redeploy",
+      "Logs 面板查看启动失败原因（常见：数据库连接、Flyway）"
+    ],
+    "configs": [
+      {
+        "id": "railway-env",
+        "title": "Railway 环境变量示例",
+        "content": "IUME_CORS_ORIGINS=https://your-site.netlify.app\nIUME_SITE_URL=https://your-site.netlify.app\nSPRING_PROFILES_ACTIVE=prod\n\n# MySQL 插件会自动提供，通常名为：\n# MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE\n# 在 application-prod.yml 中映射为 spring.datasource.*"
+      }
+    ]
+  }
+}

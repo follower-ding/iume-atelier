@@ -1,0 +1,46 @@
+{
+  "id": "iume-atelier-publish",
+  "name": "iume-atelier-publish Skill",
+  "description": "在任意 Cursor 项目中说「发布到博客」即可调用 MCP 发文章。",
+  "category": "skill",
+  "icon": "📝",
+  "tags": [
+    "blog",
+    "publish"
+  ],
+  "featured": true,
+  "source": "custom",
+  "detail": {
+    "intro": "任意 Cursor 项目中说「发布到博客」，自动调用 iume-atelier MCP 发文章。",
+    "features": [
+      "无需记忆 MCP 工具名",
+      "支持草稿润色后发布",
+      "可附带本地截图路径"
+    ],
+    "install": [
+      "先完成 iume-atelier MCP 的安装与配置（见 iume-atelier 发博 MCP 详情页）",
+      "在 Cursor 中打开目标项目（或任意工作区）",
+      "将 Skill 目录放到 ~/.cursor/skills/<skill-name>/（项目级可放 .cursor/skills/）",
+      "目录内必须包含 SKILL.md 文件，Cursor Agent 会自动索引"
+    ],
+    "setup": [
+      "Skill 目录：~/.cursor/skills/iume-atelier-publish/",
+      "确认 SKILL.md 描述与 MCP 工具名一致",
+      "重启 Cursor 或新开 Agent 对话，让 Skill 被重新加载",
+      "在 Settings → Rules / Skills 确认该 Skill 出现在列表中",
+      "按需编辑 SKILL.md 内的触发条件与步骤说明"
+    ],
+    "usage": [
+      "在任意项目写好 Markdown 草稿",
+      "说：「发布到 iume-atelier，分类 AI，标签 deploy」",
+      "Agent 会依次：健康检查 → 拉分类标签 → 调用 blog_publish_article"
+    ],
+    "configs": [
+      {
+        "id": "iume-atelier-skill",
+        "title": "iume-atelier-publish Skill 用法",
+        "content": "# 发布到 iume-atelier\n\n对 Cursor 说：\n「帮我把这篇文档发布到 iume-atelier，分类 programming，标签 tutorial」\n\n流程：blog_health → blog_list_taxonomy → blog_publish_article\n\nSkill 路径：~/.cursor/skills/iume-atelier-publish/\nMCP 路径：~/.cursor/mcp-servers/iume-atelier-blog/"
+      }
+    ]
+  }
+}

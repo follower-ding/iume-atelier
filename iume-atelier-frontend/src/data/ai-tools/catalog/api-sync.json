@@ -1,0 +1,37 @@
+{
+  "id": "api-sync",
+  "name": "API 契约同步 Skill",
+  "description": "Spring OpenAPI → 前端 TypeScript 类型。",
+  "category": "skill",
+  "icon": "⇄",
+  "tags": [
+    "api",
+    "typescript"
+  ],
+  "source": "custom",
+  "detail": {
+    "intro": "Spring Boot OpenAPI 导出后，一键生成前端 TypeScript 类型，保持前后端契约一致。",
+    "features": [
+      "读取 openapi.json / yaml",
+      "生成 types 与 API 客户端骨架",
+      "适合全栈迭代时同步接口"
+    ],
+    "install": [
+      "在 Cursor 中打开目标项目（或任意工作区）",
+      "将 Skill 目录放到 ~/.cursor/skills/<skill-name>/（项目级可放 .cursor/skills/）",
+      "目录内必须包含 SKILL.md 文件，Cursor Agent 会自动索引"
+    ],
+    "setup": [
+      "Skill 路径：~/.cursor/skills/api-contract-sync/SKILL.md",
+      "后端需启用 springdoc，确保 /v3/api-docs 可访问",
+      "重启 Cursor 或新开 Agent 对话，让 Skill 被重新加载",
+      "在 Settings → Rules / Skills 确认该 Skill 出现在列表中",
+      "按需编辑 SKILL.md 内的触发条件与步骤说明"
+    ],
+    "usage": [
+      "后端改完接口后，说：「同步 API 类型到前端」",
+      "Agent 读取 OpenAPI → 生成 src/types/api.ts",
+      "检查 diff 后提交，避免前后端字段不一致"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "mcp-context7",
+  "name": "Context7 文档",
+  "description": "拉取库/框架最新官方文档，避免 AI 用过期 API。",
+  "category": "mcp",
+  "icon": "📚",
+  "tags": [
+    "docs",
+    "library"
+  ],
+  "url": "https://context7.com",
+  "source": "official",
+  "detail": {
+    "intro": "拉取第三方库的最新官方文档，避免 AI 用过期 API 或幻觉接口。",
+    "features": [
+      "按库名解析文档源",
+      "支持主流框架与 npm 包",
+      "与 Agent 编码流程无缝衔接"
+    ],
+    "install": [
+      "无需 API Key，只需 Node.js 18+ 与 npx",
+      "确保本机已安装 Node.js 18+（运行 npx 需要）",
+      "打开 Cursor → Settings（齿轮）→ MCP → Edit in settings.json",
+      "或直接编辑 mcp.json 文件（路径见下方配置章节）"
+    ],
+    "setup": [
+      "将下方 context7 配置合并进 mcp.json",
+      "首次连接会自动下载 @upstash/context7-mcp，需保持网络畅通",
+      "将下方 JSON 合并进 mcpServers 对象（注意逗号，不要重复外层大括号）",
+      "保存文件后，在 Cursor MCP 面板点击 Refresh，或完全重启 Cursor",
+      "确认对应服务旁显示绿灯 Connected；红灯则检查 Node 路径与 env 变量",
+      "验证：MCP 面板 context7 显示 Connected 即可使用"
+    ],
+    "usage": [
+      "写代码前说：「use context7，查 React Router v7 的 loader 用法」",
+      "说：「先拉 Spring Boot 3.4 官方文档，再帮我写分页接口」",
+      "说：「查 Tailwind v4 的 @theme 配置方式再改样式」",
+      "把 Agent 返回的文档片段作为唯一实现依据"
+    ],
+    "configs": [
+      {
+        "id": "mcp-context7-config",
+        "title": "Context7 MCP 配置（mcp.json）",
+        "content": "{\n  \"mcpServers\": {\n    \"context7\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"@upstash/context7-mcp\"]\n    }\n  }\n}"
+      }
+    ]
+  }
+}

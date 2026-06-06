@@ -1,0 +1,40 @@
+{
+  "id": "cursor-rule",
+  "name": "Cursor Rule 模板",
+  "description": "Spring Boot API 规范规则片段，可复制到 .cursor/rules。",
+  "category": "prompt",
+  "icon": "📋",
+  "tags": [
+    "rules",
+    "spring"
+  ],
+  "source": "custom",
+  "detail": {
+    "intro": "Spring Boot API 规范片段，可复制到 .cursor/rules 统一后端风格。",
+    "features": [
+      "REST 与 DTO 约定",
+      "异常与分页响应格式",
+      "与 iume-atelier 后端一致"
+    ],
+    "install": [
+      "在项目根目录创建 .cursor/rules/ 目录（不存在则新建）"
+    ],
+    "setup": [
+      "新建 spring-api.mdc，粘贴下方规则内容",
+      "globs 设为 **/*.java 仅对 Java 文件生效",
+      "保存后 Agent 写后端代码会自动遵循"
+    ],
+    "usage": [
+      "新接口开发前无需重复说明规范",
+      "Code Review 时可对照规则检查 Controller / DTO",
+      "按项目需要增删条款，保持规则简短可执行"
+    ],
+    "configs": [
+      {
+        "id": "cursor-rule",
+        "title": "Cursor Rule 片段",
+        "content": "---\ndescription: Spring Boot API 规范\nglobs: **/*.java\n---\n\n- Controller 只做参数校验与调用 Service\n- 统一返回 Result<T>，业务异常用 BusinessException\n- DTO 与 Entity 分离，禁止直接暴露 Entity"
+      }
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "id": "fullstack-scaffold",
+  "name": "全栈脚手架 Skill",
+  "description": "创建新项目、初始化规则与 skill 流水线。",
+  "category": "skill",
+  "icon": "🏗",
+  "tags": [
+    "scaffold",
+    "cursor"
+  ],
+  "featured": true,
+  "source": "custom",
+  "detail": {
+    "intro": "一句话创建全栈项目骨架，自动调度 PRD、设计系统、E2E 等 skill 流水线。",
+    "features": [
+      "按项目类型选用技术栈",
+      "生成 .cursor/rules 与目录结构",
+      "串联 api-contract-sync、secrets-guard 等"
+    ],
+    "install": [
+      "在 Cursor 中打开目标项目（或任意工作区）",
+      "将 Skill 目录放到 ~/.cursor/skills/<skill-name>/（项目级可放 .cursor/skills/）",
+      "目录内必须包含 SKILL.md 文件，Cursor Agent 会自动索引"
+    ],
+    "setup": [
+      "Skill 路径：~/.cursor/skills/fullstack-scaffold/SKILL.md",
+      "或在创建新项目时说「初始化规则」，由 scaffold 写入 .cursor/rules/",
+      "重启 Cursor 或新开 Agent 对话，让 Skill 被重新加载",
+      "在 Settings → Rules / Skills 确认该 Skill 出现在列表中",
+      "按需编辑 SKILL.md 内的触发条件与步骤说明"
+    ],
+    "usage": [
+      "说：「我要创建一个博客项目，React + Spring Boot」",
+      "确认 AI 给出的 PRD 与技术方案后再执行脚手架",
+      "按流水线依次：PRD → 设计系统 → 前后端代码 → E2E → CD"
+    ],
+    "configs": [
+      {
+        "id": "cursor-skill",
+        "title": "Agent Skill 骨架",
+        "content": "# Skill Name\n\n## When to use\n- 用户说「同步 API」「生成类型」时使用\n\n## Steps\n1. 读取 OpenAPI / swagger 输出\n2. 生成 TypeScript 类型到 src/types/\n3. 验证与 api/index.ts 导出一致"
+      }
+    ]
+  }
+}

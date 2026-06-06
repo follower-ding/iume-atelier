@@ -1,4 +1,3 @@
-import { buildLegacyEntries } from '@/data/ai-tools/legacy'
 import { defineAiTool } from '@/data/ai-tools/define'
 import type {
   AiToolCategory,
@@ -16,30 +15,15 @@ export const aiToolCategories: { id: AiToolCategory; label: string; hint: string
   { id: 'online', label: '在线工具', hint: '部署、构建与协作类 Web 服务' },
 ]
 
-function loadEntryFiles(): AiToolEntry[] {
-  const modules = import.meta.glob<{ default: AiToolEntry }>('./entries/*.ts', { eager: true })
-  return Object.entries(modules)
-    .filter(([path]) => !path.endsWith('_template.ts'))
-    .map(([, mod]) => mod.default)
-}
-
-/** 从 iume-ai-catalog 同步的 JSON（npm run catalog:sync） */
+/** 从 iume-ai-catalog 同步的 JSON（npm run catalog:sync）— 唯一数据源 */
 function loadCatalogJson(): AiToolEntry[] {
   const modules = import.meta.glob<AiToolEntry>('./catalog/*.json', { eager: true, import: 'default' })
-  return Object.values(modules).map((entry) => defineAiTool(entry))
+  return Object.values(modules)
+    .map((entry) => defineAiTool(entry))
+    .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'))
 }
 
-function mergeEntries(legacy: AiToolEntry[], modern: AiToolEntry[]): AiToolEntry[] {
-  const map = new Map<string, AiToolEntry>()
-  for (const entry of legacy) map.set(entry.id, entry)
-  for (const entry of modern) map.set(entry.id, entry)
-  return [...map.values()]
-}
-
-const legacyEntries = buildLegacyEntries()
-const modernEntries = loadEntryFiles()
-const catalogEntries = loadCatalogJson()
-export const aiToolEntries = mergeEntries(mergeEntries(legacyEntries, modernEntries), catalogEntries)
+export const aiToolEntries = loadCatalogJson()
 
 export const aiTools: AiToolItem[] = aiToolEntries.map(({ detail: _detail, ...card }) => card)
 

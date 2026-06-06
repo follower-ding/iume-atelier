@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 校验 AI 工具箱数据完整性
+ * 校验 AI 工具箱 catalog 数据完整性
  */
 import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -8,50 +8,53 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
-const entriesDir = join(root, 'src/data/ai-tools/entries')
 const catalogDir = join(root, 'src/data/ai-tools/catalog')
 
-const legacy = readFileSync(join(root, 'src/data/ai-tools-list.ts'), 'utf8')
-const legacyIds = [...legacy.matchAll(/id: '([^']+)'/g)].map((m) => m[1])
-
-const entryFiles = readdirSync(entriesDir).filter((f) => f.endsWith('.ts') && f !== '_template.ts')
-const entryIds = entryFiles.map((f) => f.replace(/\.ts$/, ''))
-
-let catalogIds = []
-if (existsSync(catalogDir)) {
-  catalogIds = readdirSync(catalogDir)
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => f.replace(/\.json$/, ''))
+if (!existsSync(catalogDir)) {
+  console.error('❌ catalog 目录不存在，请先运行 npm run catalog:sync')
+  process.exit(1)
 }
 
-const allIds = [...legacyIds, ...entryIds, ...catalogIds]
-const dup = allIds.filter((id, i) => allIds.indexOf(id) !== i)
+const files = readdirSync(catalogDir).filter((f) => f.endsWith('.json'))
+const ids = files.map((f) => f.replace(/\.json$/, ''))
+const dup = ids.filter((id, i) => ids.indexOf(id) !== i)
 
 let ok = true
+
+if (!files.length) {
+  console.error('❌ catalog 为空，请从 iume-ai-catalog 同步')
+  ok = false
+}
 
 if (dup.length) {
   console.error('❌ 重复 id:', [...new Set(dup)].join(', '))
   ok = false
 }
 
-for (const file of entryFiles) {
-  const text = readFileSync(join(entriesDir, file), 'utf8')
-  if (!text.includes('defineAiTool(')) {
-    console.error(`❌ ${file}: 必须使用 defineAiTool()`)
+const validCategories = new Set(['mcp', 'skill', 'prompt', 'online'])
+
+for (const file of files) {
+  const entry = JSON.parse(readFileSync(join(catalogDir, file), 'utf8'))
+  const id = file.replace(/\.json$/, '')
+  if (entry.id !== id) {
+    console.error(`❌ ${file}: id 与文件名不一致`)
     ok = false
   }
-  if (text.includes('mcp-foo') || text.includes('Foo MCP')) {
-    console.warn(`⚠️  ${file}: 仍含模板占位符，请替换为真实内容`)
+  if (!entry.name?.trim() || !entry.description?.trim()) {
+    console.error(`❌ ${file}: 缺少 name 或 description`)
+    ok = false
   }
-}
-
-const overlap = legacyIds.filter((id) => entryIds.includes(id))
-if (overlap.length) {
-  console.log(`ℹ️  entries 覆盖了 legacy 条目: ${overlap.join(', ')}（新文件优先）`)
+  if (!validCategories.has(entry.category)) {
+    console.error(`❌ ${file}: category 无效`)
+    ok = false
+  }
+  if (!entry.detail?.features?.length) {
+    console.warn(`⚠️  ${file}: detail.features 为空`)
+  }
 }
 
 if (ok) {
-  console.log(`✅ 工具箱数据 OK — legacy ${legacyIds.length} 条，entries ${entryIds.length} 条，catalog ${catalogIds.length} 条，合计 ${new Set(allIds).size} 条`)
+  console.log(`✅ 工具箱 catalog OK — ${ids.length} 条`)
 } else {
   process.exit(1)
 }

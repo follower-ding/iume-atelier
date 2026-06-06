@@ -1,0 +1,39 @@
+{
+  "id": "prompt-refactor",
+  "name": "小步重构 Prompt",
+  "description": "最小 diff、匹配现有风格、不 over-engineer。",
+  "category": "prompt",
+  "icon": "🔧",
+  "tags": [
+    "refactor",
+    "code"
+  ],
+  "source": "custom",
+  "detail": {
+    "intro": "约束 AI 做小步重构：最小 diff、匹配现有风格、不过度抽象。",
+    "features": [
+      "避免大范围重写",
+      "强调读周边代码再改",
+      "适合 Code Review 前清理"
+    ],
+    "install": [
+      "复制下方 Prompt，无需额外安装"
+    ],
+    "setup": [
+      "可设为项目 Rule：globs 匹配 **/*.{ts,tsx,java}",
+      "或在重构前手动粘贴到对话开头"
+    ],
+    "usage": [
+      "@选中文件 或说明要重构的路径",
+      "说明目标：提取函数、去重复、改命名等",
+      "逐文件应用 diff，每步跑测试确认行为不变"
+    ],
+    "configs": [
+      {
+        "id": "prompt-refactor-template",
+        "title": "小步重构 Prompt",
+        "content": "请在不改变行为的前提下做小步重构：\n\n- 最小 diff，不碰无关文件\n- 匹配现有命名与代码风格\n- 不要过度抽象或加无用注释\n- 说明改了什么、为什么"
+      }
+    ]
+  }
+}
