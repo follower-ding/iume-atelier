@@ -1,0 +1,2 @@
+# API proxy to Railway backend (Zeabur / Netlify-style redirects)
+/api/* https://iume-atelier-production.up.railway.app/api/:splat 200
