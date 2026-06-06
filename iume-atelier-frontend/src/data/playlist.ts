@@ -27,11 +27,4 @@ export const defaultPlaylist: PlaylistTrack[] = [
     kind: 'audio',
     src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
   },
-  {
-    id: 'netease',
-    title: '去听网易云',
-    artist: 'music.163.com',
-    kind: 'link',
-    href: 'https://music.163.com',
-  },
 ]

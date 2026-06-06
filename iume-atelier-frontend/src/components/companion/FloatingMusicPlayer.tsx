@@ -222,7 +222,7 @@ export default function FloatingMusicPlayer({ onClose }: FloatingMusicPlayerProp
                   onClick={() => uiPlay('click')}
                 >
                   <ExternalLink size={14} />
-                  {zh.companion.openNetease}
+                  {zh.companion.openExternalMusic}
                 </a>
               </div>
             )}

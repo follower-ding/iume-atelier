@@ -1,16 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation } from 'react-router-dom'
-import { ChevronUp, GripHorizontal, Music, Sparkles, X } from 'lucide-react'
+import { ChevronUp, GripHorizontal, Music, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CompanionAvatar from '@/components/companion/CompanionAvatar'
-import FloatingMusicPlayer, { MusicMiniToggle } from '@/components/companion/FloatingMusicPlayer'
+import FloatingMusicPlayer from '@/components/companion/FloatingMusicPlayer'
 import MusicEngine from '@/components/companion/MusicEngine'
 import { randomQuote } from '@/data/companion-quotes'
 import { useCompanionDrag } from '@/hooks/useCompanionDrag'
+import { useLongPress } from '@/hooks/useLongPress'
 import { useUiSound } from '@/hooks/useUiSound'
 import { useAuthStore, useCompanionStore, useMusicStore } from '@/store'
 import { zh } from '@/locales/zh'
+
+function mergePointerHandlers(
+  base: Record<string, unknown> | undefined,
+  extra: Record<string, (e: ReactPointerEvent) => void>,
+) {
+  const merged: Record<string, (e: ReactPointerEvent) => void> = { ...extra }
+  for (const key of ['onPointerDown', 'onPointerMove', 'onPointerUp', 'onPointerCancel'] as const) {
+    const baseFn = base?.[key] as ((e: ReactPointerEvent) => void) | undefined
+    const extraFn = extra[key]
+    if (baseFn || extraFn) {
+      merged[key] = (e) => {
+        baseFn?.(e)
+        extraFn?.(e)
+      }
+    }
+  }
+  return merged
+}
 
 export default function CompanionDock() {
   const { pathname } = useLocation()
@@ -40,6 +59,21 @@ export default function CompanionDock() {
   const isArticleRead = pathname.startsWith('/article/')
   const hidden = isStudioWrite || isSettings
 
+  const handleHide = useCallback(() => {
+    play('click')
+    setDismissed(true)
+    setDrawer(null)
+    showQuote(zh.companion.hiddenHint)
+  }, [play, setDismissed, setDrawer, showQuote])
+
+  const longPress = useLongPress(handleHide)
+  const avatarPointerProps = mergePointerHandlers(dragHandleProps, {
+    onPointerDown: longPress.onPointerDown,
+    onPointerMove: longPress.onPointerMove,
+    onPointerUp: longPress.onPointerUp,
+    onPointerCancel: longPress.onPointerCancel,
+  })
+
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
@@ -58,7 +92,7 @@ export default function CompanionDock() {
   }, [quote, clearQuote])
 
   const handleAvatarClick = () => {
-    if (consumeDragClick()) return
+    if (consumeDragClick() || longPress.consumeLongPress()) return
     play('hover')
     showQuote(randomQuote())
   }
@@ -67,11 +101,6 @@ export default function CompanionDock() {
     resetPosition()
     play('click')
     showQuote(zh.companion.resetPosition)
-  }
-
-  const handleHide = () => {
-    play('click')
-    setDismissed(true)
   }
 
   const handleRestore = () => {
@@ -142,10 +171,11 @@ export default function CompanionDock() {
               displayName={displayName}
               mood={mood}
               playing={playing}
-              dragHandleProps={dragHandleProps}
+              dragHandleProps={avatarPointerProps}
               onClick={handleAvatarClick}
               onDoubleClick={handleAvatarDoubleClick}
             />
+            <span className="companion-dock__hint">{zh.companion.longPressHide}</span>
           </div>
 
           <div className="companion-dock__toolbar">
@@ -170,16 +200,6 @@ export default function CompanionDock() {
               aria-expanded={drawer === 'music'}
             >
               <Music size={16} />
-            </button>
-            <MusicMiniToggle />
-            <button
-              type="button"
-              className="companion-dock__btn companion-dock__btn--hide cursor-pointer"
-              onClick={handleHide}
-              title={zh.companion.hide}
-              aria-label={zh.companion.hide}
-            >
-              <X size={16} />
             </button>
           </div>
         </>

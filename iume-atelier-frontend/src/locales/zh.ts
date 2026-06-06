@@ -79,6 +79,7 @@ export const zh = {
     newArticles: '最新发布',
     mobileCatalog: '站点目录',
     openCatalog: '打开目录',
+    closeCatalog: '收起目录',
   },
   home: {
     label: '技术博客',
@@ -487,6 +488,9 @@ export const zh = {
     playlistEmpty: '歌单为空，可在设置页上传音乐',
     expand: '展开陪伴坞',
     hide: '隐藏陪伴坞',
+    longPressHide: '长按隐藏',
+    hiddenHint: '已隐藏陪伴坞，点击右下角可恢复',
+    openExternalMusic: '在浏览器中打开',
     play: '播放',
     pause: '暂停',
     prev: '上一首',
