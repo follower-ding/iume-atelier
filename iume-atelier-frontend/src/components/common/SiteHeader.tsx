@@ -1,13 +1,12 @@
-import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Menu, Rss } from 'lucide-react'
-import MobileNav from '@/components/common/MobileNav'
 import NavSearch from '@/components/common/NavSearch'
 import SoundToggle from '@/components/common/SoundToggle'
 import ThemeToggle from '@/components/common/ThemeToggle'
 import UserMenu from '@/components/common/UserMenu'
 import { useUiSound } from '@/hooks/useUiSound'
 import { useAuthStore } from '@/store'
+import { useMobileNavStore } from '@/store/useMobileNavStore'
 import { zh } from '@/locales/zh'
 import { isAdmin } from '@/utils/user'
 
@@ -22,7 +21,7 @@ const navItems = [
 export default function SiteHeader() {
   const { user } = useAuthStore()
   const { play } = useUiSound()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const setMobileNavOpen = useMobileNavStore((s) => s.setOpen)
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `nav-link nav-link--pill cursor-pointer${isActive ? ' nav-link--active' : ''}`
@@ -71,8 +70,8 @@ export default function SiteHeader() {
             <button
               type="button"
               className="md:hidden header-icon-btn cursor-pointer"
-              aria-label="打开菜单"
-              onClick={() => { play('click'); setMobileOpen(true) }}
+              aria-label={zh.nav.mobileMenu}
+              onClick={() => { play('click'); setMobileNavOpen(true) }}
             >
               <Menu size={20} />
             </button>
@@ -97,7 +96,7 @@ export default function SiteHeader() {
               href="/api/rss"
               target="_blank"
               rel="noopener noreferrer"
-              className="header-icon-btn cursor-pointer"
+              className="hidden sm:inline-flex header-icon-btn cursor-pointer"
               aria-label={zh.nav.rss}
               onClick={() => play('click')}
             >
@@ -106,7 +105,6 @@ export default function SiteHeader() {
           </div>
         </div>
       </div>
-      <MobileNav open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   )
 }

@@ -3,6 +3,7 @@ import { useCompanionStore, type CompanionPosition } from '@/store'
 
 const DOCK_W = 108
 const DOCK_H = 148
+const MOBILE_BOTTOM_NAV = 64
 const PANEL_W = 320
 
 function clamp(value: number, min: number, max: number) {
@@ -11,16 +12,18 @@ function clamp(value: number, min: number, max: number) {
 
 export function defaultCompanionPosition(): CompanionPosition {
   if (typeof window === 'undefined') return { x: 16, y: 16 }
+  const bottomInset = window.matchMedia('(max-width: 767px)').matches ? MOBILE_BOTTOM_NAV + 12 : 88
   return {
     x: Math.max(16, window.innerWidth - DOCK_W - 20),
-    y: Math.max(16, window.innerHeight - DOCK_H - 88),
+    y: Math.max(16, window.innerHeight - DOCK_H - bottomInset),
   }
 }
 
 export function sanitizeCompanionPosition(p: CompanionPosition): CompanionPosition {
   if (typeof window === 'undefined') return p
+  const bottomInset = window.matchMedia('(max-width: 767px)').matches ? MOBILE_BOTTOM_NAV + 12 : 88
   const maxX = Math.max(8, window.innerWidth - DOCK_W - 8)
-  const maxY = Math.max(8, window.innerHeight - DOCK_H - 8)
+  const maxY = Math.max(8, window.innerHeight - DOCK_H - bottomInset)
   const sane = {
     x: clamp(p.x, 8, maxX),
     y: clamp(p.y, 8, maxY),
