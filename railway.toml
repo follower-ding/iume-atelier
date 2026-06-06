@@ -11,6 +11,7 @@ watchPatterns = ["iume-atelier-backend/**", "deploy/Dockerfile.backend"]
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
+numReplicas = 1
 
 # Railway 环境变量（在 Dashboard 设置）：
 # SPRING_PROFILES_ACTIVE=prod

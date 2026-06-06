@@ -1,0 +1,13 @@
+# Railway / Docker build context (repo root)
+iume-atelier-frontend/node_modules
+iume-atelier-frontend/dist
+iume-atelier-frontend/.vite
+iume-atelier-backend/target
+mcp-server/node_modules
+.git
+.cursor
+backups
+**/test-results
+uploads
+deploy/.env
+deploy/data
