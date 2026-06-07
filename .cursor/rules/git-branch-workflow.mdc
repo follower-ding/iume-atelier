@@ -24,11 +24,17 @@ alwaysApply: true
 3. 只改与本任务相关的文件；不要顺手改无关模块。
 4. 完成后 push 分支并说明迭代内容，**等大脑审查**，不要自行 merge main。
 
+## 提交与发版（见 `docs/RELEASE-WORKFLOW.md`）
+
+- **每次 commit**：写好 message（`feat`/`fix`/`docs`/`release` 等），**不必**打 tag
+- **正式发版**：`release(vX.Y.Z): 摘要` + 更新 `RELEASE.md` + `git tag vX.Y.Z` + 可选 GitHub Release
+- **部署**：merge/push 到 `main` 后，Railway / Vercel 自动部署（不依赖 Actions CD）
+
 ## 大脑（本对话）审查合并
 
 1. 看 diff / PR：范围是否只做一件事、有无密钥、有无混入其他 Agent 的改动。
-2. 合并前更新 `RELEASE.md` 与 commit 迭代备注（见 `deploy-iteration-notes.mdc`）。
-3. **仅 merge 到 `main` 后**才触发 CD 生产部署（`.github/workflows/cd.yml` 监听 main）。
+2. 正式发版时更新 `RELEASE.md` 与 tag（见 `docs/RELEASE-WORKFLOW.md`）。
+3. push 到 `main` 触发 PaaS 自动部署；Actions CD 仅用于自有 VPS（未配置可忽略）。
 4. 若多个功能并行：各分支独立 PR，按优先级逐个 merge，避免一次 commit 打包所有未审查代码。
 
 ## 禁止
