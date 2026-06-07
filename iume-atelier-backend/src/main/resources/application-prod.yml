@@ -25,7 +25,7 @@ iume:
   cors:
     allowed-origins: ${IUME_CORS_ORIGINS:https://*.netlify.app,https://*.vercel.app,http://localhost:5173}
   app:
-    version: ${IUME_APP_VERSION:1.2.1}
+    version: ${IUME_APP_VERSION:1.2.2}
     site-url: ${IUME_SITE_URL:http://localhost}
 
 logging:

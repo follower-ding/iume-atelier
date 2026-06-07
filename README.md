@@ -4,7 +4,7 @@ A distinctive editorial blog — Josh Comeau–inspired reading + personal writi
 
 **Stack**: React 19 + TypeScript + Tailwind · Spring Boot 3 + MyBatis-Plus · MySQL 8
 
-**Version**: v1.2.1 — see [RELEASE.md](./RELEASE.md) · [v1.1 规划](./docs/v1.1-ROADMAP.md)
+**Version**: v1.2.2 — see [RELEASE.md](./RELEASE.md) · [v1.1 规划](./docs/v1.1-ROADMAP.md)
 
 ## Features
 

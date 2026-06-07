@@ -51,7 +51,7 @@ iume:
       public-base-url: ${IUME_S3_PUBLIC_BASE_URL:}
       prefix: ${IUME_S3_PREFIX:uploads/}
   app:
-    version: 1.2.1
+    version: 1.2.2
     site-url: http://localhost:5173
 
 springdoc:

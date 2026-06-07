@@ -2,11 +2,39 @@
 
 | Version | Date | Summary |
 |---------|------|---------|
+| v1.2.2 | 2026-06-06 | 社区曲库（全员上传共享）、Vercel 部署、注册页校验优化 |
 | v1.2.1 | 2026-06-06 | PV 埋点（公开路由）、文章编辑器系列关联、文档同步 |
 | v1.2.0 | 2026-06-06 | Newsletter、媒体库、专题系列、阅读统计、全文搜索增强、多作者、catalog 单源 Console |
 | v1.1.1 | 2026-06-06 | R2 对象存储、文章导入导出、移动端 E2E、首页快捷入口、搜索高亮、RSS discovery |
 | v1.1.0 | 2026-06-06 | 独立搜索页、登录错误分级、生产 CORS 默认通配、v1.1 规划文档 |
 | v1.0.0 | 2026-06-06 | 首版发布 — Josh 风格阅读体验、Studio/Console 双写作面、陪伴坞、偏好云端同步、SEO/CD 就绪 |
+
+## v1.2.2 — 社区曲库 + 部署切换
+
+### 社区音乐
+
+- **社区曲库**：登录用户上传音乐即写入 `shared_music_tracks`，所有人在播放器可见
+- **API**：`GET /music/shared`（公开）、`POST/PUT/DELETE /music/shared`（登录用户；删改限本人或 ADMIN）
+- **Console**：`/console/shared-music` 管理页；媒体库音频可一键「加入全站歌单」
+- **设置页**：「社区歌单」上传与管理本人曲目
+- **播放器**：社区曲目 + 默认两首；非本人曲目仅隐藏，不删除
+
+### 体验修复
+
+- **注册页**：显示真实校验错误（用户名长度、邮箱格式等），表单顺序改为昵称 → 用户名
+- **写作台**：`/studio/new`、`/studio/:id/edit` 显示陪伴坞与音乐播放器
+
+### 数据库
+
+- Flyway **V8**：`shared_music_tracks` 表
+- Flyway **V9**：从管理员偏好与媒体库音频回填共享曲目
+- Flyway **V10**：`uploader_id` + 全用户 `customTracks` 迁移至社区曲库
+
+### 部署
+
+- 前端从 Netlify 切换至 **Vercel**（`iume-atelier.vercel.app`）；`vercel.json` 反代 Railway `/api`
+
+---
 
 ## v1.2.1 — 运营接线补全
 
