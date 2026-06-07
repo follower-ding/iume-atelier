@@ -13,18 +13,5 @@ export interface PlaylistTrack {
   href?: string
 }
 
-export const defaultPlaylist: PlaylistTrack[] = [
-  {
-    id: 'rain',
-    title: '雨声白噪音',
-    artist: 'iume ambient',
-    kind: 'ambient',
-  },
-  {
-    id: 'lofi-demo',
-    title: 'Lofi Demo',
-    artist: 'SoundHelix',
-    kind: 'audio',
-    src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-  },
-]
+/** Built-in tracks removed — playlist comes from community catalog only. */
+export const defaultPlaylist: PlaylistTrack[] = []

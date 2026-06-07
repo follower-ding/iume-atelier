@@ -586,7 +586,7 @@ export const zh = {
     collapse: '收起',
     collapseKeepPlaying: '收起，继续播放',
     playlist: '播放列表',
-    playlistEmpty: '歌单为空，可在设置页上传音乐',
+    playlistEmpty: '社区歌单还是空的，登录后可在设置页上传音乐',
     expand: '展开陪伴坞',
     hide: '隐藏陪伴坞',
     longPressHide: '长按隐藏',
