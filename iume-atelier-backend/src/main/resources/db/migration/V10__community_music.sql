@@ -48,10 +48,10 @@ FROM users u
 CROSS JOIN JSON_TABLE(
     u.preferences,
     '$.customTracks[*]' COLUMNS (
-        title VARCHAR(200) CHARACTER SET utf8mb4 PATH '$.title',
-        artist VARCHAR(200) CHARACTER SET utf8mb4 PATH '$.artist',
-        src VARCHAR(1000) CHARACTER SET utf8mb4 PATH '$.src',
-        created_at_str VARCHAR(50) CHARACTER SET utf8mb4 PATH '$.createdAt'
+        title VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PATH '$.title',
+        artist VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PATH '$.artist',
+        src VARCHAR(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PATH '$.src',
+        created_at_str VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PATH '$.createdAt'
     )
 ) AS jt
 WHERE u.preferences IS NOT NULL
@@ -60,5 +60,6 @@ WHERE u.preferences IS NOT NULL
   AND jt.src IS NOT NULL
   AND jt.title IS NOT NULL
   AND NOT EXISTS (
-      SELECT 1 FROM shared_music_tracks s WHERE s.src = jt.src AND s.deleted = 0
+      SELECT 1 FROM shared_music_tracks s
+      WHERE s.src COLLATE utf8mb4_unicode_ci = jt.src AND s.deleted = 0
   );

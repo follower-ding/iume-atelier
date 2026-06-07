@@ -1,4 +1,5 @@
 -- Seed shared music from admin preferences and media library audio (one-time backfill)
+-- JSON_TABLE 列显式 COLLATE，避免与 shared_music_tracks (utf8mb4_unicode_ci) 比较时报 1267
 
 INSERT INTO shared_music_tracks (title, artist, src, sort_order, created_at, deleted)
 SELECT
@@ -15,20 +16,21 @@ FROM users u
 CROSS JOIN JSON_TABLE(
     u.preferences,
     '$.customTracks[*]' COLUMNS (
-        title VARCHAR(200) CHARACTER SET utf8mb4 PATH '$.title',
-        artist VARCHAR(200) CHARACTER SET utf8mb4 PATH '$.artist',
-        src VARCHAR(1000) CHARACTER SET utf8mb4 PATH '$.src',
-        created_at_str VARCHAR(50) CHARACTER SET utf8mb4 PATH '$.createdAt'
+        title VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PATH '$.title',
+        artist VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PATH '$.artist',
+        src VARCHAR(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PATH '$.src',
+        created_at_str VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci PATH '$.createdAt'
     )
 ) AS jt
-WHERE u.role = 'ADMIN'
+WHERE u.role = 'ADMIN' COLLATE utf8mb4_unicode_ci
   AND u.preferences IS NOT NULL
   AND JSON_VALID(u.preferences) = 1
   AND JSON_LENGTH(COALESCE(JSON_EXTRACT(u.preferences, '$.customTracks'), JSON_ARRAY())) > 0
   AND jt.src IS NOT NULL
   AND jt.title IS NOT NULL
   AND NOT EXISTS (
-      SELECT 1 FROM shared_music_tracks s WHERE s.src = jt.src AND s.deleted = 0
+      SELECT 1 FROM shared_music_tracks s
+      WHERE s.src COLLATE utf8mb4_unicode_ci = jt.src AND s.deleted = 0
   );
 
 INSERT INTO shared_music_tracks (title, artist, src, sort_order, created_at, deleted)
@@ -44,5 +46,6 @@ WHERE m.content_type LIKE 'audio/%'
   AND m.deleted = 0
   AND m.public_url IS NOT NULL
   AND NOT EXISTS (
-      SELECT 1 FROM shared_music_tracks s WHERE s.src = m.public_url AND s.deleted = 0
+      SELECT 1 FROM shared_music_tracks s
+      WHERE s.src COLLATE utf8mb4_unicode_ci = m.public_url COLLATE utf8mb4_unicode_ci AND s.deleted = 0
   );
