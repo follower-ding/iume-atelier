@@ -7,9 +7,9 @@ alwaysApply: true
 
 每次 `git push` 触发 CD 部署时，必须（详见 skill `release-notes` + `secrets-guard`）：
 
-1. **提交信息（commit message）** 包含：
-   - 第一行：类型 + 版本/摘要（如 `release(v1.1.0): ...`）
-   - 正文：分模块列出本次迭代内容（后端 / 前端 / 移动 / 部署）
+1. **提交信息（commit message）必须使用中文**，包含：
+   - 第一行：类型 + 版本/摘要（如 `release(v1.2.2): 社区曲库上线`）
+   - 正文「迭代内容：」分模块列出（后端 / 前端 / 部署 / 文档）
 
 2. **更新 `RELEASE.md` 变更记录**：新增一行版本号、日期、简要说明；较大版本在下方写「迭代内容」小节。
 
@@ -17,13 +17,13 @@ alwaysApply: true
 
 4. **推送前**运行 `.\scripts\check-secrets.ps1`（skill `secrets-guard`），确认不含密钥。
 
-示例 commit：
+示例 commit（iume-atelier）：
 
 ```
-release(v1.1.0): 面试鸭题库、模拟面试、App API 修复
+release(v1.2.2): 社区曲库与 Vercel 部署
 
 迭代内容：
-- 后端：Mianshiya 同步、MockInterview、AI 402 提示
-- 移动：api-base 修复云打包 localhost
-- 文档：真机测试指南、CD Q4 AI 余额排查
+- 后端：社区曲库 API，Flyway V8–V10，注册校验中文提示
+- 前端：社区歌单上传、Console 管理页、写作台陪伴坞
+- 部署：Vercel 前端，RELEASE.md 与版本号 1.2.2
 ```

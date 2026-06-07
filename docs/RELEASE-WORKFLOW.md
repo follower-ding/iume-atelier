@@ -14,24 +14,37 @@
 
 ---
 
-## Commit message 格式
+## Commit message 格式（**必须使用中文**）
+
+> GitHub 提交列表、发版备注、部署核对均依赖可读的中文说明。**禁止**仅写 `update` / `fix` / 纯英文一句话。
 
 ```
-<type>(<scope>): <简短说明>
+<type>(<scope>): <中文简短说明>
 
-可选正文：为什么改、影响范围
+<中文正文：分模块列出本次改动>
 ```
 
-| type | 用途 | 示例 |
-|------|------|------|
-| `feat` | 新功能 | `feat(series): Console 文章编辑器支持系列` |
-| `fix` | 修 bug | `fix(cors): 允许 Netlify origin` |
-| `docs` | 文档 | `docs: 补充 Railway 发版流程` |
-| `refactor` | 重构 | `refactor(tools): catalog 单源` |
-| `chore` | 工具/CI | `chore(ci): npm install 替代 npm ci` |
-| `release` | **正式发版** | `release(v1.2.1): 运营能力上线` |
+| type | 用途 | 示例（中文） |
+|------|------|--------------|
+| `feat` | 新功能 | `feat(music): 社区曲库全员上传共享` |
+| `fix` | 修 bug | `fix(cors): 允许 Vercel 域名跨域` |
+| `docs` | 文档 | `docs: 补充 Vercel 部署与发版流程` |
+| `refactor` | 重构 | `refactor(tools): catalog 单源化` |
+| `chore` | 工具/CI | `chore(ci): 构建改用 npm install` |
+| `release` | **正式发版** | `release(v1.2.2): 社区曲库与 Vercel 部署` |
 
-日常 fix/feat：**只 commit，不打 tag**。
+### 示例（正式发版）
+
+```
+release(v1.2.2): 社区曲库与 Vercel 部署
+
+迭代内容：
+- 后端：社区曲库 API，Flyway V8–V10
+- 前端：设置页社区歌单、Console 管理、注册页校验
+- 部署：前端切换 Vercel，版本号 1.2.2
+```
+
+日常 fix/feat：**只 commit，不打 tag**；正文仍建议写「迭代内容」 bullet。
 
 ---
 
@@ -40,10 +53,10 @@
 1. 更新 [`RELEASE.md`](../RELEASE.md) — 表格加一行 + 详情段落
 2. 更新 [`deploy/.env.example`](../deploy/.env.example) — `APP_VERSION=vX.Y.Z`
 3. 更新版本号（如 `iume-atelier-frontend/package.json`、`application-prod.yml` 默认值）
-4. Commit：`release(vX.Y.Z): 一句话摘要`
+4. Commit（**中文**）：`release(vX.Y.Z): 一句话摘要` + 正文「迭代内容」
 5. 打 tag 并推送：
    ```bash
-   git tag -a vX.Y.Z -m "vX.Y.Z 摘要"
+   git tag -a vX.Y.Z -m "vX.Y.Z 中文摘要"
    git push origin main
    git push origin vX.Y.Z
    ```
