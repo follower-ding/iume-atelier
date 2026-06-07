@@ -3,11 +3,8 @@ import { Loader2, Trash2, Upload } from 'lucide-react'
 import { sharedMusicApi, uploadApi, type SharedMusicTrack } from '@/api'
 import { useSharedMusicStore } from '@/store/useSharedMusicStore'
 import { useAuthStore } from '@/store'
+import { stripAudioExt } from '@/utils/sharedMusic'
 import { zh } from '@/locales/zh'
-
-function stripExt(name: string) {
-  return name.replace(/\.[^.]+$/, '')
-}
 
 export default function ConsoleSharedMusicPage() {
   const user = useAuthStore((s) => s.user)
@@ -17,6 +14,7 @@ export default function ConsoleSharedMusicPage() {
   const removeById = useSharedMusicStore((s) => s.removeById)
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState('')
   const [msg, setMsg] = useState('')
 
   const displayName = user?.nickname || user?.username || 'Admin'
@@ -27,24 +25,31 @@ export default function ConsoleSharedMusicPage() {
       .finally(() => setLoading(false))
   }, [fetchShared])
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleBatchUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
     setUploading(true)
     setMsg('')
+    let ok = 0
     try {
-      const { url, filename } = await uploadApi.uploadAudio(file)
-      const track = await sharedMusicApi.create({
-        title: stripExt(filename || file.name),
-        artist: displayName,
-        src: url,
-      })
-      upsertTrack(track)
-      setMsg(zh.console.sharedMusicAdded)
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        setUploadProgress(`${i + 1} / ${files.length}`)
+        const { url, filename } = await uploadApi.uploadAudio(file)
+        const track = await sharedMusicApi.create({
+          title: stripAudioExt(filename || file.name),
+          artist: displayName,
+          src: url,
+        })
+        upsertTrack(track)
+        ok++
+      }
+      setMsg(zh.console.sharedMusicBatchAdded.replace('{count}', String(ok)))
     } catch (err) {
       setMsg(err instanceof Error ? err.message : zh.settings.musicUploadFailed)
     } finally {
       setUploading(false)
+      setUploadProgress('')
       e.target.value = ''
     }
   }
@@ -82,11 +87,21 @@ export default function ConsoleSharedMusicPage() {
         <p>{zh.console.sharedMusicDesc}</p>
       </header>
 
-      <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer mb-6">
+      <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer mb-2">
         {uploading ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
-        <span>{zh.console.sharedMusicUpload}</span>
-        <input type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac" className="hidden" onChange={handleUpload} disabled={uploading} />
+        <span>{zh.console.sharedMusicBatchUpload}</span>
+        <input
+          type="file"
+          accept="audio/*,.mp3,.wav,.ogg,.m4a,.aac"
+          multiple
+          className="hidden"
+          onChange={handleBatchUpload}
+          disabled={uploading}
+        />
       </label>
+      {uploading && uploadProgress && (
+        <p className="text-sm text-secondary mb-4">{zh.console.sharedMusicUploading.replace('{progress}', uploadProgress)}</p>
+      )}
 
       {msg && <p className="text-sm text-accent mb-4">{msg}</p>}
 
