@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom'
 import { useUserPrefsSync } from '@/hooks/useUserPrefsSync'
+import { useSharedMusicSync } from '@/hooks/useSharedMusicSync'
 import SimpleModeEffects from '@/components/common/SimpleModeEffects'
 import MobileBottomNav from '@/components/common/MobileBottomNav'
 import MobileNav from '@/components/common/MobileNav'
@@ -18,6 +19,7 @@ export default function AppLayout() {
   const hideBottomNav = isStudioWrite || pathname === '/login' || pathname === '/register'
 
   useUserPrefsSync()
+  useSharedMusicSync()
 
   return (
     <div className={`min-h-screen flex flex-col site-shell${isStudioWrite ? ' site-shell--studio-write' : ''}${hideBottomNav ? '' : ' site-shell--mobile-nav'}`}>

@@ -10,23 +10,23 @@ import lombok.Data;
 @Schema(description = "User registration request")
 public class RegisterRequest {
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @NotBlank(message = "用户名不能为空")
+    @Size(min = 3, max = 50, message = "用户名长度需在 3～50 个字符之间")
     @Schema(description = "Username", example = "johndoe")
     private String username;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
+    @NotBlank(message = "密码不能为空")
+    @Size(min = 6, max = 100, message = "密码长度需在 6～100 个字符之间")
     @Schema(description = "Password", example = "password123")
     private String password;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "邮箱格式不正确")
     @Schema(description = "Email address", example = "john@example.com")
     private String email;
 
-    @NotBlank(message = "Nickname is required")
-    @Size(max = 50, message = "Nickname must not exceed 50 characters")
+    @NotBlank(message = "昵称不能为空")
+    @Size(max = 50, message = "昵称不能超过 50 个字符")
     @Schema(description = "Display nickname", example = "John Doe")
     private String nickname;
 }

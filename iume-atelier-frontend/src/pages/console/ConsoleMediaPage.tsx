@@ -1,9 +1,19 @@
-import { useEffect, useState } from 'react'
-import { Copy, Trash2 } from 'lucide-react'
-import { mediaApi, type MediaAsset } from '@/api'
+import { useEffect, useMemo, useState } from 'react'
+import { Copy, Music2, Trash2 } from 'lucide-react'
+import { mediaApi, sharedMusicApi, type MediaAsset } from '@/api'
+import { useSharedMusicStore } from '@/store/useSharedMusicStore'
 import { zh } from '@/locales/zh'
 
 const PAGE_SIZE = 20
+
+function normalizeSrc(url: string): string {
+  try {
+    const u = new URL(url, window.location.origin)
+    return u.pathname
+  } catch {
+    return url.trim()
+  }
+}
 
 export default function ConsoleMediaPage() {
   const [items, setItems] = useState<MediaAsset[]>([])
@@ -11,6 +21,17 @@ export default function ConsoleMediaPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<number | null>(null)
+  const [publishing, setPublishing] = useState<number | null>(null)
+  const [msg, setMsg] = useState('')
+
+  const sharedTracks = useSharedMusicStore((s) => s.tracks)
+  const fetchShared = useSharedMusicStore((s) => s.fetch)
+  const upsertTrack = useSharedMusicStore((s) => s.upsertTrack)
+
+  const sharedSrcSet = useMemo(
+    () => new Set(sharedTracks.map((t) => normalizeSrc(t.src))),
+    [sharedTracks],
+  )
 
   const load = () => {
     setLoading(true)
@@ -21,6 +42,7 @@ export default function ConsoleMediaPage() {
   }
 
   useEffect(() => { load() }, [page])
+  useEffect(() => { fetchShared().catch(() => {}) }, [fetchShared])
 
   const copyUrl = async (asset: MediaAsset) => {
     await navigator.clipboard.writeText(asset.publicUrl)
@@ -34,6 +56,23 @@ export default function ConsoleMediaPage() {
     load()
   }
 
+  const publishToShared = async (asset: MediaAsset) => {
+    setPublishing(asset.id)
+    setMsg('')
+    try {
+      const track = await sharedMusicApi.createFromMedia(asset.id)
+      upsertTrack(track)
+      setMsg(zh.console.sharedMusicAdded)
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : zh.settings.prefsSyncFailed)
+    } finally {
+      setPublishing(null)
+    }
+  }
+
+  const isAudioInShared = (asset: MediaAsset) =>
+    asset.contentType.startsWith('audio/') && sharedSrcSet.has(normalizeSrc(asset.publicUrl))
+
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
@@ -42,6 +81,8 @@ export default function ConsoleMediaPage() {
         <h1>{zh.console.media}</h1>
         <p>{zh.console.mediaDesc}</p>
       </header>
+
+      {msg && <p className="text-sm text-accent mb-4">{msg}</p>}
 
       <div className="console-table-wrap console-table-wrap--fill">
         <table className="console-table">
@@ -73,6 +114,17 @@ export default function ConsoleMediaPage() {
                 <td>{(asset.sizeBytes / 1024).toFixed(1)} KB</td>
                 <td>
                   <div className="console-row-actions">
+                    {asset.contentType.startsWith('audio/') && (
+                      <button
+                        type="button"
+                        className={`console-icon-btn cursor-pointer${isAudioInShared(asset) ? ' console-icon-btn--active' : ''}`}
+                        onClick={() => publishToShared(asset)}
+                        disabled={isAudioInShared(asset) || publishing === asset.id}
+                        title={isAudioInShared(asset) ? zh.console.sharedMusicPublished : zh.console.sharedMusicPublish}
+                      >
+                        <Music2 size={15} />
+                      </button>
+                    )}
                     <button type="button" className="console-icon-btn cursor-pointer" onClick={() => copyUrl(asset)} title={zh.console.mediaCopy}>
                       <Copy size={15} />
                     </button>

@@ -31,10 +31,10 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getUsername, request.getUsername())) > 0) {
-            throw new BusinessException("Username already exists");
+            throw new BusinessException("用户名已存在");
         }
         if (userMapper.selectCount(new LambdaQueryWrapper<User>().eq(User::getEmail, request.getEmail())) > 0) {
-            throw new BusinessException("Email already exists");
+            throw new BusinessException("邮箱已被注册");
         }
 
         User user = new User();

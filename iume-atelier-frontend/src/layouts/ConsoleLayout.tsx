@@ -13,6 +13,7 @@ import {
   Mail,
   BookOpen,
   BarChart3,
+  Music2,
 } from 'lucide-react'
 import { useAuthStore } from '@/store'
 import { zh } from '@/locales/zh'
@@ -23,6 +24,7 @@ const nav = [
   { to: '/console/articles', label: zh.console.articles, icon: FileText },
   { to: '/console/ai-tools', label: zh.console.aiTools, icon: Wrench },
   { to: '/console/media', label: zh.console.media, icon: Image },
+  { to: '/console/shared-music', label: zh.console.sharedMusic, icon: Music2 },
   { to: '/console/series', label: zh.console.series, icon: BookOpen },
   { to: '/console/newsletter', label: zh.console.newsletter, icon: Mail },
   { to: '/console/analytics', label: zh.console.analytics, icon: BarChart3 },

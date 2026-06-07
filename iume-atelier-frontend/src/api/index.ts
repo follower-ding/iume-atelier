@@ -228,6 +228,27 @@ export const authorApi = {
     getData<PageResult<Article>>(`/authors/${id}/articles`, { page, size }),
 }
 
+export interface SharedMusicTrack {
+  id: number
+  title: string
+  artist: string
+  src: string
+  cover?: string
+  sortOrder?: number
+  createdAt?: string
+  uploaderId?: number
+}
+
+export const sharedMusicApi = {
+  list: () => getData<SharedMusicTrack[]>('/music/shared'),
+  create: (data: { title: string; artist?: string; src: string; cover?: string; sortOrder?: number }) =>
+    postData<SharedMusicTrack>('/music/shared', data),
+  createFromMedia: (mediaId: number) => postData<SharedMusicTrack>(`/music/shared/from-media/${mediaId}`),
+  update: (id: number, data: { title: string; artist?: string; src: string; cover?: string; sortOrder?: number }) =>
+    putData<SharedMusicTrack>(`/music/shared/${id}`, data),
+  remove: (id: number) => deleteData(`/music/shared/${id}`),
+}
+
 export const uploadApi = {
   uploadImage: async (file: File): Promise<string> => {
     const form = new FormData()

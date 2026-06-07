@@ -40,4 +40,10 @@ public final class SecurityUtils {
             throw new com.iumeatelier.exception.BusinessException(403, "Admin access required");
         }
     }
+
+    public static void requireLogin() {
+        if (getCurrentUserId() == null) {
+            throw new com.iumeatelier.exception.BusinessException(401, "Login required");
+        }
+    }
 }

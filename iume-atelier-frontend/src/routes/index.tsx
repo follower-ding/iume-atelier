@@ -31,6 +31,7 @@ const ConsoleTaxonomyPage = lazy(() => import('@/pages/console/ConsoleTaxonomyPa
 const ConsoleAuditLogsPage = lazy(() => import('@/pages/console/ConsoleAuditLogsPage'))
 const ConsoleAiToolsPage = lazy(() => import('@/pages/console/ConsoleAiToolsPage'))
 const ConsoleMediaPage = lazy(() => import('@/pages/console/ConsoleMediaPage'))
+const ConsoleSharedMusicPage = lazy(() => import('@/pages/console/ConsoleSharedMusicPage'))
 const ConsoleNewsletterPage = lazy(() => import('@/pages/console/ConsoleNewsletterPage'))
 const ConsoleSeriesPage = lazy(() => import('@/pages/console/ConsoleSeriesPage'))
 const ConsoleAnalyticsPage = lazy(() => import('@/pages/console/ConsoleAnalyticsPage'))
@@ -61,6 +62,7 @@ export default function AppRoutes() {
           <Route path="audit-logs" element={<ConsoleAuditLogsPage />} />
           <Route path="ai-tools" element={<ConsoleAiToolsPage />} />
           <Route path="media" element={<ConsoleMediaPage />} />
+          <Route path="shared-music" element={<ConsoleSharedMusicPage />} />
           <Route path="newsletter" element={<ConsoleNewsletterPage />} />
           <Route path="series" element={<ConsoleSeriesPage />} />
           <Route path="analytics" element={<ConsoleAnalyticsPage />} />

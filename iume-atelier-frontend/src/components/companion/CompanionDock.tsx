@@ -57,7 +57,7 @@ export default function CompanionDock() {
   const isStudioWrite = /^\/studio(\/new|\/\d+\/edit)/.test(pathname)
   const isSettings = pathname.startsWith('/settings')
   const isArticleRead = pathname.startsWith('/article/')
-  const hidden = isStudioWrite || isSettings
+  const hidden = isSettings
 
   const handleHide = useCallback(() => {
     play('click')
@@ -81,9 +81,10 @@ export default function CompanionDock() {
       setDrawer(null)
       return
     }
-    if (isArticleRead) setMood('reading')
+    if (isStudioWrite) setMood('writing')
+    else if (isArticleRead) setMood('reading')
     else setMood('idle')
-  }, [hidden, isArticleRead, setMood, setDrawer])
+  }, [hidden, isStudioWrite, isArticleRead, setMood, setDrawer])
 
   useEffect(() => {
     if (!quote) return

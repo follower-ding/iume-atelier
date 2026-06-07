@@ -11,7 +11,7 @@ import {
   Upload,
   UserRound,
 } from 'lucide-react'
-import { authApi, uploadApi, userApi } from '@/api'
+import { authApi, sharedMusicApi, uploadApi, userApi } from '@/api'
 import { getRefreshToken, getToken } from '@/utils/auth'
 import CompanionAvatar from '@/components/companion/CompanionAvatar'
 import SimpleModeToggle from '@/components/common/SimpleModeToggle'
@@ -24,9 +24,10 @@ import {
   useThemeStore,
   useUserPrefsStore,
 } from '@/store'
+import { useSharedMusicStore } from '@/store/useSharedMusicStore'
 import { zh } from '@/locales/zh'
 import { syncUserPrefsToCloud } from '@/utils/syncUserPrefs'
-import { resolveAssetUrl } from '@/utils/user'
+import { isAdmin, resolveAssetUrl } from '@/utils/user'
 
 type SettingsTab = 'profile' | 'companion' | 'music' | 'appearance' | 'security'
 
@@ -42,6 +43,12 @@ function stripExt(name: string) {
   return name.replace(/\.[^.]+$/, '')
 }
 
+function canManageTrack(track: { uploaderId?: number }, userId?: number, admin?: boolean) {
+  if (admin) return true
+  if (!userId || !track.uploaderId) return false
+  return track.uploaderId === userId
+}
+
 export default function SettingsPage() {
   const [searchParams] = useSearchParams()
   const { user, setAuth } = useAuthStore()
@@ -55,12 +62,8 @@ export default function SettingsPage() {
   const {
     companionCallName,
     customQuotes,
-    customTracks,
     setCompanionCallName,
     setCustomQuotes,
-    addCustomTrack,
-    updateCustomTrack,
-    removeCustomTrack,
   } = useUserPrefsStore()
 
   const [tab, setTab] = useState<SettingsTab>('profile')
@@ -85,7 +88,19 @@ export default function SettingsPage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [uploadingMusic, setUploadingMusic] = useState(false)
 
+  const isAdminUser = isAdmin(user)
+  const sharedTracks = useSharedMusicStore((s) => s.tracks)
+  const fetchSharedMusic = useSharedMusicStore((s) => s.fetch)
+  const upsertSharedTrack = useSharedMusicStore((s) => s.upsertTrack)
+  const removeSharedTrack = useSharedMusicStore((s) => s.removeById)
+
   const displayName = profile.nickname || user?.username || '你'
+
+  useEffect(() => {
+    if (tab === 'music') {
+      fetchSharedMusic().catch(() => {})
+    }
+  }, [tab, fetchSharedMusic])
 
   useEffect(() => {
     setQuotesText(customQuotes.join('\n'))
@@ -161,15 +176,10 @@ export default function SettingsPage() {
     setUploadingMusic(true)
     try {
       const { url, filename } = await uploadApi.uploadAudio(file)
-      addCustomTrack({
-        id: `custom-${Date.now()}`,
-        title: stripExt(filename || file.name),
-        artist: displayName,
-        src: url,
-        createdAt: new Date().toISOString(),
-      })
-      await syncUserPrefsToCloud()
-      setPrefsMsg(zh.settings.musicUploaded)
+      const title = stripExt(filename || file.name)
+      const track = await sharedMusicApi.create({ title, artist: displayName, src: url })
+      upsertSharedTrack(track)
+      setPrefsMsg(zh.settings.communityMusicUploaded)
     } catch (err) {
       setPrefsMsg(err instanceof Error ? err.message : zh.settings.musicUploadFailed)
     } finally {
@@ -194,22 +204,40 @@ export default function SettingsPage() {
     }
   }
 
-  const saveMusicPrefs = async () => {
+  const handleRemoveSharedTrack = async (id: number) => {
+    const current = sharedTracks.find((t) => t.id === id)
+    if (!current || !canManageTrack(current, user?.id, isAdminUser)) return
     try {
-      await syncUserPrefsToCloud()
-      setPrefsMsg(zh.settings.musicSaved)
-    } catch {
-      setPrefsMsg(zh.settings.prefsSyncFailed)
+      await sharedMusicApi.remove(id)
+      removeSharedTrack(id)
+      setPrefsMsg(zh.settings.communityMusicRemoved)
+    } catch (err) {
+      setPrefsMsg(err instanceof Error ? err.message : zh.settings.prefsSyncFailed)
     }
   }
 
-  const handleRemoveTrack = async (id: string) => {
-    removeCustomTrack(id)
+  const myTracks = useMemo(
+    () => sharedTracks.filter((t) => canManageTrack(t, user?.id, isAdminUser)),
+    [sharedTracks, user?.id, isAdminUser],
+  )
+
+  const handleSharedTrackFieldChange = async (
+    id: number,
+    patch: { title?: string; artist?: string },
+  ) => {
+    const current = sharedTracks.find((t) => t.id === id)
+    if (!current || !canManageTrack(current, user?.id, isAdminUser)) return
     try {
-      await syncUserPrefsToCloud()
-      setPrefsMsg(zh.settings.musicSaved)
-    } catch {
-      setPrefsMsg(zh.settings.prefsSyncFailed)
+      const updated = await sharedMusicApi.update(id, {
+        title: patch.title ?? current.title,
+        artist: patch.artist ?? current.artist,
+        src: current.src,
+        cover: current.cover,
+        sortOrder: current.sortOrder,
+      })
+      upsertSharedTrack(updated)
+    } catch (err) {
+      setPrefsMsg(err instanceof Error ? err.message : zh.settings.prefsSyncFailed)
     }
   }
 
@@ -358,8 +386,8 @@ export default function SettingsPage() {
 
             {tab === 'music' && (
               <div className="settings-page__section">
-                <h2>{zh.settings.musicTitle}</h2>
-                <p className="settings-page__desc">{zh.settings.musicDesc}</p>
+                <h2>{zh.settings.communityMusicTitle}</h2>
+                <p className="settings-page__desc">{zh.settings.communityMusicDesc}</p>
 
                 <label className="settings-page__upload-card cursor-pointer">
                   {uploadingMusic ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
@@ -376,43 +404,50 @@ export default function SettingsPage() {
                   />
                 </label>
 
-                {customTracks.length === 0 ? (
-                  <p className="settings-page__empty">{zh.settings.noCustomMusic}</p>
-                ) : (
-                  <ul className="settings-page__music-list">
-                    {customTracks.map((track) => (
-                      <li key={track.id} className="settings-page__music-item">
-                        <div className="settings-page__music-fields">
-                          <input
-                            value={track.title}
-                            onChange={(e) => updateCustomTrack(track.id, { title: e.target.value })}
-                            aria-label={zh.settings.trackTitle}
-                          />
-                          <input
-                            value={track.artist}
-                            onChange={(e) => updateCustomTrack(track.id, { artist: e.target.value })}
-                            aria-label={zh.settings.trackArtist}
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          className="settings-page__icon-btn cursor-pointer"
-                          onClick={() => handleRemoveTrack(track.id)}
-                          aria-label={zh.settings.removeTrack}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <p className="settings-page__hint mb-4">
+                  {zh.settings.communityMusicStats.replace('{count}', String(sharedTracks.length))}
+                </p>
 
-                {customTracks.length > 0 && (
-                  <div className="settings-page__actions">
-                    <button type="button" className="btn-primary cursor-pointer" onClick={saveMusicPrefs}>
-                      {zh.settings.saveMusic}
-                    </button>
-                  </div>
+                {myTracks.length === 0 ? (
+                  <p className="settings-page__empty">{zh.settings.noMyCommunityMusic}</p>
+                ) : (
+                  <>
+                    <p className="settings-page__hint mb-2">{zh.settings.myCommunityMusicHint}</p>
+                    <ul className="settings-page__music-list">
+                      {myTracks.map((track) => (
+                        <li key={track.id} className="settings-page__music-item">
+                          <div className="settings-page__music-fields">
+                            <input
+                              defaultValue={track.title}
+                              onBlur={(e) => {
+                                if (e.target.value !== track.title) {
+                                  handleSharedTrackFieldChange(track.id, { title: e.target.value })
+                                }
+                              }}
+                              aria-label={zh.settings.trackTitle}
+                            />
+                            <input
+                              defaultValue={track.artist}
+                              onBlur={(e) => {
+                                if (e.target.value !== track.artist) {
+                                  handleSharedTrackFieldChange(track.id, { artist: e.target.value })
+                                }
+                              }}
+                              aria-label={zh.settings.trackArtist}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            className="settings-page__icon-btn cursor-pointer"
+                            onClick={() => handleRemoveSharedTrack(track.id)}
+                            aria-label={zh.settings.removeTrack}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 )}
 
                 {prefsMsg && <p className="text-sm text-green-600">{prefsMsg}</p>}

@@ -16,11 +16,14 @@ import {
   X,
 } from 'lucide-react'
 import MusicVinyl, { TrackThumb } from '@/components/companion/MusicVinyl'
-import { useCustomTrackIds, usePlaylist } from '@/hooks/usePlaylist'
+import { useCustomTrackIds, usePlaylist, useSharedTrackIds } from '@/hooks/usePlaylist'
 import { zh } from '@/locales/zh'
 import { useAuthStore, useMusicStore } from '@/store'
+import { useSharedMusicStore } from '@/store/useSharedMusicStore'
 import { useUserPrefsStore } from '@/store/useUserPrefsStore'
 import { useUiSound } from '@/hooks/useUiSound'
+import { sharedMusicApi } from '@/api'
+import { isAdmin } from '@/utils/user'
 import { syncUserPrefsToCloud } from '@/utils/syncUserPrefs'
 import type { RepeatMode } from '@/store/useMusicStore'
 
@@ -55,8 +58,11 @@ function useDrawerScrollLock(active: boolean) {
 export default function FloatingMusicPlayer({ onClose }: FloatingMusicPlayerProps) {
   const playlist = usePlaylist()
   const customIds = useCustomTrackIds()
+  const sharedIds = useSharedTrackIds()
   const user = useAuthStore((s) => s.user)
+  const admin = isAdmin(user)
   const removeCustomTrack = useUserPrefsStore((s) => s.removeCustomTrack)
+  const removeSharedById = useSharedMusicStore((s) => s.removeById)
   const { play: uiPlay } = useUiSound()
   const {
     trackIndex,
@@ -110,9 +116,17 @@ export default function FloatingMusicPlayer({ onClose }: FloatingMusicPlayerProp
   const handleRemoveTrack = (trackId: string, index: number) => {
     uiPlay('click')
     const isCustom = customIds.has(trackId)
+    const isShared = sharedIds.has(trackId)
+    const sharedTrack = isShared ? useSharedMusicStore.getState().tracks.find(
+      (t) => `shared-${t.id}` === trackId,
+    ) : undefined
+    const canDeleteShared = isShared && (admin || (user && sharedTrack?.uploaderId === user.id))
+
     if (isCustom) {
       removeCustomTrack(trackId)
       if (user) syncUserPrefsToCloud().catch(() => {})
+    } else if (canDeleteShared && sharedTrack) {
+      sharedMusicApi.remove(sharedTrack.id).then(() => removeSharedById(sharedTrack.id)).catch(() => {})
     } else {
       hideTrack(trackId)
     }
