@@ -17,8 +17,8 @@ export default function MusicEngine() {
   const clearSeek = useMusicStore((s) => s.clearSeek)
 
   const track = playlist[trackIndex] ?? playlist[0]
-  const isAmbient = track.kind === 'ambient'
-  const isLink = track.kind === 'link'
+  const isAmbient = track?.kind === 'ambient'
+  const isLink = track?.kind === 'link'
 
   const stopAudio = useCallback(() => {
     const audio = audioRef.current
@@ -35,7 +35,7 @@ export default function MusicEngine() {
   }, [setPlaybackProgress, stopAudio])
 
   useEffect(() => {
-    if (!playing || isLink) {
+    if (!track || !playing || isLink) {
       stopAll()
       return
     }
@@ -53,7 +53,7 @@ export default function MusicEngine() {
 
     audio.volume = volume
     audio.play().catch(() => setPlaying(false))
-  }, [trackIndex, track.src, playing, isAmbient, isLink, volume, stopAll, stopAudio, setPlaying, setPlaybackProgress])
+  }, [track, trackIndex, playing, isAmbient, isLink, volume, stopAll, stopAudio, setPlaying, setPlaybackProgress])
 
   useEffect(() => {
     if (!playing) return
@@ -76,7 +76,7 @@ export default function MusicEngine() {
 
   useEffect(() => () => stopAll(), [stopAll])
 
-  if (isAmbient || isLink || !track.src) return null
+  if (!track || isAmbient || isLink || !track.src) return null
 
   return (
     <audio

@@ -40,7 +40,13 @@ export default function StudioArticleEditPage() {
   const [loading, setLoading] = useState(!isNew)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
-  useDraftAutosave(form, editingId, true)
+  const lastSavedAt = useDraftAutosave(form, editingId, true)
+  const wordCount = form.content.replace(/\s/g, '').length
+  const selectedCategory = categories.find((c) => c.id === form.categoryId)
+  const selectedTagCount = form.tagIds?.length ?? 0
+
+  const formatSavedTime = (d: Date) =>
+    d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
 
   useEffect(() => {
     document.documentElement.classList.add('studio-write-mode')
@@ -180,6 +186,21 @@ export default function StudioArticleEditPage() {
             <Link to="/studio" className="studio-write__back cursor-pointer">
               ← {zh.studio.backToList}
             </Link>
+            <div className="studio-write__status" aria-live="polite">
+              {saving ? (
+                <span className="studio-write__status-item studio-write__status-item--active">{zh.studio.saving}</span>
+              ) : lastSavedAt ? (
+                <span className="studio-write__status-item">{zh.studio.autosaved} · {formatSavedTime(lastSavedAt)}</span>
+              ) : (
+                <span className="studio-write__status-item studio-write__status-item--muted">{zh.studio.localDraft}</span>
+              )}
+              {wordCount > 0 && (
+                <span className="studio-write__status-divider" aria-hidden>·</span>
+              )}
+              {wordCount > 0 && (
+                <span className="studio-write__status-item">{zh.editor.wordCount} {wordCount}</span>
+              )}
+            </div>
             <div className="studio-write__toolbar-actions click-particles-ignore">
               <button
                 type="button"
@@ -210,13 +231,12 @@ export default function StudioArticleEditPage() {
           </div>
         </div>
 
-        <div className="studio-write__inner">
+        <div className="studio-write__inner studio-write__body">
           {message && (
             <p className={`studio-write__message studio-write__message--banner ${messageIsError ? 'studio-write__message--error' : 'studio-write__message--ok'}`}>
               {message}
             </p>
           )}
-          <p className="studio-write__hint">{zh.studio.writingHint}</p>
 
           <input
             value={form.title}
@@ -239,6 +259,22 @@ export default function StudioArticleEditPage() {
             <summary className="studio-write__settings-summary cursor-pointer">
               <span>{zh.studio.articleSettings}</span>
               <span className="studio-write__settings-hint">{zh.studio.settingsHint}</span>
+              {!settingsOpen && (
+                <span className="studio-write__settings-chips">
+                  <span className={`studio-write__chip ${form.status === 'PUBLISHED' ? 'studio-write__chip--ok' : ''}`}>
+                    {form.status === 'PUBLISHED' ? zh.studio.published : zh.studio.draft}
+                  </span>
+                  {selectedCategory && (
+                    <span className="studio-write__chip">{selectedCategory.name}</span>
+                  )}
+                  {selectedTagCount > 0 && (
+                    <span className="studio-write__chip">{selectedTagCount} {zh.studio.tags}</span>
+                  )}
+                  {form.seriesId && (
+                    <span className="studio-write__chip">{zh.studio.series}</span>
+                  )}
+                </span>
+              )}
               <ChevronDown size={16} className="studio-write__settings-chevron" />
             </summary>
             <div className="studio-write__settings-body">

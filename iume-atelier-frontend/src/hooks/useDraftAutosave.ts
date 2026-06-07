@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ArticleRequest } from '@/types/api'
 
 const DRAFT_PREFIX = 'iume-studio-draft'
@@ -28,6 +28,7 @@ export function useDraftAutosave(
   debounceMs = 1500,
 ) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
 
   useEffect(() => {
     if (!enabled) return
@@ -36,10 +37,13 @@ export function useDraftAutosave(
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
       localStorage.setItem(draftKey(editingId), JSON.stringify(form))
+      setLastSavedAt(new Date())
     }, debounceMs)
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [form, editingId, enabled, debounceMs])
+
+  return lastSavedAt
 }
