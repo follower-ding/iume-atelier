@@ -9,7 +9,7 @@ watchPatterns = ["iume-atelier-backend/**", "deploy/Dockerfile.backend", "railwa
 
 [deploy]
 healthcheckPath = "/api/health"
-healthcheckTimeout = 300
+healthcheckTimeout = 600
 restartPolicyType = "ON_FAILURE"
 numReplicas = 1
 

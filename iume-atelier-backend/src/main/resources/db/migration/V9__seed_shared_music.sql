@@ -23,6 +23,7 @@ CROSS JOIN JSON_TABLE(
 ) AS jt
 WHERE u.role = 'ADMIN'
   AND u.preferences IS NOT NULL
+  AND JSON_VALID(u.preferences) = 1
   AND JSON_LENGTH(COALESCE(JSON_EXTRACT(u.preferences, '$.customTracks'), JSON_ARRAY())) > 0
   AND jt.src IS NOT NULL
   AND jt.title IS NOT NULL

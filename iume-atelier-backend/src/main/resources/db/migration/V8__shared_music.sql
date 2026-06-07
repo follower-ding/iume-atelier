@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS shared_music_tracks (
     cover       VARCHAR(1000) DEFAULT NULL,
     sort_order  INT           NOT NULL DEFAULT 0,
     created_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted     TINYINT       NOT NULL DEFAULT 0
+    deleted     TINYINT       NOT NULL DEFAULT 0,
+    KEY idx_shared_music_sort (sort_order, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE INDEX idx_shared_music_sort ON shared_music_tracks (sort_order, created_at);

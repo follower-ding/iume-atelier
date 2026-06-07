@@ -1,9 +1,36 @@
--- Community music: track uploader + migrate all users' personal tracks into shared catalog
+-- Community music: uploader_id + migrate personal tracks (idempotent for partial deploys)
 
-ALTER TABLE shared_music_tracks
-    ADD COLUMN uploader_id BIGINT NULL COMMENT 'User who uploaded this track' AFTER sort_order;
+SET @col_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'shared_music_tracks'
+      AND column_name = 'uploader_id'
+);
+SET @ddl := IF(
+    @col_exists = 0,
+    'ALTER TABLE shared_music_tracks ADD COLUMN uploader_id BIGINT NULL COMMENT ''User who uploaded this track'' AFTER sort_order',
+    'SELECT 1'
+);
+PREPARE stmt FROM @ddl;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
-CREATE INDEX idx_shared_music_uploader ON shared_music_tracks (uploader_id);
+SET @idx_exists := (
+    SELECT COUNT(*)
+    FROM information_schema.statistics
+    WHERE table_schema = DATABASE()
+      AND table_name = 'shared_music_tracks'
+      AND index_name = 'idx_shared_music_uploader'
+);
+SET @idx_ddl := IF(
+    @idx_exists = 0,
+    'CREATE INDEX idx_shared_music_uploader ON shared_music_tracks (uploader_id)',
+    'SELECT 1'
+);
+PREPARE idx_stmt FROM @idx_ddl;
+EXECUTE idx_stmt;
+DEALLOCATE PREPARE idx_stmt;
 
 INSERT INTO shared_music_tracks (title, artist, src, sort_order, uploader_id, created_at, deleted)
 SELECT
@@ -28,6 +55,7 @@ CROSS JOIN JSON_TABLE(
     )
 ) AS jt
 WHERE u.preferences IS NOT NULL
+  AND JSON_VALID(u.preferences) = 1
   AND JSON_LENGTH(COALESCE(JSON_EXTRACT(u.preferences, '$.customTracks'), JSON_ARRAY())) > 0
   AND jt.src IS NOT NULL
   AND jt.title IS NOT NULL
