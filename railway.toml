@@ -14,7 +14,7 @@ restartPolicyType = "ON_FAILURE"
 numReplicas = 1
 
 # Railway 环境变量（在 Dashboard 设置）：
-# SPRING_PROFILES_ACTIVE=prod
+# SPRING_PROFILES_ACTIVE=prod  # Dockerfile 已默认 prod，一般无需再设
 # SPRING_DATASOURCE_URL=jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?useSSL=true&requireSSL=true&serverTimezone=UTC
 # SPRING_DATASOURCE_USERNAME=${{MySQL.MYSQLUSER}}
 # SPRING_DATASOURCE_PASSWORD=${{MySQL.MYSQLPASSWORD}}

@@ -1,3 +1,6 @@
+server:
+  port: ${PORT:8080}
+
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/iume_atelier_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
@@ -21,7 +24,7 @@ iume:
     base-url: ${IUME_LLM_BASE_URL:https://api.deepseek.com}
     model: ${IUME_LLM_MODEL:deepseek-chat}
   jwt:
-    secret: ${IUME_JWT_SECRET:change-me-in-production}
+    secret: ${IUME_JWT_SECRET:iume-atelier-jwt-secret-key-change-in-production-must-be-at-least-256-bits-long!!}
   cors:
     allowed-origins: ${IUME_CORS_ORIGINS:https://*.netlify.app,https://*.vercel.app,http://localhost:5173}
   app:
