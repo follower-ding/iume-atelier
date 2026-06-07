@@ -97,6 +97,24 @@ IUME_CORS_ORIGINS=https://你的前端域名
 | `IUME_JWT_SECRET` | 随机长字符串 |
 | `IUME_CORS_ORIGINS` | 前端完整 URL，逗号分隔 |
 | `IUME_SITE_URL` | 前端 URL（RSS/sitemap 用） |
+| `IUME_STORAGE_TYPE` | `local`（默认）或 `s3` |
+| `IUME_S3_*` | R2 配置，见 [R2-SETUP.md](./R2-SETUP.md) |
+
+### 文章迁移
+
+```bash
+# 导出（含草稿）
+IUME_API_BASE=https://你的后端/api node scripts/export-articles.mjs
+
+# 导入到生产（按 slug upsert）
+IUME_API_BASE=https://你的后端/api node scripts/import-articles.mjs scripts/backup/articles-2026-06-06.json
+```
+
+### Git push（443 受限时）
+
+```bash
+node scripts/push-via-gh-api.mjs HEAD [parentSha]
+```
 
 ### 前端（仅直连模式需要）
 

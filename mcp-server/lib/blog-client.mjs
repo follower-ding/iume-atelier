@@ -114,6 +114,20 @@ export class BlogClient {
     })
   }
 
+  async listAiTools(category, keyword) {
+    const params = new URLSearchParams()
+    if (category) params.set('category', category)
+    if (keyword) params.set('keyword', keyword)
+    const qs = params.toString()
+    const res = await fetch(`${this.baseUrl}/ai-tools${qs ? `?${qs}` : ''}`)
+    const json = await res.json()
+    return json.data || []
+  }
+
+  async upsertAiTool(payload) {
+    return this.request('POST', '/ai-tools/upsert', payload)
+  }
+
   async uploadImage({ filePath, buffer, filename }) {
     await this.ensureAuth()
     const form = new FormData()

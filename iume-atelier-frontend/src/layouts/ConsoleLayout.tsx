@@ -9,6 +9,10 @@ import {
   LogOut,
   ScrollText,
   Wrench,
+  Image,
+  Mail,
+  BookOpen,
+  BarChart3,
 } from 'lucide-react'
 import { useAuthStore } from '@/store'
 import { zh } from '@/locales/zh'
@@ -18,6 +22,10 @@ const nav = [
   { to: '/console/users', label: zh.console.users, icon: Users },
   { to: '/console/articles', label: zh.console.articles, icon: FileText },
   { to: '/console/ai-tools', label: zh.console.aiTools, icon: Wrench },
+  { to: '/console/media', label: zh.console.media, icon: Image },
+  { to: '/console/series', label: zh.console.series, icon: BookOpen },
+  { to: '/console/newsletter', label: zh.console.newsletter, icon: Mail },
+  { to: '/console/analytics', label: zh.console.analytics, icon: BarChart3 },
   { to: '/console/comments', label: zh.console.comments, icon: MessageSquare },
   { to: '/console/taxonomy', label: zh.console.taxonomy, icon: Tags },
   { to: '/console/audit-logs', label: zh.console.auditLogs, icon: ScrollText },

@@ -32,12 +32,14 @@ export default function PageMeta({
   const fullTitle = title === siteName ? title : `${title} · ${siteName}`
   const canonical = url || (typeof window !== 'undefined' ? window.location.href : '')
   const ogImage = toAbsoluteUrl(image)
+  const rssUrl = import.meta.env.VITE_RSS_URL || '/api/rss'
 
   return (
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonical} />
+      <link rel="alternate" type="application/rss+xml" title={`${siteName} RSS`} href={rssUrl} />
       <meta property="og:site_name" content={siteName} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />

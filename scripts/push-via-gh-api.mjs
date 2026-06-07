@@ -36,20 +36,48 @@ if (!parentSha) {
   console.log('Remote main:', parentSha)
 }
 
-const files = execSync(`git diff --name-only ${parentSha} ${commitSha}`, {
-  encoding: 'utf8',
-  cwd: repoRoot,
-}).trim().split('\n').filter(Boolean)
+function listChanges() {
+  try {
+    const out = execSync(`git diff --name-status ${parentSha} ${commitSha}`, {
+      encoding: 'utf8',
+      cwd: repoRoot,
+    }).trim()
+    if (!out) return []
+    return out.split('\n').map((line) => {
+      const [status, ...rest] = line.split('\t')
+      let path = rest.join('\t').replace(/\\/g, '/').trim()
+      if (path.startsWith('"') && path.endsWith('"')) path = path.slice(1, -1)
+      return { status: status.trim(), path }
+    })
+  } catch {
+    const out = execSync(`git diff-tree --no-commit-id --name-status -r ${commitSha}`, {
+      encoding: 'utf8',
+      cwd: repoRoot,
+    }).trim()
+    if (!out) return []
+    return out.split('\n').map((line) => {
+      const [status, ...rest] = line.split('\t')
+      let path = rest.join('\t').replace(/\\/g, '/').trim()
+      if (path.startsWith('"') && path.endsWith('"')) path = path.slice(1, -1)
+      return { status: status.trim(), path }
+    })
+  }
+}
 
-console.log(`Uploading ${files.length} files from ${commitSha}...`)
+const changes = listChanges()
 
-const tree = files.map((path) => {
-  const content = execSync(`git show ${commitSha}:${path}`, {
+console.log(`Uploading ${changes.length} changes from ${commitSha}...`)
+
+const tree = changes.map(({ status, path }) => {
+  if (status.startsWith('D')) {
+    return { path, mode: '100644', sha: null }
+  }
+  const content = execSync(`git -c core.quotepath=false show ${commitSha}:"${path.replace(/"/g, '\\"')}"`, {
     encoding: 'utf8',
     cwd: repoRoot,
     maxBuffer: 64 * 1024 * 1024,
   })
-  return { path: path.replace(/\\/g, '/'), mode: '100644', type: 'blob', content }
+  return { path, mode: '100644', type: 'blob', content }
 })
 
 const parentCommit = gh('GET', `repos/${owner}/${repo}/git/commits/${parentSha}`)
@@ -58,7 +86,12 @@ const newTree = gh('POST', `repos/${owner}/${repo}/git/trees`, {
   tree,
 })
 
-const msg = execSync(`git log --format=%B ${parentSha}..${commitSha}`, { encoding: 'utf8', cwd: repoRoot }).trim()
+let msg
+try {
+  msg = execSync(`git log --format=%B ${parentSha}..${commitSha}`, { encoding: 'utf8', cwd: repoRoot }).trim()
+} catch {
+  msg = execSync(`git log -1 --format=%B ${commitSha}`, { encoding: 'utf8', cwd: repoRoot }).trim()
+}
 const newCommit = gh('POST', `repos/${owner}/${repo}/git/commits`, {
   message: msg,
   tree: newTree.sha,

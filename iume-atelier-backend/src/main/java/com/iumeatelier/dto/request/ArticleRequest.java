@@ -40,4 +40,10 @@ public class ArticleRequest {
 
     @Schema(description = "Tag IDs", example = "[1, 2]")
     private List<Long> tagIds;
+
+    @Schema(description = "Series ID")
+    private Long seriesId;
+
+    @Schema(description = "Order within series")
+    private Integer seriesOrder;
 }

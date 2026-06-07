@@ -23,6 +23,15 @@ public interface ArticleMapper extends BaseMapper<Article> {
             """)
     IPage<Article> searchPublished(Page<Article> page, @Param("keyword") String keyword);
 
+    @Select("""
+            SELECT * FROM articles
+            WHERE deleted = 0
+              AND status = 'PUBLISHED'
+              AND MATCH(title, summary, content) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
+            ORDER BY published_at DESC
+            """)
+    IPage<Article> searchPublishedFulltext(Page<Article> page, @Param("keyword") String keyword);
+
     @Update("UPDATE articles SET view_count = view_count + 1 WHERE id = #{id} AND deleted = 0")
     int incrementViewCount(@Param("id") Long id);
 }

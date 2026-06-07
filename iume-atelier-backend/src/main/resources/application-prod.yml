@@ -6,6 +6,16 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 iume:
+  storage:
+    type: ${IUME_STORAGE_TYPE:local}
+    s3:
+      endpoint: ${IUME_S3_ENDPOINT:}
+      region: ${IUME_S3_REGION:auto}
+      bucket: ${IUME_S3_BUCKET:}
+      access-key: ${IUME_S3_ACCESS_KEY:}
+      secret-key: ${IUME_S3_SECRET_KEY:}
+      public-base-url: ${IUME_S3_PUBLIC_BASE_URL:}
+      prefix: ${IUME_S3_PREFIX:uploads/}
   llm:
     api-key: ${IUME_LLM_API_KEY:}
     base-url: ${IUME_LLM_BASE_URL:https://api.deepseek.com}
@@ -15,7 +25,7 @@ iume:
   cors:
     allowed-origins: ${IUME_CORS_ORIGINS:https://*.netlify.app,https://*.vercel.app,http://localhost:5173}
   app:
-    version: ${IUME_APP_VERSION:1.1.0}
+    version: ${IUME_APP_VERSION:1.2.1}
     site-url: ${IUME_SITE_URL:http://localhost}
 
 logging:

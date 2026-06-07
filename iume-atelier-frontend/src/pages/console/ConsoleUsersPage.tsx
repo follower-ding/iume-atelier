@@ -179,6 +179,7 @@ export default function ConsoleUsersPage() {
                       className="console-select"
                     >
                       <option value="USER">USER</option>
+                      <option value="AUTHOR">AUTHOR</option>
                       <option value="ADMIN">ADMIN</option>
                     </select>
                   </td>
@@ -251,6 +252,7 @@ export default function ConsoleUsersPage() {
                 data-testid="console-create-role"
               >
                 <option value="USER">USER</option>
+                <option value="AUTHOR">AUTHOR</option>
                 <option value="ADMIN">ADMIN</option>
               </select>
               <div className="console-modal__actions">

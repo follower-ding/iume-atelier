@@ -33,6 +33,7 @@ jobs:
         working-directory: iume-atelier-frontend
         run: |
           npm ci
+          npm run tool:check
           npm run build
 
   e2e:

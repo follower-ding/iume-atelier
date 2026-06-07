@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ChevronDown, ExternalLink, ImagePlus, Loader2 } from 'lucide-react'
-import { articleApi, categoryApi, tagApi, uploadApi } from '@/api'
+import { articleApi, categoryApi, seriesApi, tagApi, uploadApi } from '@/api'
+import type { Series } from '@/api'
 import TechBlogEditor from '@/components/business/TechBlogEditor'
 import PageMeta from '@/components/seo/PageMeta'
 import { clearDraft, loadDraft, useDraftAutosave } from '@/hooks/useDraftAutosave'
@@ -28,6 +29,7 @@ export default function StudioArticleEditPage() {
 
   const [categories, setCategories] = useState<Category[]>([])
   const [tags, setTags] = useState<Tag[]>([])
+  const [seriesList, setSeriesList] = useState<Series[]>([])
   const [form, setForm] = useState<ArticleRequest>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [previewing, setPreviewing] = useState(false)
@@ -48,6 +50,7 @@ export default function StudioArticleEditPage() {
   useEffect(() => {
     categoryApi.list().then(setCategories).catch(() => {})
     tagApi.list().then(setTags).catch(() => {})
+    seriesApi.brief().then(setSeriesList).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -71,9 +74,11 @@ export default function StudioArticleEditPage() {
           categoryId: a.categoryId,
           tagIds: a.tags?.map((t) => t.id) || [],
           coverImage: a.coverImage,
+          seriesId: a.seriesId,
+          seriesOrder: a.seriesOrder,
         })
         setSlugManual(true)
-        if (a.summary || a.coverImage) setSettingsOpen(true)
+        if (a.summary || a.coverImage || a.seriesId) setSettingsOpen(true)
       })
       .catch(() => navigate('/studio'))
       .finally(() => setLoading(false))
@@ -95,14 +100,16 @@ export default function StudioArticleEditPage() {
     }
     setSaving(true)
     setMessage('')
-    const payload: ArticleRequest = {
+    const payload = {
       ...form,
       title: form.title.trim(),
       content: form.content.trim(),
       slug: form.slug?.trim() || generateSlug(form.title),
       summary: form.summary?.trim() || extractSummary(form.content),
       status: status || form.status,
-    }
+      seriesId: form.seriesId ?? null,
+      seriesOrder: form.seriesId ? (form.seriesOrder ?? 0) : 0,
+    } as ArticleRequest
     const savedId = editingId
     try {
       const result = editingId
@@ -311,6 +318,42 @@ export default function StudioArticleEditPage() {
                     <option value="PUBLISHED">{zh.studio.published}</option>
                   </select>
                 </label>
+              </div>
+              <div className="studio-write__field-row">
+                <label className="studio-write__field studio-write__field--half">
+                  <span>{zh.studio.series}</span>
+                  <select
+                    value={form.seriesId || ''}
+                    onChange={(e) => {
+                      const seriesId = e.target.value ? Number(e.target.value) : undefined
+                      setForm({
+                        ...form,
+                        seriesId,
+                        seriesOrder: seriesId ? form.seriesOrder : undefined,
+                      })
+                    }}
+                    className="studio-write__select"
+                  >
+                    <option value="">{zh.studio.noSeries}</option>
+                    {seriesList.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+                  </select>
+                </label>
+                {form.seriesId ? (
+                  <label className="studio-write__field studio-write__field--half">
+                    <span>{zh.studio.seriesOrder}</span>
+                    <input
+                      type="number"
+                      min={1}
+                      value={form.seriesOrder ?? ''}
+                      onChange={(e) => setForm({
+                        ...form,
+                        seriesOrder: e.target.value ? Number(e.target.value) : undefined,
+                      })}
+                      placeholder="1"
+                      className="studio-write__input"
+                    />
+                  </label>
+                ) : null}
               </div>
               {tags.length > 0 && (
                 <div className="studio-write__field">

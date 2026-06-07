@@ -1,66 +1,54 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { ExternalLink, Github } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Edit, ExternalLink, Plus, Trash2 } from 'lucide-react'
-import { aiToolApi } from '@/api'
 import AiToolChatPanel from '@/components/console/AiToolChatPanel'
 import { aiToolCategories } from '@/data/ai-tools'
+import { useAiTools } from '@/hooks/useAiTools'
 import { zh } from '@/locales/zh'
-import type { AiToolDto } from '@/types/ai-tool-api'
 
-const PAGE_SIZE = 20
+const CATALOG_REPO = 'https://github.com/follower-ding/iume-ai-catalog'
 
 export default function ConsoleAiToolsPage() {
-  const [tools, setTools] = useState<AiToolDto[]>([])
+  const { entries } = useAiTools()
   const [category, setCategory] = useState('all')
   const [keyword, setKeyword] = useState('')
-  const [page, setPage] = useState(1)
-  const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(true)
 
-  const load = () => {
-    setLoading(true)
-    aiToolApi
-      .page(page, PAGE_SIZE, category === 'all' ? undefined : category, keyword || undefined)
-      .then((res) => {
-        setTools(res.records)
-        setTotal(res.total)
-      })
-      .catch(() => setTools([]))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    load()
-  }, [page, category, keyword])
-
-  const handleDelete = async (slug: string) => {
-    if (!confirm(zh.studio.deleteConfirm)) return
-    await aiToolApi.remove(slug)
-    load()
-  }
-
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const filtered = useMemo(() => {
+    const q = keyword.trim().toLowerCase()
+    return entries.filter((tool) => {
+      if (category !== 'all' && tool.category !== category) return false
+      if (!q) return true
+      return (
+        tool.name.toLowerCase().includes(q)
+        || tool.description.toLowerCase().includes(q)
+        || tool.tags.some((t) => t.toLowerCase().includes(q))
+      )
+    })
+  }, [entries, category, keyword])
 
   return (
     <div className="console-page console-page--fill">
       <header className="console-page__header console-page__header--row">
         <div>
           <h1>{zh.console.aiTools}</h1>
-          <p>{zh.console.aiToolsDesc}</p>
+          <p>{zh.console.aiToolsCatalogDesc}</p>
         </div>
-        <Link to="/console/ai-tools/new" className="btn-primary inline-flex items-center gap-2 cursor-pointer shrink-0">
-          <Plus size={16} />
-          {zh.console.newAiTool}
-        </Link>
+        <a href={CATALOG_REPO} target="_blank" rel="noopener noreferrer" className="btn-secondary inline-flex items-center gap-2 cursor-pointer shrink-0">
+          <Github size={16} />
+          {zh.console.aiToolsEditCatalog}
+        </a>
       </header>
+
+      <div className="console-callout console-callout--info mb-6">
+        <p>{zh.console.aiToolsCatalogHint}</p>
+        <p className="mt-2 text-sm text-secondary">{zh.console.aiToolsCatalogWorkflow}</p>
+      </div>
 
       <div className="console-ai-tools-grid">
         <section className="console-section" aria-labelledby="ai-tools-list-heading">
           <div className="console-section__head">
             <h2 id="ai-tools-list-heading" className="console-section__title">{zh.console.aiToolsList}</h2>
-            {!loading && (
-              <span className="console-section__meta">{total} {zh.console.aiToolsCountUnit}</span>
-            )}
+            <span className="console-section__meta">{filtered.length} {zh.console.aiToolsCountUnit}</span>
           </div>
 
           <div className="console-toolbar console-toolbar--stacked">
@@ -68,25 +56,12 @@ export default function ConsoleAiToolsPage() {
               className="console-input console-input--search"
               placeholder={zh.aiTools.searchPlaceholder}
               value={keyword}
-              onChange={(e) => { setKeyword(e.target.value); setPage(1) }}
+              onChange={(e) => setKeyword(e.target.value)}
             />
             <div className="console-filter-group">
-              <button
-                type="button"
-                className={`console-filter-pill cursor-pointer ${category === 'all' ? 'console-filter-pill--active' : ''}`}
-                onClick={() => { setCategory('all'); setPage(1) }}
-              >
-                {zh.aiTools.all}
-              </button>
+              <button type="button" className={`console-filter-pill cursor-pointer ${category === 'all' ? 'console-filter-pill--active' : ''}`} onClick={() => setCategory('all')}>{zh.aiTools.all}</button>
               {aiToolCategories.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  className={`console-filter-pill cursor-pointer ${category === c.id ? 'console-filter-pill--active' : ''}`}
-                  onClick={() => { setCategory(c.id); setPage(1) }}
-                >
-                  {c.label}
-                </button>
+                <button key={c.id} type="button" className={`console-filter-pill cursor-pointer ${category === c.id ? 'console-filter-pill--active' : ''}`} onClick={() => setCategory(c.id)}>{c.label}</button>
               ))}
             </div>
           </div>
@@ -102,32 +77,27 @@ export default function ConsoleAiToolsPage() {
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  <tr><td colSpan={4} className="console-table__empty">{zh.articles.loading}</td></tr>
-                ) : tools.length === 0 ? (
+                {filtered.length === 0 ? (
                   <tr><td colSpan={4} className="console-table__empty">{zh.console.aiToolsEmpty}</td></tr>
-                ) : tools.map((tool) => (
-                  <tr key={tool.slug}>
+                ) : filtered.map((tool) => (
+                  <tr key={tool.id}>
                     <td className="console-table__col-title">
-                      <Link to={`/console/ai-tools/${tool.slug}/edit`} className="console-table__name console-table__title-link cursor-pointer">
+                      <span className="console-table__name">
                         <span className="console-table__icon" aria-hidden="true">{tool.icon}</span>
                         <span>{tool.name}</span>
                         {tool.featured && <span className="console-table__star" title="featured">★</span>}
-                      </Link>
+                      </span>
                     </td>
                     <td className="console-table__col-badge"><span className="console-badge console-badge--muted">{tool.category}</span></td>
-                    <td className="console-table__col-slug"><code className="console-code">{tool.slug}</code></td>
+                    <td className="console-table__col-slug"><code className="console-code">{tool.id}</code></td>
                     <td className="console-table__col-actions">
                       <div className="console-row-actions">
-                        <Link to={`/tools/${tool.slug}`} target="_blank" className="console-icon-btn cursor-pointer" title={zh.aiTools.viewDetail}>
+                        <Link to={`/tools/${tool.id}`} target="_blank" className="console-icon-btn cursor-pointer" title={zh.aiTools.viewDetail}>
                           <ExternalLink size={15} />
                         </Link>
-                        <Link to={`/console/ai-tools/${tool.slug}/edit`} className="console-icon-btn cursor-pointer" title={zh.console.editAiTool}>
-                          <Edit size={15} />
-                        </Link>
-                        <button type="button" className="console-icon-btn console-icon-btn--danger cursor-pointer" onClick={() => handleDelete(tool.slug)} title={zh.console.delete}>
-                          <Trash2 size={15} />
-                        </button>
+                        <a href={`${CATALOG_REPO}/blob/main/entries/${tool.id}.json`} target="_blank" rel="noopener noreferrer" className="console-icon-btn cursor-pointer" title={zh.console.aiToolsEditCatalog}>
+                          <Github size={15} />
+                        </a>
                       </div>
                     </td>
                   </tr>
@@ -135,18 +105,11 @@ export default function ConsoleAiToolsPage() {
               </tbody>
             </table>
           </div>
-
-          {totalPages > 1 && (
-            <div className="console-pagination console-pagination--panel">
-              <button type="button" className="console-pagination__btn cursor-pointer" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>{zh.articles.prevPage}</button>
-              <span>{page} / {totalPages}</span>
-              <button type="button" className="console-pagination__btn cursor-pointer" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>{zh.articles.nextPage}</button>
-            </div>
-          )}
         </section>
 
         <aside className="console-ai-tools-aside">
-          <AiToolChatPanel onSaved={load} compact />
+          <AiToolChatPanel compact />
+          <p className="mt-3 text-xs text-secondary">{zh.console.aiToolChatCatalogNote}</p>
         </aside>
       </div>
     </div>

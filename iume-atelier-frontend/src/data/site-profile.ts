@@ -62,59 +62,6 @@ export const projects: ProjectItem[] = [
   },
 ]
 
-export interface ToolItem {
-  name: string
-  description: string
-  url: string
-  category: string
-  icon: string
-}
-
-export const tools: ToolItem[] = [
-  {
-    name: 'Cursor',
-    description: 'AI 辅助编程与结对开发的主编辑器。',
-    url: 'https://cursor.com',
-    category: '开发',
-    icon: '⌘',
-  },
-  {
-    name: 'Figma',
-    description: '界面设计与设计系统协作工具。',
-    url: 'https://figma.com',
-    category: '设计',
-    icon: '◆',
-  },
-  {
-    name: 'Obsidian',
-    description: '本地优先的笔记与知识管理。',
-    url: 'https://obsidian.md',
-    category: '写作',
-    icon: '◇',
-  },
-  {
-    name: 'Vite',
-    description: '极速前端构建工具，iume-atelier 前端基石。',
-    url: 'https://vitejs.dev',
-    category: '开发',
-    icon: '⚡',
-  },
-  {
-    name: 'Docker',
-    description: '容器化部署 iume-atelier 后端与 MySQL 环境。',
-    url: 'https://docker.com',
-    category: '运维',
-    icon: '🐳',
-  },
-  {
-    name: 'GitHub Actions',
-    description: 'iume-atelier 的 CI/CD 流水线，push 即自动部署。',
-    url: 'https://github.com/follower-ding/iume-atelier',
-    category: '运维',
-    icon: '▣',
-  },
-]
-
 export const aboutBento = [
   {
     id: 'stack',

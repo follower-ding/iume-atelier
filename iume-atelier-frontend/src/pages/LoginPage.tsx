@@ -20,11 +20,30 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      const data = await authApi.login(username, password)
+      const data = await authApi.login(username.trim(), password)
       setAuth(data.token, data.user, data.refreshToken)
-      navigate(from ?? (data.user.role === 'ADMIN' ? '/console' : '/'), { replace: true })
-    } catch {
-      setError(zh.auth.loginFailed)
+      const dest = data.user.mustChangePassword
+        ? '/settings?changePassword=required'
+        : (from ?? (data.user.role === 'ADMIN' ? '/console' : '/'))
+      navigate(dest, { replace: true })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      const lower = msg.toLowerCase()
+      if (lower.includes('cors') || lower.includes('invalid cors')) {
+        setError(zh.auth.loginCorsFailed)
+      } else if (
+        lower.includes('network') ||
+        lower.includes('timeout') ||
+        lower.includes('502') ||
+        lower.includes('503') ||
+        lower.includes('failed to fetch')
+      ) {
+        setError(zh.auth.loginNetworkFailed)
+      } else if (lower.includes('bad credentials') || lower.includes('401')) {
+        setError(zh.auth.loginFailed)
+      } else {
+        setError(msg || zh.auth.loginFailed)
+      }
     } finally {
       setLoading(false)
     }

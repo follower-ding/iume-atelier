@@ -33,6 +33,9 @@ public class UserResponse {
     @Schema(description = "User role", example = "ADMIN")
     private String role;
 
+    @Schema(description = "Whether user must change password on next login")
+    private Boolean mustChangePassword;
+
     @Schema(description = "Created at")
     private LocalDateTime createdAt;
 }

@@ -34,6 +34,10 @@ public class Article {
 
     private Long categoryId;
 
+    private Long seriesId;
+
+    private Integer seriesOrder;
+
     private Integer viewCount;
 
     @TableField(fill = FieldFill.INSERT)

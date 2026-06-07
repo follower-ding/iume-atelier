@@ -7,7 +7,7 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const BASE = 'http://127.0.0.1:8080/api'
+const BASE = process.env.IUME_API_BASE || 'http://127.0.0.1:8080/api'
 
 async function login() {
   const res = await fetch(`${BASE}/auth/login`, {

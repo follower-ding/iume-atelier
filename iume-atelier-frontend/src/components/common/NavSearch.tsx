@@ -56,7 +56,7 @@ export default function NavSearch({ variant = 'header' }: NavSearchProps) {
     if (!keyword.trim()) return
     setOpen(false)
     setMobileOpen(false)
-    navigate(`/articles?q=${encodeURIComponent(keyword.trim())}`)
+    navigate(`/search?q=${encodeURIComponent(keyword.trim())}`)
     setKeyword('')
   }
 

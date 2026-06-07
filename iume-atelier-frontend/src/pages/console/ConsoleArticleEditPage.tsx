@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ExternalLink, ImagePlus, Loader2 } from 'lucide-react'
-import { articleApi, categoryApi, tagApi, uploadApi } from '@/api'
+import { articleApi, categoryApi, seriesApi, tagApi, uploadApi } from '@/api'
+import type { Series } from '@/api'
 import TechBlogEditor from '@/components/business/TechBlogEditor'
 import { clearDraft, loadDraft, useDraftAutosave } from '@/hooks/useDraftAutosave'
 import { zh } from '@/locales/zh'
@@ -27,6 +28,7 @@ export default function ConsoleArticleEditPage() {
 
   const [categories, setCategories] = useState<Category[]>([])
   const [tags, setTags] = useState<Tag[]>([])
+  const [seriesList, setSeriesList] = useState<Series[]>([])
   const [form, setForm] = useState<ArticleRequest>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [coverUploading, setCoverUploading] = useState(false)
@@ -40,6 +42,7 @@ export default function ConsoleArticleEditPage() {
   useEffect(() => {
     categoryApi.list().then(setCategories).catch(() => {})
     tagApi.list().then(setTags).catch(() => {})
+    seriesApi.brief().then(setSeriesList).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -63,6 +66,8 @@ export default function ConsoleArticleEditPage() {
           categoryId: a.categoryId,
           tagIds: a.tags?.map((t) => t.id) || [],
           coverImage: a.coverImage,
+          seriesId: a.seriesId,
+          seriesOrder: a.seriesOrder,
         })
         setSlugManual(true)
       })
@@ -74,14 +79,16 @@ export default function ConsoleArticleEditPage() {
     if (!form.title.trim() || !form.content.trim()) return
     setSaving(true)
     setMessage('')
-    const payload: ArticleRequest = {
+    const payload = {
       ...form,
       title: form.title.trim(),
       content: form.content.trim(),
       slug: form.slug?.trim() || generateSlug(form.title),
       summary: form.summary?.trim() || extractSummary(form.content),
       status: status || form.status,
-    }
+      seriesId: form.seriesId ?? null,
+      seriesOrder: form.seriesId ? (form.seriesOrder ?? 0) : 0,
+    } as ArticleRequest
     const savedId = editingId
     try {
       if (editingId) await articleApi.update(editingId, payload)
@@ -178,6 +185,34 @@ export default function ConsoleArticleEditPage() {
             <option value="">{zh.studio.noCategory}</option>
             {sortCategories(categories).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
+          <select
+            value={form.seriesId || ''}
+            onChange={(e) => {
+              const seriesId = e.target.value ? Number(e.target.value) : undefined
+              setForm({
+                ...form,
+                seriesId,
+                seriesOrder: seriesId ? form.seriesOrder : undefined,
+              })
+            }}
+            className="console-select"
+          >
+            <option value="">{zh.studio.noSeries}</option>
+            {seriesList.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+          </select>
+          {form.seriesId ? (
+            <input
+              type="number"
+              min={1}
+              value={form.seriesOrder ?? ''}
+              onChange={(e) => setForm({
+                ...form,
+                seriesOrder: e.target.value ? Number(e.target.value) : undefined,
+              })}
+              placeholder={zh.studio.seriesOrder}
+              className="console-input w-28"
+            />
+          ) : null}
           <select
             value={form.status}
             onChange={(e) => setForm({ ...form, status: e.target.value as 'DRAFT' | 'PUBLISHED' })}

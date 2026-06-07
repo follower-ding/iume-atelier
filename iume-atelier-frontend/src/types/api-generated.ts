@@ -42,6 +42,10 @@ export interface ArticleResponse {
   authorName: string
   categoryId?: number
   categoryName?: string
+  seriesId?: number
+  seriesTitle?: string
+  seriesSlug?: string
+  seriesOrder?: number
   viewCount: number
   tags: TagResponse[]
   createdAt: string
@@ -56,6 +60,8 @@ export interface UserResponse {
   email: string
   role: string
   avatar?: string
+  mustChangePassword?: boolean
+  createdAt?: string
 }
 
 export interface AuthResponse {
@@ -87,6 +93,8 @@ export interface ArticleRequest {
   status: 'DRAFT' | 'PUBLISHED'
   categoryId?: number
   tagIds?: number[]
+  seriesId?: number
+  seriesOrder?: number
 }
 
 export interface CategoryRequest {

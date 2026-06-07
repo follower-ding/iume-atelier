@@ -51,8 +51,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_GET_PATHS).permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login", "/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/newsletter/subscribe", "/analytics/page-view").permitAll()
                         .requestMatchers(HttpMethod.GET, "/articles/manage").authenticated()
                         .requestMatchers(HttpMethod.GET, "/articles/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/series/**", "/authors/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/tags/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/ai-tools/**").permitAll()

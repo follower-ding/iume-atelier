@@ -6,10 +6,11 @@ interface EmptyStateProps {
   description?: string
   actionLabel?: string
   actionTo?: string
+  onAction?: () => void
   icon?: ReactNode
 }
 
-export default function EmptyState({ title, description, actionLabel, actionTo, icon }: EmptyStateProps) {
+export default function EmptyState({ title, description, actionLabel, actionTo, onAction, icon }: EmptyStateProps) {
   return (
     <div className="empty-state">
       {icon && <div className="empty-state__icon">{icon}</div>}
@@ -19,6 +20,11 @@ export default function EmptyState({ title, description, actionLabel, actionTo, 
         <Link to={actionTo} className="btn-secondary cursor-pointer mt-6 inline-flex">
           {actionLabel}
         </Link>
+      )}
+      {actionLabel && onAction && !actionTo && (
+        <button type="button" className="btn-secondary cursor-pointer mt-6" onClick={onAction}>
+          {actionLabel}
+        </button>
       )}
     </div>
   )

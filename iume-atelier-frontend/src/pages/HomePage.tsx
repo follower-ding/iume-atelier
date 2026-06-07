@@ -6,6 +6,7 @@ import HeroBanner from '@/components/common/HeroBanner'
 import GradientText from '@/components/interactive/GradientText'
 import TypewriterText from '@/components/interactive/TypewriterText'
 import ArticleListSkeleton from '@/components/common/ArticleListSkeleton'
+import HomeQuickLinks from '@/components/common/HomeQuickLinks'
 import BlogShell from '@/components/layout/BlogShell'
 import PageMeta from '@/components/seo/PageMeta'
 import { zh } from '@/locales/zh'
@@ -49,6 +50,8 @@ export default function HomePage() {
           <Link to="/projects" className="btn-primary cursor-pointer text-sm btn-magnetic">{zh.nav.projects}</Link>
         </div>
       </HeroBanner>
+
+      <HomeQuickLinks />
 
       <section className="page-container py-12 lg:py-16">
         <BlogShell>

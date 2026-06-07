@@ -31,6 +31,8 @@ public class User {
 
     private String role;
 
+    private Boolean mustChangePassword;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 

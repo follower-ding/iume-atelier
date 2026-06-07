@@ -11,3 +11,7 @@ export function resolveAssetUrl(url?: string | null): string | null {
 export function isAdmin(user: { role?: string } | null | undefined): boolean {
   return user?.role === 'ADMIN'
 }
+
+export function isAuthor(user: { role?: string } | null | undefined): boolean {
+  return user?.role === 'AUTHOR' || user?.role === 'ADMIN'
+}

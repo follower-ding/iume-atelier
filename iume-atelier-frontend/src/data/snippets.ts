@@ -212,6 +212,95 @@ globs: **/*.java
 }`,
   },
   {
+    id: 'iume-atelier-mcp',
+    title: 'iume-atelier MCP 配置',
+    category: 'mcp',
+    tags: ['blog', 'iume-atelier'],
+    content: `{
+  "mcpServers": {
+    "iume-atelier": {
+      "command": "node",
+      "args": ["C:/Users/YOU/.cursor/mcp-servers/iume-atelier-blog/index.mjs"],
+      "env": {
+        "IUME_BLOG_API_URL": "https://your-site.netlify.app/api",
+        "IUME_BLOG_FRONTEND_URL": "https://your-site.netlify.app",
+        "IUME_BLOG_USERNAME": "admin",
+        "IUME_BLOG_PASSWORD": "your-password"
+      }
+    }
+  }
+}`,
+  },
+  {
+    id: 'iume-atelier-skill',
+    title: 'iume-atelier-publish Skill 用法',
+    category: 'cursor',
+    tags: ['skill', 'blog'],
+    content: `# 发布到 iume-atelier
+
+对 Cursor 说：
+「帮我把这篇文档发布到 iume-atelier，分类 programming，标签 tutorial」
+
+流程：blog_health → blog_list_taxonomy → blog_publish_article
+
+Skill 路径：~/.cursor/skills/iume-atelier-publish/
+MCP 路径：~/.cursor/mcp-servers/iume-atelier-blog/`,
+  },
+  {
+    id: 'prompt-blog-template',
+    title: '技术博客写作 Prompt',
+    category: 'cursor',
+    tags: ['prompt', 'blog'],
+    content: `请写一篇可发布到 iume-atelier 的技术博客，结构如下：
+
+## 背景
+为什么要做这件事？
+
+## 方案
+核心思路与架构（可用 mermaid）
+
+## 实现
+关键代码与配置（带语言标注的代码块）
+
+## 踩坑
+真实遇到的问题与解决办法
+
+## 总结
+3 条以内可执行建议
+
+要求：Markdown、##/### 标题、中文、代码可运行。`,
+  },
+  {
+    id: 'prompt-refactor-template',
+    title: '小步重构 Prompt',
+    category: 'cursor',
+    tags: ['prompt', 'refactor'],
+    content: `请在不改变行为的前提下做小步重构：
+
+- 最小 diff，不碰无关文件
+- 匹配现有命名与代码风格
+- 不要过度抽象或加无用注释
+- 说明改了什么、为什么`,
+  },
+  {
+    id: 'prompt-deploy-template',
+    title: 'PaaS 部署排查 Prompt',
+    category: 'cursor',
+    tags: ['prompt', 'deploy'],
+    content: `我在部署 iume-atelier（Netlify 前端 + Railway 后端）遇到问题：
+
+【现象】：
+【Deploy log 报错】：
+【已配置环境变量】：
+
+请按顺序排查：
+1. netlify.toml publish/base 是否正确
+2. Railway MySQL 变量名与 Flyway
+3. IUME_CORS_ORIGINS 是否含前端域名
+4. npm peer deps / React 版本
+并给出具体修复命令。`,
+  },
+  {
     id: 'mcp-tool-schema',
     title: 'MCP Tool JSON Schema',
     category: 'mcp',

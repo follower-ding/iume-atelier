@@ -82,6 +82,7 @@ public class UserService {
             throw new BusinessException(401, "Current password is incorrect");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setMustChangePassword(false);
         userMapper.updateById(user);
     }
 

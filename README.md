@@ -4,7 +4,7 @@ A distinctive editorial blog — Josh Comeau–inspired reading + personal writi
 
 **Stack**: React 19 + TypeScript + Tailwind · Spring Boot 3 + MyBatis-Plus · MySQL 8
 
-**Version**: v1.0.0 — see [RELEASE.md](./RELEASE.md)
+**Version**: v1.2.1 — see [RELEASE.md](./RELEASE.md) · [v1.1 规划](./docs/v1.1-ROADMAP.md)
 
 ## Features
 
@@ -12,10 +12,11 @@ A distinctive editorial blog — Josh Comeau–inspired reading + personal writi
 - Josh-style layout: sticky TOC, scroll spy, reading progress bar
 - Categories: 编程 / AI / 生活 · tag cloud · dark/light theme
 - Comments, RSS, sitemap, SEO meta + JSON-LD
+- Series `/series` · authors `/authors/:id` · search highlight · page analytics
 
 ### Writing
-- **Studio** — Markdown editor (write/preview/split), draft/publish
-- **Console** — admin: users, articles, comments, taxonomy, audit logs
+- **Studio** — Markdown editor (write/preview/split), draft/publish, series assignment
+- **Console** — admin: users, articles, comments, taxonomy, media, newsletter, series, analytics
 
 ### Personalization
 - Companion dock: avatar, quotes, ambient music
@@ -76,7 +77,8 @@ Visit: http://localhost:5173
 前端：**Vercel** / **Netlify** / **EdgeOne Pages**  
 后端 + MySQL：**Railway**
 
-详见 **[deploy/PAAS-DEPLOY.md](./deploy/PAAS-DEPLOY.md)**（约 15 分钟）
+详见 **[deploy/PAAS-DEPLOY.md](./deploy/PAAS-DEPLOY.md)**（约 15 分钟）  
+**新手推荐阅读**：[deploy/PAAS-DEPLOY-BEGINNER-ZH.md](./deploy/PAAS-DEPLOY-BEGINNER-ZH.md)（大白话全流程 + 踩坑 + MCP 发博）
 
 ### 自有服务器 CD
 

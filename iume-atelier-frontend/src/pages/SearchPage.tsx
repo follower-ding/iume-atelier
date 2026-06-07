@@ -133,7 +133,7 @@ export default function SearchPage() {
               </p>
               <div className="article-list article-list--wide">
                 {articles.map((a, i) => (
-                  <ArticleCard key={a.id} article={a} index={i} />
+                  <ArticleCard key={a.id} article={a} index={i} highlightQuery={query} />
                 ))}
               </div>
               {hasMore && (

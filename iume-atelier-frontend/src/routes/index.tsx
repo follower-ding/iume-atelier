@@ -2,6 +2,7 @@ import { lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AuthBootstrap from '@/components/auth/AuthBootstrap'
 import AdminRoute from '@/components/auth/AdminRoute'
+import PasswordChangeGate from '@/components/auth/PasswordChangeGate'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import ConsoleLayout from '@/layouts/ConsoleLayout'
 import AppLayout from '@/layouts/AppLayout'
@@ -29,7 +30,13 @@ const ConsoleCommentsPage = lazy(() => import('@/pages/console/ConsoleCommentsPa
 const ConsoleTaxonomyPage = lazy(() => import('@/pages/console/ConsoleTaxonomyPage'))
 const ConsoleAuditLogsPage = lazy(() => import('@/pages/console/ConsoleAuditLogsPage'))
 const ConsoleAiToolsPage = lazy(() => import('@/pages/console/ConsoleAiToolsPage'))
-const ConsoleAiToolEditPage = lazy(() => import('@/pages/console/ConsoleAiToolEditPage'))
+const ConsoleMediaPage = lazy(() => import('@/pages/console/ConsoleMediaPage'))
+const ConsoleNewsletterPage = lazy(() => import('@/pages/console/ConsoleNewsletterPage'))
+const ConsoleSeriesPage = lazy(() => import('@/pages/console/ConsoleSeriesPage'))
+const ConsoleAnalyticsPage = lazy(() => import('@/pages/console/ConsoleAnalyticsPage'))
+const SeriesListPage = lazy(() => import('@/pages/SeriesListPage'))
+const SeriesPage = lazy(() => import('@/pages/SeriesPage'))
+const AuthorPage = lazy(() => import('@/pages/AuthorPage'))
 
 export default function AppRoutes() {
   return (
@@ -53,11 +60,13 @@ export default function AppRoutes() {
           <Route path="taxonomy" element={<ConsoleTaxonomyPage />} />
           <Route path="audit-logs" element={<ConsoleAuditLogsPage />} />
           <Route path="ai-tools" element={<ConsoleAiToolsPage />} />
-          <Route path="ai-tools/new" element={<ConsoleAiToolEditPage />} />
-          <Route path="ai-tools/:id/edit" element={<ConsoleAiToolEditPage />} />
+          <Route path="media" element={<ConsoleMediaPage />} />
+          <Route path="newsletter" element={<ConsoleNewsletterPage />} />
+          <Route path="series" element={<ConsoleSeriesPage />} />
+          <Route path="analytics" element={<ConsoleAnalyticsPage />} />
         </Route>
 
-        <Route element={<AppLayout />}>
+        <Route element={<PasswordChangeGate><AppLayout /></PasswordChangeGate>}>
           <Route path="/" element={<HomePage />} />
           <Route path="/articles" element={<ArticlesPage />} />
           <Route path="/article/:slug" element={<ArticleDetailPage />} />
@@ -66,6 +75,9 @@ export default function AppRoutes() {
           <Route path="/tools" element={<ToolsPage />} />
           <Route path="/tools/:id" element={<ToolDetailPage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/series" element={<SeriesListPage />} />
+          <Route path="/series/:slug" element={<SeriesPage />} />
+          <Route path="/authors/:id" element={<AuthorPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/admin" element={<Navigate to="/console" replace />} />

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   ImagePlus,
   Loader2,
@@ -10,7 +11,8 @@ import {
   Upload,
   UserRound,
 } from 'lucide-react'
-import { uploadApi, userApi } from '@/api'
+import { authApi, uploadApi, userApi } from '@/api'
+import { getRefreshToken, getToken } from '@/utils/auth'
 import CompanionAvatar from '@/components/companion/CompanionAvatar'
 import SimpleModeToggle from '@/components/common/SimpleModeToggle'
 import CursorStylePicker from '@/components/interactive/CursorStylePicker'
@@ -41,7 +43,9 @@ function stripExt(name: string) {
 }
 
 export default function SettingsPage() {
+  const [searchParams] = useSearchParams()
   const { user, setAuth } = useAuthStore()
+  const forcePasswordChange = searchParams.get('changePassword') === 'required' || !!user?.mustChangePassword
   const theme = useThemeStore((s) => s.theme)
   const setTheme = useThemeStore((s) => s.setTheme)
   const soundEnabled = useSoundStore((s) => s.enabled)
@@ -60,6 +64,10 @@ export default function SettingsPage() {
   } = useUserPrefsStore()
 
   const [tab, setTab] = useState<SettingsTab>('profile')
+
+  useEffect(() => {
+    if (forcePasswordChange) setTab('security')
+  }, [forcePasswordChange])
   const [profile, setProfile] = useState({
     nickname: user?.nickname || '',
     email: user?.email || '',
@@ -118,6 +126,12 @@ export default function SettingsPage() {
     setPasswordError(false)
     try {
       await userApi.changePassword(passwords.current, passwords.next)
+      const token = getToken()
+      const refresh = getRefreshToken()
+      if (token) {
+        const updated = await authApi.me()
+        setAuth(token, updated, refresh)
+      }
       setPasswords({ current: '', next: '', confirm: '' })
       setPasswordMsg(zh.settings.passwordSaved)
     } catch (err) {
@@ -451,6 +465,11 @@ export default function SettingsPage() {
             {tab === 'security' && (
               <form onSubmit={handlePasswordSave} className="settings-page__section">
                 <h2>{zh.settings.changePassword}</h2>
+                {forcePasswordChange && (
+                  <p className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+                    {zh.settings.mustChangePassword}
+                  </p>
+                )}
                 <p className="settings-page__desc">{zh.settings.securityDesc}</p>
 
                 <label className="settings-page__field">

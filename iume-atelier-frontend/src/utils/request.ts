@@ -93,8 +93,15 @@ request.interceptors.response.use(
       useAuthStore.getState().logout()
     }
 
-    const body = error.response?.data as ApiResult<unknown> | undefined
-    const msg = body?.message || error.message || '请求失败'
+    const data = error.response?.data
+    let msg = '请求失败'
+    if (typeof data === 'string' && data.trim()) {
+      msg = data.trim()
+    } else if (data && typeof data === 'object' && 'message' in data) {
+      msg = String((data as ApiResult<unknown>).message || msg)
+    } else if (error.message) {
+      msg = error.message
+    }
     return Promise.reject(new Error(msg))
   },
 )

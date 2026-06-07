@@ -107,6 +107,7 @@ public class AuthService {
                 .nickname(user.getNickname())
                 .avatar(user.getAvatar())
                 .role(user.getRole())
+                .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .createdAt(user.getCreatedAt())
                 .build();
     }

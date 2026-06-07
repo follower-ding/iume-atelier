@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Rss } from 'lucide-react'
 import { categoryApi } from '@/api'
 import NavSearch from '@/components/common/NavSearch'
+import NewsletterSubscribe from '@/components/common/NewsletterSubscribe'
 import SimpleModeToggle from '@/components/common/SimpleModeToggle'
 import ThemeToggle from '@/components/common/ThemeToggle'
 import { useAuthStore } from '@/store'
@@ -91,6 +92,10 @@ export default function SiteFooter() {
                 )}
               </ul>
             </div>
+          </section>
+
+          <section className="site-footer__col">
+            <NewsletterSubscribe />
           </section>
 
           <section className="site-footer__col">

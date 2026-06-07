@@ -10,6 +10,7 @@ import ClickParticles from '@/components/interactive/ClickParticles'
 import CustomCursor from '@/components/interactive/CustomCursor'
 import KonamiEasterEgg from '@/components/interactive/KonamiEasterEgg'
 import PageTransition from '@/components/interactive/PageTransition'
+import PageViewTracker from '@/components/analytics/PageViewTracker'
 
 export default function AppLayout() {
   const { pathname } = useLocation()
@@ -20,6 +21,7 @@ export default function AppLayout() {
 
   return (
     <div className={`min-h-screen flex flex-col site-shell${isStudioWrite ? ' site-shell--studio-write' : ''}${hideBottomNav ? '' : ' site-shell--mobile-nav'}`}>
+      <PageViewTracker />
       <SimpleModeEffects />
       <div className="site-grain" aria-hidden="true" />
       <ClickParticles />

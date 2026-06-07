@@ -123,8 +123,22 @@ export default function ArticleDetailPage() {
               )}
             </p>
           )}
+          {article.seriesSlug && article.seriesTitle && (
+            <p>
+              {zh.series.partOf}{' '}
+              <Link to={`/series/${article.seriesSlug}`} className="prose-link cursor-pointer">
+                {article.seriesTitle}
+              </Link>
+            </p>
+          )}
           <p>
-            {article.authorName} · {article.viewCount} {zh.article.reads}
+            {article.authorName && (
+              <>
+                <Link to={`/authors/${article.authorId}`} className="prose-link cursor-pointer">{article.authorName}</Link>
+                {' · '}
+              </>
+            )}
+            {article.viewCount} {zh.article.reads}
             {' · '}
             <span className="text-accent">{formatReadingTime(readMinutes)}</span>
           </p>

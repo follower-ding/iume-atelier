@@ -96,6 +96,60 @@ const TOOLS = [
     },
   },
   {
+    name: 'blog_list_ai_tools',
+    description: 'List AI toolbox entries (MCP/Skill/Prompt) from iume-atelier',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        category: { type: 'string', enum: ['mcp', 'skill', 'prompt', 'online'], description: 'Filter by category' },
+        keyword: { type: 'string', description: 'Search keyword' },
+      },
+    },
+  },
+  {
+    name: 'blog_upsert_ai_tool',
+    description: 'Add or update an AI toolbox entry. Use when user says「把 xxx MCP/Skill 加到工具箱」.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        slug: { type: 'string', description: 'URL id e.g. mcp-playwright' },
+        name: { type: 'string' },
+        description: { type: 'string' },
+        category: { type: 'string', enum: ['mcp', 'skill', 'prompt', 'online'] },
+        icon: { type: 'string', description: 'Emoji icon' },
+        tags: { type: 'array', items: { type: 'string' } },
+        url: { type: 'string' },
+        featured: { type: 'boolean' },
+        source: { type: 'string', enum: ['official', 'custom'] },
+        detail: {
+          type: 'object',
+          properties: {
+            intro: { type: 'string' },
+            features: { type: 'array', items: { type: 'string' } },
+            install: { type: 'array', items: { type: 'string' } },
+            setup: { type: 'array', items: { type: 'string' } },
+            usage: { type: 'array', items: { type: 'string' } },
+            configs: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  title: { type: 'string' },
+                  content: { type: 'string' },
+                },
+                required: ['id', 'title', 'content'],
+              },
+            },
+            related: { type: 'array', items: { type: 'string' } },
+          },
+          required: ['features', 'usage'],
+        },
+      },
+      required: ['slug', 'name', 'description', 'category', 'icon', 'detail'],
+    },
+  },
+  {
     name: 'blog_screenshot',
     description: 'Take a reliable page screenshot (Playwright). Prefer over puppeteer_screenshot for blog pages.',
     inputSchema: {
@@ -174,6 +228,20 @@ async function handleTool(name, args) {
             markdown: `![image](${result.url})`,
             originalName: result.originalName,
           }, null, 2),
+        }],
+      }
+    }
+    case 'blog_list_ai_tools': {
+      const tools = await client.listAiTools(args.category, args.keyword)
+      return { content: [{ type: 'text', text: JSON.stringify(tools, null, 2) }] }
+    }
+    case 'blog_upsert_ai_tool': {
+      const tool = await client.upsertAiTool(args)
+      const url = `${frontendBase}/tools/${tool.slug}`
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({ ...tool, publicUrl: url }, null, 2),
         }],
       }
     }

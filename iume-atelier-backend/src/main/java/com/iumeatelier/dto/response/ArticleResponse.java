@@ -50,6 +50,18 @@ public class ArticleResponse {
     @Schema(description = "Category name", example = "Technology")
     private String categoryName;
 
+    @Schema(description = "Series ID")
+    private Long seriesId;
+
+    @Schema(description = "Series title")
+    private String seriesTitle;
+
+    @Schema(description = "Series slug")
+    private String seriesSlug;
+
+    @Schema(description = "Order within series")
+    private Integer seriesOrder;
+
     @Schema(description = "View count", example = "128")
     private Integer viewCount;
 

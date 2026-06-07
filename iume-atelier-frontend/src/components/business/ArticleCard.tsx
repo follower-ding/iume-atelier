@@ -3,12 +3,14 @@ import { ArrowRight } from 'lucide-react'
 import { useUiSound } from '@/hooks/useUiSound'
 import type { Article } from '@/types/api'
 import { zh } from '@/locales/zh'
+import { highlightText } from '@/utils/highlightText'
 
 interface ArticleCardProps {
   article: Article
   featured?: boolean
   layout?: 'row' | 'grid'
   index?: number
+  highlightQuery?: string
 }
 
 function ArticleCover({ article, featured }: { article: Article; featured?: boolean }) {
@@ -30,7 +32,7 @@ function ArticleCover({ article, featured }: { article: Article; featured?: bool
   )
 }
 
-export default function ArticleCard({ article, featured, layout = 'row', index = 0 }: ArticleCardProps) {
+export default function ArticleCard({ article, featured, layout = 'row', index = 0, highlightQuery }: ArticleCardProps) {
   const { play } = useUiSound()
   const staggerStyle = { animationDelay: `${Math.min(index, 12) * 0.06}s` } as const
 
@@ -47,8 +49,12 @@ export default function ArticleCard({ article, featured, layout = 'row', index =
           {article.categoryName && (
             <span className="article-grid-card__cat">{article.categoryName}</span>
           )}
-          <h2 className="article-grid-card__title">{article.title}</h2>
-          {article.summary && <p className="article-grid-card__summary line-clamp-2">{article.summary}</p>}
+          <h2 className="article-grid-card__title">{highlightText(article.title, highlightQuery)}</h2>
+          {article.summary && (
+            <p className="article-grid-card__summary line-clamp-2">
+              {highlightText(article.summary, highlightQuery)}
+            </p>
+          )}
           <span className="article-row__more mt-3">
             {zh.home.readMore}
             <ArrowRight size={14} />
@@ -72,10 +78,12 @@ export default function ArticleCard({ article, featured, layout = 'row', index =
           </span>
         )}
         <h2 className={`article-row__title ${featured ? 'text-2xl sm:text-3xl' : 'text-xl sm:text-2xl'}`}>
-          {article.title}
+          {highlightText(article.title, highlightQuery)}
         </h2>
         {article.summary && (
-          <p className="article-row__summary line-clamp-2 sm:line-clamp-3">{article.summary}</p>
+          <p className="article-row__summary line-clamp-2 sm:line-clamp-3">
+            {highlightText(article.summary, highlightQuery)}
+          </p>
         )}
         <span className="article-row__more">
           {zh.home.readMore}

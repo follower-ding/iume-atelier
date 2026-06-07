@@ -162,6 +162,72 @@ export interface AdminComment {
   createdAt: string
 }
 
+export interface MediaAsset {
+  id: number
+  storedName: string
+  originalName?: string
+  contentType: string
+  sizeBytes: number
+  publicUrl: string
+  uploaderId?: number
+  createdAt: string
+}
+
+export interface Series {
+  id: number
+  title: string
+  slug: string
+  description?: string
+  coverImage?: string
+  articleCount?: number
+  articles?: Article[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface AnalyticsOverview {
+  pageViewCount: number
+  newsletterCount: number
+  pageViewTrend: TrendPoint[]
+  topArticles: { articleId: number; title: string; slug: string; viewCount: number }[]
+}
+
+export const newsletterApi = {
+  subscribe: (email: string) => postData<void>('/newsletter/subscribe', { email }),
+  list: (page = 1, size = 50) => getData<PageResult<string>>('/newsletter/subscribers', { page, size }),
+  exportCsv: () => request.get('/newsletter/export.csv', { responseType: 'blob' }),
+}
+
+export const mediaApi = {
+  list: (page = 1, size = 20) => getData<PageResult<MediaAsset>>('/media', { page, size }),
+  remove: (id: number) => deleteData(`/media/${id}`),
+}
+
+export const seriesApi = {
+  list: (page = 1, size = 20) => getData<PageResult<Series>>('/series', { page, size }),
+  getBySlug: (slug: string) => getData<Series>(`/series/slug/${slug}`),
+  manage: (page = 1, size = 20) => getData<PageResult<Series>>('/series/manage', { page, size }),
+  brief: () => getData<Series[]>('/series/brief'),
+  create: (data: { title: string; slug?: string; description?: string; coverImage?: string }) =>
+    postData<Series>('/series', data),
+  update: (id: number, data: { title: string; slug?: string; description?: string; coverImage?: string }) =>
+    putData<Series>(`/series/${id}`, data),
+  remove: (id: number) => deleteData(`/series/${id}`),
+}
+
+export const analyticsApi = {
+  overview: () => getData<AnalyticsOverview>('/analytics/overview'),
+  recordPageView: (path: string, articleId?: number) =>
+    postData<void>('/analytics/page-view', { path, articleId, referrer: document.referrer || undefined }),
+}
+
+export const authorApi = {
+  list: () => getData<User[]>('/authors'),
+  get: (id: number) => getData<User>(`/authors/${id}`),
+  articles: (id: number, page = 1, size = 10) =>
+    getData<PageResult<Article>>(`/authors/${id}/articles`, { page, size }),
+}
+
 export const uploadApi = {
   uploadImage: async (file: File): Promise<string> => {
     const form = new FormData()

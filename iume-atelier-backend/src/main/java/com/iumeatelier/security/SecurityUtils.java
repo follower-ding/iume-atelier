@@ -26,6 +26,15 @@ public final class SecurityUtils {
         return user != null && "ADMIN".equals(user.getUser().getRole());
     }
 
+    public static boolean isAuthor() {
+        SecurityUser user = getCurrentUser();
+        return user != null && "AUTHOR".equals(user.getUser().getRole());
+    }
+
+    public static boolean canWriteContent() {
+        return isAdmin() || isAuthor();
+    }
+
     public static void requireAdmin() {
         if (!isAdmin()) {
             throw new com.iumeatelier.exception.BusinessException(403, "Admin access required");

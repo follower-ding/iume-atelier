@@ -1,0 +1,25 @@
+name: Catalog Validate
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'iume-atelier-frontend/src/data/ai-tools/catalog/**'
+      - 'scripts/sync-catalog.mjs'
+      - 'iume-atelier-frontend/scripts/check-ai-tools.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'iume-atelier-frontend/src/data/ai-tools/catalog/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate committed catalog JSON
+        working-directory: iume-atelier-frontend
+        run: npm run tool:check

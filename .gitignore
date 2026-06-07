@@ -42,5 +42,7 @@ logs/
 
 # Build
 node_modules/.tmp/
+.vite/
+**/.vite/
 uploads/
 **/uploads/

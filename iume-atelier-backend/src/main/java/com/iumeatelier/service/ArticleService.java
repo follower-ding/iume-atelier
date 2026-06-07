@@ -13,9 +13,11 @@ import com.iumeatelier.entity.Tag;
 import com.iumeatelier.entity.User;
 import com.iumeatelier.enums.ArticleStatus;
 import com.iumeatelier.exception.BusinessException;
+import com.iumeatelier.entity.Series;
 import com.iumeatelier.mapper.ArticleMapper;
 import com.iumeatelier.mapper.ArticleTagMapper;
 import com.iumeatelier.mapper.CategoryMapper;
+import com.iumeatelier.mapper.SeriesMapper;
 import com.iumeatelier.mapper.TagMapper;
 import com.iumeatelier.utils.SlugUtils;
 import com.iumeatelier.security.SecurityUtils;
@@ -38,7 +40,9 @@ public class ArticleService {
     private final ArticleTagMapper articleTagMapper;
     private final CategoryMapper categoryMapper;
     private final TagMapper tagMapper;
+    private final SeriesMapper seriesMapper;
     private final AuthService authService;
+    private final AnalyticsService analyticsService;
 
     public PageResult<ArticleResponse> listPublished(int page, int size, Long categoryId, Long tagId, String sort) {
         Page<Article> pageParam = new Page<>(page, size);
@@ -95,7 +99,11 @@ public class ArticleService {
             throw new BusinessException("Keyword is required");
         }
         Page<Article> pageParam = new Page<>(page, size);
-        var result = articleMapper.searchPublished(pageParam, keyword.trim());
+        String trimmed = keyword.trim();
+        var result = articleMapper.searchPublishedFulltext(pageParam, trimmed);
+        if (result.getTotal() == 0) {
+            result = articleMapper.searchPublished(pageParam, trimmed);
+        }
         return toPageResult(result);
     }
 
@@ -110,6 +118,7 @@ public class ArticleService {
         if (incrementView && article.getStatus() == ArticleStatus.PUBLISHED) {
             articleMapper.incrementViewCount(id);
             article.setViewCount(article.getViewCount() + 1);
+            analyticsService.record("/article/" + article.getSlug(), id, null, null);
         }
         return toResponse(article);
     }
@@ -236,6 +245,8 @@ public class ArticleService {
         article.setStatus(request.getStatus() != null ? request.getStatus() : ArticleStatus.DRAFT);
         article.setAuthorId(authorId);
         article.setCategoryId(request.getCategoryId());
+        article.setSeriesId(request.getSeriesId());
+        article.setSeriesOrder(request.getSeriesOrder() != null ? request.getSeriesOrder() : 0);
         if (article.getViewCount() == null) {
             article.setViewCount(0);
         }
@@ -267,6 +278,7 @@ public class ArticleService {
     private ArticleResponse toResponse(Article article) {
         User author = authService.findById(article.getAuthorId());
         Category category = article.getCategoryId() != null ? categoryMapper.selectById(article.getCategoryId()) : null;
+        Series series = article.getSeriesId() != null ? seriesMapper.selectById(article.getSeriesId()) : null;
         List<TagResponse> tags = loadTags(article.getId());
 
         return ArticleResponse.builder()
@@ -281,6 +293,10 @@ public class ArticleService {
                 .authorName(author != null ? author.getNickname() : null)
                 .categoryId(article.getCategoryId())
                 .categoryName(category != null ? category.getName() : null)
+                .seriesId(article.getSeriesId())
+                .seriesTitle(series != null ? series.getTitle() : null)
+                .seriesSlug(series != null ? series.getSlug() : null)
+                .seriesOrder(article.getSeriesOrder())
                 .viewCount(article.getViewCount())
                 .tags(tags)
                 .createdAt(article.getCreatedAt())
