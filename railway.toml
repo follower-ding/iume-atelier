@@ -5,7 +5,7 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "deploy/Dockerfile.backend"
-watchPatterns = ["iume-atelier-backend/**", "deploy/Dockerfile.backend"]
+watchPatterns = ["iume-atelier-backend/**", "deploy/Dockerfile.backend", "railway.toml"]
 
 [deploy]
 healthcheckPath = "/api/health"
@@ -21,7 +21,7 @@ numReplicas = 1
 # IUME_JWT_SECRET=<随机 256bit 字符串>
 # IUME_CORS_ORIGINS=https://your-app.vercel.app,https://your-app.netlify.app
 # IUME_SITE_URL=https://your-app.vercel.app
-# IUME_APP_VERSION=1.2.1
+# IUME_APP_VERSION=1.2.2
 # IUME_LLM_API_KEY=<DeepSeek API Key，对话添加 AI 工具箱必填>
 # IUME_LLM_BASE_URL=https://api.deepseek.com
 # IUME_LLM_MODEL=deepseek-chat

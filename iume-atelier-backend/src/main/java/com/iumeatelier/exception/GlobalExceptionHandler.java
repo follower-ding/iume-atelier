@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Hidden
 @RestControllerAdvice
@@ -62,6 +63,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public Result<Void> handleAccessDenied(AccessDeniedException ex) {
         return Result.fail(403, "Access denied");
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Result<Void> handleNoResource(NoResourceFoundException ex) {
+        return Result.fail(404, "接口不存在，请确认后端已部署 v1.2.2+：" + ex.getResourcePath());
     }
 
     @ExceptionHandler(Exception.class)
