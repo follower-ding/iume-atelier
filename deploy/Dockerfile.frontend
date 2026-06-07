@@ -1,7 +1,7 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY iume-atelier-frontend/package*.json ./
-RUN npm ci
+RUN npm install --no-audit --no-fund
 COPY iume-atelier-frontend/ .
 RUN npm run build
 
